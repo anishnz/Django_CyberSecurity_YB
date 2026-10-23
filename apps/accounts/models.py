@@ -59,6 +59,9 @@ class User(AbstractUser):
     failed_logins = models.PositiveSmallIntegerField(default=0)
     tour_finished = models.BooleanField(default=False)
     is_demo = models.BooleanField(default=False, help_text="Created by the demo data loader.")
+    is_cultural_guide = models.BooleanField(
+        default=False, verbose_name="Cultural Guide (Kaiārahi)",
+        help_text="Can give the cultural approval for AI drafts and media with Māori content.")
     demo_password = models.CharField(max_length=40, blank=True,
                                      help_text="Known password of a DEMO account only (shown on the demo page).")
 

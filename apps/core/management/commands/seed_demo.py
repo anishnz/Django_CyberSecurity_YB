@@ -82,12 +82,12 @@ class Command(BaseCommand):
     # ----------------------------------------------------------- helpers
     @staticmethod
     def _reference_extras():
-        """Default email templates (Sprint 3 onward)."""
-        try:
-            from apps.emails.services import EmailService  # pylint: disable=import-outside-toplevel
-        except ImportError:
-            return
+        """Default email templates and help articles (Sprint 3 onward)."""
+        # pylint: disable=import-outside-toplevel
+        from apps.emails.services import EmailService
+        from apps.helpcentre.services import HelpService
         EmailService.ensure_defaults()
+        HelpService.ensure_defaults()
 
     def _super_admin(self):
         username, password, first, last = SUPER_ADMIN
@@ -100,6 +100,8 @@ class Command(BaseCommand):
 
     @staticmethod
     def _delete_demo():
+        from apps.announcements.models import Announcement  # pylint: disable=import-outside-toplevel
+        Announcement.objects.filter(school__isnull=True, created_by__is_demo=True).delete()
         User.objects.filter(is_demo=True).exclude(role="super_admin").delete()
         School.objects.filter(is_demo=True).delete()
 
@@ -156,6 +158,8 @@ class Command(BaseCommand):
         self._user(bright, "school_admin", "admin.brightstar", "Aroha", "Tipene", "school_admin")
         sione = self._user(bright, "teacher", "sione.faleolo", "Sione", "Faleolo", "teacher")
         jane = self._user(bright, "teacher", "jane.wilson", "Jane", "Wilson", "teacher")
+        jane.is_cultural_guide = True          # demo Cultural Guide (Kaiārahi) for AI drafts and media
+        jane.save(update_fields=["is_cultural_guide"])
         y7 = self._sections(bright, "Year 7", 7, ["7A", "7B", "7C"])
         y8 = self._sections(bright, "Year 8", 8, ["8A"])
         s7a = self._students(bright, y7["7A"], [("Tama", "Ngata"), ("Aria", "Smith"), ("Wiremu", "Tipoki"),
@@ -201,8 +205,23 @@ class Command(BaseCommand):
                   "y7": y7, "y8": y8, "c7": c7}
         exams = self._activity(people)
         tickets = self._tickets(people)
+        extras = self._sprint4_demo()
         return {"demo_schools": 4, "users": User.objects.filter(is_demo=True).count(), "demo_exams": exams,
-                "demo_tickets": tickets}
+                "demo_tickets": tickets, **extras}
+
+    @staticmethod
+    def _sprint4_demo() -> dict:
+        """Payments, announcements, AI drafts and media (Sprint 4)."""
+        # pylint: disable=import-outside-toplevel
+        from apps.announcements.demo import load_demo_announcements
+        from apps.payments.demo import load_demo_payments
+        out = {"demo_payments": load_demo_payments(), "demo_announcements": load_demo_announcements()}
+        try:
+            from apps.ai_assistant.demo import load_demo_drafts
+            out["demo_ai_drafts"] = load_demo_drafts()
+        except ImportError:
+            pass
+        return out
 
     @staticmethod
     def _tickets(people) -> int:

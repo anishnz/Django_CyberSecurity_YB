@@ -295,3 +295,38 @@ def demo_accounts(request):
     users = (User.objects.filter(is_demo=True, is_active=True).exclude(demo_password="")
              .select_related("school").order_by("role", "school__name", "first_name"))
     return render(request, "accounts/demo_accounts.html", {"users": users})
+
+
+# --------------------------------------------------------- forgot password
+def forgot_password(request):
+    """'Forgot password?' – email, WhatsApp or Viber (whatever the Super Admin switched on)."""
+    from .forms import ForgotPasswordForm  # pylint: disable=import-outside-toplevel
+    from .reset import PasswordResetService  # pylint: disable=import-outside-toplevel
+    service = PasswordResetService()
+    form = ForgotPasswordForm(request.POST or None, channels=service.channels())
+    if request.method == "POST" and form.is_valid():
+        messages.info(request, service.request_reset(request, form.cleaned_data["identifier"], form.cleaned_data["channel"]))
+        return redirect("accounts:login")
+    return render(request, "accounts/forgot.html", {"form": form})
+
+
+def reset_confirm(request, uidb64, token):
+    """The link from the email / message: choose a new password."""
+    from .forms import SetNewPasswordForm  # pylint: disable=import-outside-toplevel
+    from .reset import PasswordResetService  # pylint: disable=import-outside-toplevel
+    user = PasswordResetService.check(uidb64, token)
+    if user is None:
+        return render(request, "accounts/reset_invalid.html", status=400)
+    form = SetNewPasswordForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        try:
+            UserService.reset_password(user, form.cleaned_data["new_password"], user, request)
+        except ValidationError as exc:
+            form.add_error("new_password", exc.message)
+        else:
+            user.must_change_password = False
+            user.locked_until, user.failed_logins = None, 0
+            user.save(update_fields=["must_change_password", "locked_until", "failed_logins"])
+            messages.success(request, "Your password was changed. Please log in.")
+            return redirect("accounts:login")
+    return render(request, "accounts/reset_confirm.html", {"form": form, "target": user})

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}New AI draft{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>New AI draft</h1><p>Names and email addresses are removed before anything is sent to the AI service.</p></div>
+<a class="btn btn-outline-primary" href="{% url 'ai_assistant:draft_list' %}">Back</a></div>
+<section class="panel" style="max-width: 720px"><form method="post">{% csrf_token %}{% include "partials/form.html" %}
+<button class="btn btn-primary"><i class="bi bi-stars"></i> Make a draft</button></form></section>
+{% endblock %}

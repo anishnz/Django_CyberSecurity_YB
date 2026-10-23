@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Choose a new password{% endblock %}
+{% block content %}
+<section class="panel mx-auto mt-4" style="max-width: 520px"><h1 class="h3">Choose a new password</h1>
+<p>Account: <strong>{{ target.username }}</strong></p>
+<form method="post" novalidate>{% csrf_token %}{% include "partials/form.html" %}
+<button class="btn btn-primary w-100">Save new password</button></form></section>
+{% endblock %}

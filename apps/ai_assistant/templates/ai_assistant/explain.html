@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Helper answer{% endblock %}
+{% block content %}
+<section class="panel mx-auto" style="max-width: 720px"><h1 class="h3"><i class="bi bi-stars"></i> Helper answer</h1>
+{% if question %}<p class="text-muted">You asked: “{{ question }}”</p>{% endif %}
+{% if answer %}<div class="ai-answer">{{ answer|linebreaks }}</div>{% else %}<p>Please type a question about the page.</p>{% endif %}
+<p class="small text-muted mt-2">The helper can make mistakes. If something is wrong, create a ticket.</p>
+<div class="d-flex flex-wrap gap-2">{% if article %}<a class="btn btn-outline-primary" href="{% url 'helpcentre:article' article.slug %}">Read the full guide</a>{% endif %}
+<a class="btn btn-outline-primary" href="{% url 'helpcentre:index' %}">Help centre</a></div></section>
+{% endblock %}
