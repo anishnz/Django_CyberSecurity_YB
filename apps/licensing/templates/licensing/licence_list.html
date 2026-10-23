@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Licences{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Licences</h1><p>Every school's plan, renewal keys, Level Packs and the community discount.</p></div><a class="btn btn-primary" href="{% url 'licensing:key_generator' %}"><i class="bi bi-key"></i> Key generator</a></div>
+<section class="panel panel-flush"><div class="table-responsive"><table class="table align-middle"><thead><tr><th>School</th><th>Plan</th><th>Status</th><th>$/month</th><th>Packs</th><th>Apply key</th><th>Discount</th></tr></thead><tbody>
+{% for r in rows %}<tr><td><strong>{{ r.lic.school.name }}</strong><br><code>{{ r.lic.school.code }}</code></td><td>{{ r.plan.DISPLAY_NAME }}</td>
+<td><span class="pill {% if 'Expired' in r.status %}pill-bad{% elif 'Grace' in r.status %}pill-warn{% else %}pill-ok{% endif %}">{{ r.status }}</span></td><td>${{ r.price|floatformat:0 }}</td><td>{% for p in r.packs %}L{{ p }} {% empty %}–{% endfor %}</td>
+<td><form method="post" action="{% url 'licensing:apply_key_for' r.lic.school.pk %}" class="d-flex gap-1 mb-1">{% csrf_token %}<input class="form-control form-control-sm code-key" name="key" placeholder="Product key" aria-label="Product key"><button class="btn btn-sm btn-outline-primary">Apply</button></form>
+<form method="post" action="{% url 'licensing:apply_pack_for' r.lic.school.pk %}" class="d-flex gap-1">{% csrf_token %}<input class="form-control form-control-sm code-key" name="key" placeholder="Level Pack key" aria-label="Level Pack key"><button class="btn btn-sm btn-outline-primary">Add</button></form></td>
+<td><form method="post" action="{% url 'licensing:set_discount' r.lic.school.pk %}">{% csrf_token %}<input type="hidden" name="on" value="{% if r.lic.community_discount %}0{% else %}1{% endif %}"><button class="btn btn-sm {% if r.lic.community_discount %}btn-success{% else %}btn-outline-secondary{% endif %}">{% if r.lic.community_discount %}50% on{% else %}Off{% endif %}</button></form></td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}
