@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Email preferences{% endblock %}
+{% block content %}
+<section class="panel mx-auto" style="max-width:560px">
+<h1 class="h3">Email preferences</h1>
+<p>Address: <strong>{{ row.email }}</strong></p>
+{% if row.unsubscribed %}<p>You will not get CyberQuest newsletters or notices. Important emails about your own account still arrive.</p>
+<form method="post">{% csrf_token %}<input type="hidden" name="action" value="resubscribe"><button class="btn btn-outline-primary">Get emails again</button></form>
+{% else %}<p>Do you want to stop CyberQuest newsletters and notices?</p>
+<form method="post">{% csrf_token %}<input type="hidden" name="action" value="unsubscribe"><button class="btn btn-primary">Stop these emails</button></form>{% endif %}
+</section>
+{% endblock %}

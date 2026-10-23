@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Edit email template{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ tpl.name }}</h1><p>Key: <code>{{ tpl.key }}</code> (the system finds the template by this key).</p></div>
+<a class="btn btn-outline-primary" href="{% url 'emails:template_list' %}">Back</a></div>
+<div class="row g-3"><div class="col-lg-6"><section class="panel"><form method="post">{% csrf_token %}{% include "partials/form.html" %}
+<button class="btn btn-primary">Save template</button></form></section></div>
+<div class="col-lg-6"><section class="panel"><h2 class="h5">Preview with sample data</h2>
+<p><strong>{{ preview_subject }}</strong></p><div class="email-preview">{{ preview_body|linebreaks }}</div></section></div></div>
+{% endblock %}
