@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Demo test accounts{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Demo test accounts</h1><p>Made-up accounts for testing and marking. Shown only while demo mode is on. Real users' passwords are never shown – they are stored as one-way hashes.</p></div></div>
+<section class="panel panel-flush"><div class="table-responsive"><table class="table table-hover align-middle">
+<thead><tr><th>Role</th><th>Name</th><th>School</th><th>Username</th><th>Password</th></tr></thead><tbody>
+{% regroup users by role as groups %}
+{% for g in groups %}{% for u in g.list %}<tr><td>{% if forloop.first %}<strong>{{ u.role_obj.label }}</strong>{% endif %}</td><td>{{ u.get_full_name }}</td><td>{{ u.school|default:"–" }}</td><td><code>{{ u.username }}</code></td><td><code>{{ u.demo_password }}</code></td></tr>{% endfor %}{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

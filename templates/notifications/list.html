@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}{% L 'notices' %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% L 'notices' %}</h1></div>
+<form method="post" action="{% url 'notifications:read_all' %}">{% csrf_token %}<button class="btn btn-outline-primary">Mark all as read</button></form></div>
+<section class="panel"><ul class="notice-list">{% for n in items %}
+<li class="kind-{{ n.kind }}{% if not n.is_read %} unread{% endif %}"><i class="bi bi-{{ n.icon }}"></i><div><p class="mb-0">{% if n.link %}<a href="{{ n.link }}">{{ n.message }}</a>{% else %}{{ n.message }}{% endif %}</p><small>{{ n.created_at|date:"d M Y H:i" }}</small></div></li>
+{% empty %}<li class="text-muted">No notices yet.</li>{% endfor %}</ul></section>
+{% endblock %}

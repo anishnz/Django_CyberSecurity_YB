@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Reset password{% endblock %}
+{% block content %}
+<section class="panel mx-auto" style="max-width: 560px"><h1 class="h3">Reset password for {{ obj }}</h1>
+<p class="text-muted">The user must choose a new password at the next login.</p>
+<form method="post">{% csrf_token %}{% include "partials/form.html" %}<button class="btn btn-primary">Save</button></form></section>
+{% endblock %}

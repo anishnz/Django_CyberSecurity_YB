@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}Super Admin {% L 'dashboard' %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% L 'hello' %}, {{ user.display_name }}</h1><p>Super Admin {% L 'dashboard' %} – every school, licence and setting.</p></div>
+  <div class="d-flex gap-2 flex-wrap"><a class="btn btn-outline-primary" href="{% url 'accounts:user_list' %}"><i class="bi bi-person-badge"></i> Login as…</a>
+  {% safe_url 'reports:bi_dashboard' as bi %}{% if bi %}<a class="btn btn-primary" href="{{ bi }}"><i class="bi bi-graph-up"></i> Business intelligence</a>{% endif %}</div></div>
+<div class="stat-row mb-3">
+  {% for label, value in kpis.items %}<div class="stat"><strong>{{ value }}</strong><span>{{ label|capfirst }}</span></div>{% endfor %}
+  <div class="stat"><strong>{{ pending_payments }}</strong><span>Payslips to review</span></div>
+  <div class="stat"><strong>{{ open_tickets }}</strong><span>Open tickets</span></div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-6"><section class="panel h-100"><h2><i class="bi bi-hourglass-split"></i> Licences ending in 30 days</h2>
+    <ul class="list-unstyled">{% for l in expiring %}<li class="border-bottom py-2"><strong>{{ l.school.name }}</strong> – {{ l.get_plan_display }}, {{ l.expiry_date|date:"d M Y" }}</li>{% empty %}<li class="text-muted">None. Ka pai!</li>{% endfor %}</ul></section></div>
+  <div class="col-lg-6"><section class="panel h-100"><h2><i class="bi bi-shield-exclamation"></i> Latest security events</h2>
+    <ul class="list-unstyled small">{% for e in security %}<li class="border-bottom py-1">{{ e.created_at|date:"d M H:i" }} · <span class="pill pill-{% if 'fail' in e.event or 'lock' in e.event or 'denied' in e.event %}bad{% else %}info{% endif %}">{{ e.event }}</span> {{ e.username }} <span class="text-muted">{{ e.ip_address|default:"" }}</span></li>{% empty %}<li class="text-muted">No events.</li>{% endfor %}</ul>
+    <a href="{% url 'security:log' %}">Open security log →</a></section></div>
+  <div class="col-12"><section class="panel"><h2><i class="bi bi-journal-text"></i> Latest changes (audit log)</h2>
+    <ul class="list-unstyled small">{% for a in audit %}<li class="border-bottom py-1">{{ a.created_at|date:"d M H:i" }} · <strong>{{ a.username }}</strong> {{ a.action }} {{ a.target }} {% if a.old_value or a.new_value %}({{ a.old_value|default:"–" }} → {{ a.new_value|default:"–" }}){% endif %}</li>{% empty %}<li class="text-muted">No changes yet.</li>{% endfor %}</ul>
+    <a href="{% url 'core:audit_log' %}">Open audit log →</a></section></div>
+</div>
+{% endblock %}

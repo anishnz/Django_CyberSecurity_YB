@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320" role="img" aria-label="Three people talking together under a fern leaf, with speech bubbles">
+  <rect width="480" height="320" rx="24" fill="#16606B"/>
+  <path d="M60 300 C150 120 330 120 420 300" fill="#0E3B43"/>
+  <g transform="translate(240 70) rotate(-20)"><path d="M0 0 C40 30 60 90 50 160" fill="none" stroke="#2E7D4F" stroke-width="6" stroke-linecap="round"/>
+    <g fill="#2E7D4F"><ellipse cx="18" cy="30" rx="18" ry="7" transform="rotate(-30 18 30)"/><ellipse cx="44" cy="40" rx="18" ry="7" transform="rotate(30 44 40)"/>
+    <ellipse cx="30" cy="70" rx="20" ry="8" transform="rotate(-25 30 70)"/><ellipse cx="62" cy="82" rx="20" ry="8" transform="rotate(25 62 82)"/>
+    <ellipse cx="38" cy="112" rx="20" ry="8" transform="rotate(-20 38 112)"/><ellipse cx="68" cy="124" rx="18" ry="7" transform="rotate(20 68 124)"/></g></g>
+  <g fill="#E3EEF0"><circle cx="160" cy="190" r="26"/><rect x="128" y="220" width="64" height="70" rx="28"/>
+    <circle cx="240" cy="176" r="28"/><rect x="206" y="208" width="68" height="82" rx="30"/>
+    <circle cx="320" cy="190" r="26"/><rect x="288" y="220" width="64" height="70" rx="28"/></g>
+  <g><rect x="60" y="70" width="120" height="54" rx="14" fill="#F2B705"/><path d="M110 124 l12 16 6 -16z" fill="#F2B705"/>
+    <text x="120" y="104" text-anchor="middle" font-family="Verdana" font-size="20" font-weight="700" fill="#0E3B43">Kia ora!</text></g>
+  <g><rect x="320" y="62" width="110" height="54" rx="14" fill="#FFF4CC"/><path d="M350 116 l-6 16 16 -16z" fill="#FFF4CC"/>
+    <text x="375" y="96" text-anchor="middle" font-family="Verdana" font-size="20" font-weight="700" fill="#0E3B43">Hello!</text></g>
+</svg>

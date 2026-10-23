@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}System{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>System</h1><p>Health, backups, feature switches and demo data.</p></div>
+  <a class="btn btn-outline-primary" href="{% url 'health' %}" target="_blank" rel="noopener"><i class="bi bi-heart-pulse"></i> /health/ JSON</a></div>
+<div class="row g-3">
+  <div class="col-lg-6"><section class="panel h-100">
+    <h2><i class="bi bi-heart-pulse"></i> Health check</h2>
+    <p>Status: {% if health.status == 'ok' %}<span class="pill pill-ok">OK</span>{% else %}<span class="pill pill-bad">Problem</span>{% endif %} · Version {{ health.version }}</p>
+    <ul class="list-unstyled mb-2">{% for name, c in health.checks.items %}<li><i class="bi bi-{% if c.ok %}check-circle text-success{% else %}x-circle text-danger{% endif %}"></i> {{ name|capfirst }} – {{ c.detail }}</li>{% endfor %}</ul>
+    {% if health.integrations %}<h3 class="mt-3">Integrations</h3><ul class="list-unstyled small">{% for k, v in health.integrations.items %}<li>{{ k }}: {{ v }}</li>{% endfor %}</ul>{% endif %}
+  </section></div>
+  <div class="col-lg-6"><section class="panel h-100">
+    <h2><i class="bi bi-toggles"></i> Feature switches</h2>
+    {% for s in switches %}<form method="post" action="{% url 'core:switch_toggle' s.key %}" class="d-flex justify-content-between align-items-center border-bottom py-2">{% csrf_token %}
+      <span><strong>{{ s.label }}</strong><br><span class="small text-muted">{{ s.description }}</span></span>
+      <button class="btn btn-sm {% if s.enabled %}btn-success{% else %}btn-outline-secondary{% endif %}" type="submit">{{ s.enabled|yesno:"On,Off" }}</button></form>
+    {% empty %}<p class="text-muted">No switches yet.</p>{% endfor %}
+  </section></div>
+  <div class="col-lg-6"><section class="panel h-100">
+    <h2><i class="bi bi-database-down"></i> Backups</h2>
+    <form method="post" action="{% url 'core:backup_create' %}" class="mb-3">{% csrf_token %}<button class="btn btn-primary"><i class="bi bi-download"></i> Make a backup now</button></form>
+    <ul class="list-unstyled small">{% for b in backups %}<li class="border-bottom py-1"><code>{{ b.file_name }}</code> · {{ b.size_bytes|filesizeformat }} · {{ b.created_by }}</li>{% empty %}<li class="text-muted">No backups yet.</li>{% endfor %}</ul>
+    {% if backups %}<form method="post" action="{% url 'core:backup_restore' %}" class="mt-3">{% csrf_token %}
+      <label class="form-label" for="rname">Restore a backup</label>
+      <select class="form-select mb-2" name="name" id="rname">{% for b in backups %}<option>{{ b.file_name }}</option>{% endfor %}</select>
+      <label class="form-label" for="rconf">Type <code>{{ restore_word }}</code> to confirm</label>
+      <input class="form-control mb-2" name="confirm" id="rconf" autocomplete="off">
+      <button class="btn btn-outline-danger">Restore</button></form>{% endif %}
+  </section></div>
+  <div class="col-lg-6"><section class="panel danger-zone h-100">
+    <h2><i class="bi bi-exclamation-octagon"></i> Danger zone</h2>
+    <p>Reload all demo schools, users and results. A backup is made first.</p>
+    <form method="post" action="{% url 'core:reset_demo' %}">{% csrf_token %}
+      <label class="form-label" for="reset">Type <code>{{ reset_word }}</code> to confirm</label>
+      <input class="form-control mb-2" name="confirm" id="reset" autocomplete="off">
+      <button class="btn btn-danger">Reset demo data</button></form>
+  </section></div>
+</div>
+{% endblock %}

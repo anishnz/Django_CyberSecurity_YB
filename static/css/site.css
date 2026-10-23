@@ -1,0 +1,60 @@
+/* site.css - public website, app chrome additions (Django version)
+   Owner: Dinesh Upreti (Frontend Developer, UI/UX)
+   Builds on style.css (harbour / kōwhai palette). */
+
+.skip-link { position: absolute; left: 1rem; top: .5rem; z-index: 2000; background: #fff; padding: .4rem .8rem; border-radius: 8px; }
+.cq-nav { background: var(--harbour); }
+.cq-nav .nav-link { color: #dbe9eb; white-space: nowrap; }
+.cq-nav .nav-link.active, .cq-nav .nav-link:hover { color: #fff; }
+.impersonation-bar { background: var(--pohutukawa); color: #fff; padding: .45rem 1rem; text-align: center; font-weight: 700; }
+
+/* -------- hero slider */
+.hero { background: var(--harbour); color: #e6f0f1; }
+.hero .carousel-item { min-height: 420px; }
+.hero-slide { display: grid; grid-template-columns: 1.1fr 1fr; gap: 2rem; align-items: center; padding: 3.5rem 0; }
+.hero-slide h1 { color: #fff; font-size: 2.6rem; }
+.hero-slide p { font-size: 1.2rem; max-width: 44ch; }
+.hero-slide img { width: 100%; max-height: 340px; object-fit: contain; }
+.hero .tagline { color: var(--kowhai); font-weight: 700; letter-spacing: .02em; }
+.hero .carousel-indicators [data-bs-target] { background-color: var(--kowhai); }
+.section { padding: 3.5rem 0; }
+.section-tide { background: var(--tide); }
+.section h2 { font-size: 1.8rem; margin-bottom: 1rem; }
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+.feature { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 1.25rem; }
+.feature .bi { font-size: 1.6rem; color: var(--harbour-2); }
+.feature h3 { margin: .5rem 0 .3rem; }
+.video-frame { position: relative; padding-top: 56.25%; border-radius: 14px; overflow: hidden; background: #0a2c32; }
+.video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-empty { display: grid; place-items: center; color: #cfe1e4; text-align: center; padding: 3rem 1rem; }
+.price-card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 1.5rem; height: 100%; }
+.price-card.featured { border: 2px solid var(--kowhai); }
+.price-card .price { font-size: 2.2rem; font-weight: 700; color: var(--harbour); }
+.principle { border-left: 5px solid var(--kowhai); padding: .2rem 0 .2rem 1rem; margin-bottom: 1.2rem; }
+.team-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 1.2rem; height: 100%; }
+.team-card .avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--tide); display: grid; place-items: center;
+  font-weight: 700; color: var(--harbour); font-size: 1.2rem; }
+.team-card .sim { font-size: .8rem; color: var(--muted); }
+.cta { background: var(--kowhai-soft); border-radius: 16px; padding: 2rem; }
+
+/* -------- explain this page */
+.explain-btn { position: fixed; right: 1rem; bottom: 1rem; z-index: 1030; border-radius: 999px; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+.explain-panel .offcanvas-header { background: var(--harbour); color: #fff; }
+.explain-panel .btn-close { filter: invert(1); }
+.ai-box { background: var(--tide); border-radius: 12px; padding: 1rem; white-space: pre-wrap; }
+
+/* -------- dark mode and large text (per-viewer, chosen in the explain panel) */
+body.large-text { font-size: 1.2rem; }
+body.dark { --paper: #0f1d20; --ink: #e6efef; --muted: #a9bcbf; --line: #2b4247; --tide: #17323a; background: var(--paper); color: var(--ink); }
+body.dark .panel, body.dark .feature, body.dark .price-card, body.dark .team-card, body.dark .stat, body.dark .cq-footer,
+body.dark .form-control, body.dark .form-select, body.dark .answer-option, body.dark .dropdown-menu { background: #13272b; color: var(--ink); }
+body.dark h1, body.dark h2, body.dark h3 { color: #f1d27a; }
+body.dark .table { color: var(--ink); }
+
+@media (max-width: 900px) {
+  .hero-slide { grid-template-columns: 1fr; padding: 2rem 0 3rem; }
+  .hero-slide h1 { font-size: 2rem; }
+  .hero-slide img { max-height: 200px; }
+  .login-wrap { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { .carousel-item { transition: none; } }

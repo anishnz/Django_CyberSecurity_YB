@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Login as {{ target }}{% endblock %}
+{% block content %}
+<section class="panel overwrite mx-auto" style="max-width: 600px"><h1 class="h3"><i class="bi bi-person-badge"></i> Login as {{ target }}</h1>
+<p>You will see CyberQuest exactly as <strong>{{ target }}</strong> ({{ target.role_obj.label }}{% if target.school %}, {{ target.school }}{% endif %}) sees it. A red bar lets you return. The start and end are written to the security log.</p>
+<form method="post">{% csrf_token %}{% include "partials/form.html" %}
+<button class="btn btn-kowhai">Start</button> <a class="btn btn-outline-primary" href="{% url 'accounts:user_list' %}">Cancel</a></form></section>
+{% endblock %}

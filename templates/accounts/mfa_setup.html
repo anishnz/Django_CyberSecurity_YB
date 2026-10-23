@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Two-step login{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Two-step login (MFA)</h1><p>Protects your account even if someone learns your password.</p></div></div>
+{% if codes %}
+<section class="panel overwrite" style="max-width: 640px"><h2>Your backup codes</h2>
+  <p>Each code works once. Save them somewhere safe now – they are shown only this time.</p>
+  <div class="d-flex flex-wrap gap-2">{% for c in codes %}<code class="code-key fs-5 p-2 border rounded">{{ c }}</code>{% endfor %}</div>
+  <a class="btn btn-primary mt-3" href="{% url 'accounts:home' %}">Done</a></section>
+{% elif user.mfa_enabled %}
+<section class="panel" style="max-width: 640px"><p><span class="pill pill-ok"><i class="bi bi-check2"></i> On</span> Two-step login is on for your account.</p>
+  <form method="post" action="{% url 'accounts:mfa_disable_self' %}" data-confirm="Turn off two-step login?">{% csrf_token %}<button class="btn btn-outline-danger">Turn off</button></form></section>
+{% else %}
+<div class="row g-3">
+  <div class="col-md-5"><section class="panel text-center h-100"><h2>1. Scan</h2><div class="qr mx-auto" style="max-width:220px">{{ qr_svg|safe }}</div>
+    <p class="small text-muted mt-2">Or type this key: <code class="code-key">{{ secret }}</code></p></section></div>
+  <div class="col-md-7"><section class="panel h-100"><h2>2. Type the code</h2>
+    <p>Use Google Authenticator, Microsoft Authenticator or any TOTP app.</p>
+    <form method="post">{% csrf_token %}{% include "partials/form.html" %}<button class="btn btn-primary">Turn on two-step login</button></form></section></div>
+</div>
+{% endif %}
+{% endblock %}
