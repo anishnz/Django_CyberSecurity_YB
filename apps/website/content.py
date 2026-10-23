@@ -267,7 +267,7 @@ REQUEST_STEPS = [
     ),
     (
         "Docker and waitress",
-        "run.bat starts a Docker container on a free port. The waitress web server passes the " "request to Django.",
+        "run.bat starts a Docker container on a free port. The waitress web server passes the request to Django.",
     ),
     (
         "Middleware",
@@ -276,7 +276,7 @@ REQUEST_STEPS = [
     ),
     (
         "Views and roles",
-        "The URL goes to a view. Decorators such as @role_required check the user's role before " "anything runs.",
+        "The URL goes to a view. Decorators such as @role_required check the user's role before anything runs.",
     ),
     (
         "Service layer (OOP)",
@@ -295,6 +295,6 @@ REQUEST_STEPS = [
     ),
     (
         "Logs and health",
-        "Security log, audit log, email log and /health/ show what happened and that the system " "is working.",
+        "Security log, audit log, email log and /health/ show what happened and that the system is working.",
     ),
 ]

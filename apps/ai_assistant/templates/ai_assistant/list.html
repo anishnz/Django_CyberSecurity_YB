@@ -11,8 +11,8 @@
 <thead><tr><th>Kind</th><th>About</th><th>Made by</th><th>Teacher</th><th>Cultural</th><th>Status</th></tr></thead><tbody>
 {% for d in rows %}<tr><td>{{ d.get_kind_display }}</td><td><a href="{% url 'ai_assistant:draft_detail' d.pk %}">{{ d.request_text|truncatechars:60 }}</a></td>
 <td class="small">{{ d.created_by|default:"–" }}<div class="text-muted">{{ d.provider }}</div></td>
-<td>{% if d.teacher_ok %}<i class="bi bi-check-circle text-success" aria-label="approved"></i>{% else %}–{% endif %}</td>
-<td>{% if not d.needs_cultural_check %}<span class="small text-muted">not needed</span>{% elif d.cultural_approved_by %}<i class="bi bi-check-circle text-success" aria-label="approved"></i>{% else %}<span class="pill pill-warn">waiting</span>{% endif %}</td>
+<td>{% if d.teacher_ok %}<i class="bi bi-check-circle text-success" aria-hidden="true"></i><span class="visually-hidden">approved</span>{% else %}–{% endif %}</td>
+<td>{% if not d.needs_cultural_check %}<span class="small text-muted">not needed</span>{% elif d.cultural_approved_by %}<i class="bi bi-check-circle text-success" aria-hidden="true"></i><span class="visually-hidden">approved</span>{% else %}<span class="pill pill-warn">waiting</span>{% endif %}</td>
 <td><span class="pill pill-{% if d.status == 'approved' or d.status == 'published' %}ok{% elif d.status == 'rejected' %}bad{% else %}info{% endif %}">{{ d.get_status_display }}</span></td></tr>
 {% empty %}<tr><td colspan="6" class="text-muted">No drafts yet. Ask the AI helper for an idea.</td></tr>{% endfor %}</tbody></table></div></section>
 {% endblock %}
