@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Student report{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ student.first_name|default:student.username }}</h1><p>{{ student.school.name }} · current level {{ student.student_profile.current_level }} · {{ practice }} practice round(s)</p></div></div>
+<div class="row g-3"><div class="col-lg-6"><section class="panel"><h2 class="h5">Best score per level</h2><table class="table table-sm"><thead><tr><th>Level</th><th>Best %</th><th>Tries</th></tr></thead><tbody>
+{% for b in best %}<tr><td>Level {{ b.number }}</td><td>{{ b.best|floatformat:0 }}</td><td>{{ b.tries }}</td></tr>{% empty %}<tr><td colspan="3" class="text-muted">No exams yet.</td></tr>{% endfor %}</tbody></table></section>
+{% with categories=weak %}{% include "reports/_categories.html" %}{% endwith %}</div>
+<div class="col-lg-6"><section class="panel"><h2 class="h5">Recent exams</h2><ul class="list-unstyled small mb-0">
+{% for s in sessions %}<li class="border-bottom py-1">{{ s.finished_at|date:"d M Y" }} – Level {{ s.level.number }}: {{ s.percentage|floatformat:0 }}% {% if s.passed %}<span class="pill pill-ok">passed</span>{% else %}<span class="pill pill-warn">try again</span>{% endif %}</li>
+{% empty %}<li class="text-muted">No exams yet.</li>{% endfor %}</ul></section></div></div>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Class reports{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Class reports</h1><p>Choose a section. You can download each report as CSV or PDF.</p></div></div>
+<section class="panel"><ul class="list-unstyled mb-0">{% for s in sections %}<li class="border-bottom py-2 d-flex justify-content-between align-items-center">
+<a href="{% url 'reports:class_report' s.pk %}">{{ s.label }}{% if user.role == 'super_admin' %} – {{ s.school.name }}{% endif %}</a><span class="small text-muted">{{ s.student_count }} students</span></li>
+{% empty %}<li class="text-muted">No sections yet.</li>{% endfor %}</ul></section>
+{% endblock %}
