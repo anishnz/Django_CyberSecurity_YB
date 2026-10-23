@@ -8,6 +8,9 @@
     <form method="post" action="{% url 'schools:school_rename' school.pk %}" class="d-flex gap-2">{% csrf_token %}<label class="visually-hidden" for="nm">New name</label><input class="form-control" id="nm" name="name" value="{{ school.name }}"><button class="btn btn-outline-primary">Review</button></form>
     <h2 class="mt-4">Staff</h2><ul class="list-unstyled">{% for u in staff %}<li class="border-bottom py-1">{{ u }} – {{ u.role_obj.label }} <code>{{ u.username }}</code></li>{% empty %}<li class="text-muted">No staff yet.</li>{% endfor %}</ul>
     {% if school.license %}<p class="mt-3 mb-0">Plan: <strong>{{ school.license.get_plan_display }}</strong> until {{ school.license.expiry_date|date:"d M Y" }}{% if school.license.community_discount %} · 50% community discount{% endif %}</p>{% endif %}
+    {% if school.address %}<h2 class="mt-4">Location</h2><p class="mb-2">{{ school.address }}</p>{% endif %}
+    {% if map.embed %}<div class="map-frame"><iframe src="{{ map.embed }}" title="Map of {{ school.name }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>{% endif %}
+    {% if map.link %}<a class="btn btn-sm btn-outline-primary mt-2" href="{{ map.link }}" target="_blank" rel="noopener"><i class="bi bi-geo-alt"></i> Open in Google Maps</a>{% endif %}
   </section></div>
   <div class="col-lg-7"><section class="panel h-100"><h2>Classes and sections</h2>
     {% for c in classes %}<h3 class="mt-3">{{ c.name }}</h3><table class="table table-sm"><thead><tr><th>Section</th><th>Students</th><th>Capacity (Super Admin only)</th></tr></thead><tbody>
