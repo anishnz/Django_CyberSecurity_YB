@@ -4,7 +4,7 @@
 <div class="page-head"><div><h1>Announcements (Pānui)</h1><p>{% if can_manage %}Notices you can post and edit. They show on dashboards between the start and end dates.{% else %}Notices from your school and the CyberQuest team.{% endif %}</p></div>
 {% if can_manage %}<a class="btn btn-primary" href="{% url 'announcements:new' %}"><i class="bi bi-megaphone"></i> New announcement</a>{% endif %}</div>
 {% for i in items %}{% with a=i.a %}<section class="panel">
-<div class="d-flex justify-content-between gap-2"><h2 class="h5 mb-1">{% if a.is_pinned %}<i class="bi bi-pin-angle-fill text-warning" aria-label="Pinned"></i> {% endif %}{{ a.title }}</h2>
+<div class="d-flex justify-content-between gap-2"><h2 class="h5 mb-1">{% if a.is_pinned %}<i class="bi bi-pin-angle-fill text-warning" aria-hidden="true"></i><span class="visually-hidden">Pinned:</span> {% endif %}{{ a.title }}</h2>
 <span class="small text-muted nowrap">{{ a.starts_on|date:"d M Y" }}{% if a.ends_on %} – {{ a.ends_on|date:"d M Y" }}{% endif %}</span></div>
 <p class="small text-muted mb-2">{{ a.school|default:"All schools" }} · {{ a.get_audience_display }}</p>
 {{ a.body|linebreaks }}

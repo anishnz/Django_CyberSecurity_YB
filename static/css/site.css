@@ -160,3 +160,9 @@ html.cq-large { font-size: 118.75%; }
   .fire-exit { grid-template-columns: 1fr; padding: 1.4rem; }
   .fire-exit .sign { width: 64px; height: 64px; }
 }
+
+/* Explain-this-page panel never wider than the phone screen */
+.offcanvas.offcanvas-end { max-width: 100vw; }
+.offcanvas-body { overflow-wrap: anywhere; }
+/* Keep screen-reader-only labels inside scrolling tables (they are position:absolute) */
+.table-responsive { position: relative; }
