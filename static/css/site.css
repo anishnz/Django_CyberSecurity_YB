@@ -58,3 +58,12 @@ body.dark .table { color: var(--ink); }
   .login-wrap { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { .carousel-item { transition: none; } }
+
+/* Sprint 3 – tickets, emails, AI test (Dinesh Upreti) */
+.panel-note { border-left: 4px solid var(--kowhai); background: var(--kowhai-soft); }
+.email-preview, .ai-answer { background: var(--tide); border: 1px solid var(--line); border-radius: 8px; padding: 1rem; white-space: normal; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .75rem; }
+.kpi { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: .9rem 1rem; }
+.kpi .value { font-size: 1.7rem; font-weight: 700; line-height: 1.1; }
+.kpi .label { color: var(--muted); font-size: .9rem; }
+.chart-box { position: relative; height: 280px; }

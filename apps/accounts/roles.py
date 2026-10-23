@@ -82,6 +82,7 @@ class SchoolAdminRole(Role):
                 ("Teachers (Kaiako)", "schools:teacher_list", "person-badge"),
                 ("Licence", "licensing:my_licence", "patch-check"),
                 ("Reports (Pūrongo)", "reports:school_bi", "graph-up"),
+                ("Bulk email", "emails:bulk", "send"),
                 ("Tickets", "helpdesk:ticket_list", "life-preserver")]
 
 
