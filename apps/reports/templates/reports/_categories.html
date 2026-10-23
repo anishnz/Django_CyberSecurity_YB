@@ -1,0 +1,5 @@
+{% load cq %}
+<section class="panel"><h2 class="h5">Categories to practise (weakest first)</h2>
+{% for c in categories %}<div class="mb-2"><div class="d-flex justify-content-between small"><span>{{ c.name }}</span><span>{{ c.percent }}% correct ({{ c.answers }} answers)</span></div>
+<div class="progress" role="progressbar" aria-label="{{ c.name }}" aria-valuenow="{{ c.percent }}" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar bg-{{ c.percent|percent_class }}" style="width: {{ c.percent|floatformat:0 }}%"></div></div></div>
+{% empty %}<p class="text-muted">No exam answers yet.</p>{% endfor %}</section>

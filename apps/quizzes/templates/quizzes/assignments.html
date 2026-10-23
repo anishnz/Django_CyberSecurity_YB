@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Assignments{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Assign level exams</h1><p>Students in the section can sit the exam once their level is open.</p></div></div>
+<div class="row g-3"><div class="col-lg-4"><section class="panel"><h2>New assignment</h2><form method="post">{% csrf_token %}
+<div class="mb-2"><label class="form-label" for="sec">Section</label><select class="form-select" id="sec" name="section" required>{% for s in sections %}<option value="{{ s.pk }}">{{ s }}</option>{% endfor %}</select></div>
+<div class="mb-2"><label class="form-label" for="lvl">Level</label><select class="form-select" id="lvl" name="level">{% for l in levels %}<option value="{{ l.number }}">{{ l.title }}</option>{% endfor %}</select></div>
+<div class="mb-3"><label class="form-label" for="due">Due date (optional)</label><input class="form-control" type="date" id="due" name="due_date"></div><button class="btn btn-primary">Assign</button></form></section></div>
+<div class="col-lg-8"><section class="panel panel-flush"><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Level</th><th>Section</th><th>Due</th><th></th></tr></thead><tbody>
+{% for a in assignments %}<tr><td>{{ a.level.title }}</td><td>{{ a.section }}</td><td>{{ a.due_date|date:"d M Y"|default:"–" }}</td><td class="text-end"><form method="post" action="{% url 'quizzes:assignment_delete' a.pk %}" data-confirm="Remove this assignment?">{% csrf_token %}<button class="btn btn-sm btn-outline-danger">Remove</button></form></td></tr>{% empty %}<tr><td colspan="4" class="text-muted">No assignments yet.</td></tr>{% endfor %}
+</tbody></table></div></section></div></div>
+{% endblock %}

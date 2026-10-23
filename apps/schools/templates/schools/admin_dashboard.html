@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}{% L 'school' %} {% L 'dashboard' %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ school.name }}</h1><p>School Admin {% L 'dashboard' %}</p></div>
+<div class="d-flex gap-2"><a class="btn btn-primary" href="{% url 'schools:student_new' %}"><i class="bi bi-person-plus"></i> Add student</a><a class="btn btn-outline-primary" href="{% url 'schools:student_import' %}"><i class="bi bi-filetype-csv"></i> Import CSV</a></div></div>
+<div class="stat-row mb-3">
+  <div class="stat"><strong>{{ students }}</strong><span>Students ({% L 'student' %})</span></div>
+  <div class="stat"><strong>{{ teachers }}</strong><span>Teachers</span></div>
+  <div class="stat"><strong>{{ sections|length }}</strong><span>Sections</span></div>
+  <div class="stat"><strong>{{ no_consent }}</strong><span>Waiting for family consent</span></div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-6"><section class="panel h-100"><h2><i class="bi bi-patch-check"></i> Licence</h2>
+    {% if licence %}<p class="mb-1"><strong>{{ plan.DISPLAY_NAME }}</strong> plan · {{ status }}</p>
+      <p class="mb-1">Ends: {% if licence.plan == 'UNLIMITED' %}Never{% else %}{{ licence.expiry_date|date:"d M Y" }}{% endif %} · Sections allowed: {{ plan.section_limit_label }}</p>
+      {% safe_url 'licensing:my_licence' as lic %}{% if lic %}<a href="{{ lic }}">Renew or add Level Packs →</a>{% endif %}
+    {% else %}<p class="text-muted">No licence.</p>{% endif %}</section></div>
+  <div class="col-lg-6"><section class="panel h-100"><h2><i class="bi bi-box-seam"></i> Level Packs</h2>
+    <ul class="list-unstyled mb-0">{% for p in packs %}<li>Level {{ p.level }}: {% if p.owned %}<span class="pill pill-ok">Owned</span>{% else %}<span class="pill pill-mute">Not owned</span> <span class="small text-muted">${{ p.price }}/year</span>{% endif %}</li>{% endfor %}</ul></section></div>
+  <div class="col-12"><section class="panel"><h2>Sections</h2><div class="d-flex flex-wrap gap-2">{% for s in sections %}<span class="pill {% if s.is_full %}pill-warn{% else %}pill-info{% endif %}">{{ s.name }} · {{ s.label }}</span>{% empty %}<span class="text-muted">No sections yet – add them on the Classes page.</span>{% endfor %}</div></section></div>
+</div>
+{% endblock %}

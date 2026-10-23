@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}FAQ{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Frequently asked questions</h1></div></div>
+<div class="accordion" id="faq">
+  {% include "website/_faq_item.html" with n=1 q="Does CyberQuest need the internet?" a="No. The app runs on a school computer or server. Only optional extras (AI, YouTube, Google Maps, WhatsApp) need the internet, and the app still works without them." %}
+  {% include "website/_faq_item.html" with n=2 q="Do students see prices?" a="Never. Locked levels say 'Ask your teacher about this level'. Only School Admins see plans and Level Packs." %}
+  {% include "website/_faq_item.html" with n=3 q="How do schools pay?" a="By bank transfer. The School Admin uploads the payslip; our team checks it and turns the plan or Level Pack on." %}
+  {% include "website/_faq_item.html" with n=4 q="Is AI used with student data?" a="No student names or personal details are ever sent to AI. AI only helps teachers draft short text, and a teacher and our Kaiārahi approve it first." %}
+  {% include "website/_faq_item.html" with n=5 q="How is children's data protected?" a="Two-step login for admins, encrypted keys, a security log, lockout after wrong passwords, and parents must opt in to messages. We follow the Privacy Act 2020." %}
+  {% include "website/_faq_item.html" with n=6 q="Can teachers add their own questions?" a="Yes. Teacher questions are used in practice only, never in exams, and only inside their own school." %}
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}Content{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Content ({% L 'learn' %})</h1><p>Levels, study topics and questions. Teacher questions are used in practice only.</p></div>
+<div class="d-flex gap-2"><a class="btn btn-primary" href="{% url 'learning:question_new' %}"><i class="bi bi-plus-lg"></i> New question</a>
+<form method="post" action="{% url 'learning:import_content' %}">{% csrf_token %}<button class="btn btn-outline-primary"><i class="bi bi-arrow-repeat"></i> Import question bank</button></form></div></div>
+<section class="panel panel-flush"><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Level</th><th>Audience</th><th>Topics</th><th>Questions</th><th>Teacher questions</th><th></th></tr></thead><tbody>
+{% for r in rows %}<tr><td><strong>{{ r.level.title }}</strong></td><td>{{ r.level.audience }}</td><td>{{ r.topics }}</td><td>{{ r.questions }}</td><td>{{ r.teacher }}</td><td><a href="{% url 'learning:level_detail' r.level.number %}">Open</a></td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

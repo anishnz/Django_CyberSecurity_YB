@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ level.title }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1><i class="bi bi-{{ level.icon }}"></i> {{ level.title }}</h1><p>{{ level.audience }} · {{ level.description }}</p></div>
+{% if best is not None %}<span class="pill pill-info">Best exam score {{ best|floatformat:0 }}%</span>{% endif %}</div>
+<div class="row g-3">
+  <div class="col-lg-7"><section class="panel"><h2>1. Study (Ako)</h2>
+    <div class="topic-list">{% for t in topics %}<a href="{% url 'quizzes:topic' t.code %}"><i class="bi bi-{{ t.icon }}"></i><span><strong>{{ t.title }}</strong><br><span class="small text-muted">{{ t.category_name }} · {{ t.minutes }} min</span></span></a>{% endfor %}</div></section></div>
+  <div class="col-lg-5">
+    <section class="panel"><h2>2. Practise</h2><p class="small text-muted">Feedback after every answer. It does not count for levels.</p>
+      <form method="post" action="{% url 'quizzes:practice_start' %}" class="mb-2">{% csrf_token %}<input type="hidden" name="level" value="{{ level.number }}"><button class="btn btn-primary w-100"><i class="bi bi-controller"></i> Practise all topics</button></form>
+      {% for code, name in level.category_pairs %}<form method="post" action="{% url 'quizzes:practice_start' %}" class="mb-1">{% csrf_token %}<input type="hidden" name="level" value="{{ level.number }}"><input type="hidden" name="category" value="{{ code }}"><button class="btn btn-outline-primary btn-sm w-100 text-start">{{ name }}</button></form>{% endfor %}</section>
+    <section class="panel"><h2>3. Level exam</h2><p class="small text-muted">20 questions × 5 marks. Your score and feedback appear at the end.</p>
+      {% if assigned %}<form method="post" action="{% url 'quizzes:exam_start' %}">{% csrf_token %}<input type="hidden" name="level" value="{{ level.number }}"><button class="btn btn-kowhai w-100"><i class="bi bi-clipboard-check"></i> {% if unfinished %}Continue my exam{% else %}Start the exam{% endif %}</button></form>
+      {% else %}<p class="mb-0">Your teacher has not assigned this exam yet. Keep studying and practising!</p>{% endif %}</section>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Try 5 questions{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Try 5 Level 1 questions</h1><p>Answer all five, then check your score. Nothing is saved.</p></div></div>
+<form method="post" class="quiz-card">{% csrf_token %}{% for q in questions %}<section class="panel"><input type="hidden" name="question_id" value="{{ q.pk }}"><p class="mb-1"><span class="pill pill-info">{{ q.category_name }}</span></p>
+<p class="question-text" id="q{{ q.pk }}">{{ forloop.counter }}. {{ q.text }}</p><fieldset aria-labelledby="q{{ q.pk }}">{% for o in q.options %}<label class="answer-option" for="q{{ q.pk }}{{ o.label }}"><input type="{% if q.allows_many %}checkbox{% else %}radio{% endif %}" name="answer_{{ q.pk }}" value="{{ o.label }}" id="q{{ q.pk }}{{ o.label }}"><span class="letter">{{ o.label }}</span><span>{{ o.text }}</span></label>{% endfor %}</fieldset></section>{% endfor %}
+<button class="btn btn-primary btn-lg">Check my score</button></form>
+{% endblock %}

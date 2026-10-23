@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}{{ topic.title }}{% endblock %}
+{% block content %}
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'quizzes:level' topic.level.number %}">{{ topic.level.title }}</a></li><li class="breadcrumb-item active" aria-current="page">{{ topic.title }}</li></ol></nav>
+<div class="row g-4">
+  <div class="col-lg-8"><article class="panel"><p class="pill pill-info">{{ topic.category_name }} · {{ topic.minutes }} min</p><h1>{{ topic.title }}</h1>
+    <div class="topic-body">{{ topic.body|simple_format }}</div>
+    {% if topic.habit_list %}<h2 class="mt-4">Good habits</h2><ul class="habits">{% for h in topic.habit_list %}<li>{{ h }}</li>{% endfor %}</ul>{% endif %}
+    {% if topic.kiwi_example %}<div class="kiwi-example mt-3"><strong>Kiwi example</strong><p class="mb-0">{{ topic.kiwi_example }}</p></div>{% endif %}
+    {% for v in videos %}<h2 class="mt-4"><i class="bi bi-youtube"></i> {{ v.title }}</h2><div class="video-frame"><iframe src="{{ v.embed_url }}" title="{{ v.title }}" loading="lazy" allow="encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>{% endfor %}
+    {% for m in media %}<figure class="mt-4">{% if m.kind == 'image' %}<img class="img-fluid rounded" src="{{ m.file.url }}" alt="{{ m.alt_text|default:m.title }}">{% elif m.kind == 'audio' %}<audio controls preload="none" src="{{ m.file.url }}"></audio>{% elif m.kind == 'video' %}<video class="w-100 rounded" controls preload="none" src="{{ m.file.url }}"></video>{% else %}<a href="{{ m.file.url }}">{{ m.title }} (PDF)</a>{% endif %}<figcaption class="small text-muted">{{ m.title }}{% if m.description %} – {{ m.description }}{% endif %}</figcaption></figure>{% endfor %}
+  </article></div>
+  <div class="col-lg-4"><section class="panel"><h2>Topics in this level</h2><div class="topic-list">{% for t in siblings %}<a href="{% url 'quizzes:topic' t.code %}"{% if t.pk == topic.pk %} aria-current="page"{% endif %}><i class="bi bi-{{ t.icon }}"></i><span>{{ t.title }}</span></a>{% endfor %}</div>
+    <form method="post" action="{% url 'quizzes:practice_start' %}" class="mt-3">{% csrf_token %}<input type="hidden" name="level" value="{{ topic.level.number }}"><input type="hidden" name="category" value="{{ topic.category }}"><button class="btn btn-primary w-100">Practise this topic</button></form></section></div>
+</div>
+{% endblock %}

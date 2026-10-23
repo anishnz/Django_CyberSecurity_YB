@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Privacy{% endblock %}
+{% block content %}
+<section class="panel" style="max-width: 820px"><h1>Privacy</h1>
+<p>CyberQuest follows the New Zealand Privacy Act 2020. We collect only what a school needs: names, class, results and (for parents who opt in) a contact email or phone number.</p>
+<ul><li>Data is kept by the school's own CyberQuest installation.</li><li>Students cannot upload files. Staff uploads are checked for type and size.</li>
+<li>AI never receives student names or personal details.</li><li>Parents can unsubscribe from every email.</li><li>Every login, change and "Login as" is written to a security or audit log.</li>
+<li>To see or delete a child's data, contact the school or <a href="{% url 'website:contact' %}">contact us</a>.</li></ul></section>
+{% endblock %}

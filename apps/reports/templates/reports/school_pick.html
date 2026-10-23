@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}School reports{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>School reports</h1><p>Choose a school to see its numbers.</p></div></div>
+<section class="panel"><ul class="list-unstyled mb-0">{% for s in schools %}<li class="border-bottom py-2"><a href="?school={{ s.pk }}">{{ s.name }}</a></li>{% endfor %}</ul></section>
+{% endblock %}

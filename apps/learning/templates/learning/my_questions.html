@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}My questions{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>My questions</h1><p>Your questions appear in practice quizzes for students in your school only (never in exams).</p></div><a class="btn btn-primary" href="{% url 'learning:question_new' %}"><i class="bi bi-plus-lg"></i> New question</a></div>
+<section class="panel panel-flush"><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Level</th><th>Question</th><th>Type</th><th></th></tr></thead><tbody>
+{% for q in rows %}<tr><td>{{ q.level.number }}</td><td>{{ q.text }}</td><td>{{ q.get_q_type_display }}</td><td class="text-end nowrap"><a class="btn btn-sm btn-outline-primary" href="{% url 'learning:question_edit' q.pk %}">Edit</a>
+<form method="post" action="{% url 'learning:question_archive' q.pk %}" class="d-inline" data-confirm="Remove this question?">{% csrf_token %}<button class="btn btn-sm btn-outline-danger">Remove</button></form></td></tr>{% empty %}<tr><td colspan="4" class="text-muted">No questions yet.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

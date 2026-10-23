@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Security log{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Security log</h1><p>Logins, failed logins, lockouts, Login as, two-step login, rejected uploads and API key changes.</p></div>
+  <a class="btn btn-outline-primary" href="{% url 'security:log_csv' %}?{{ request.GET.urlencode }}"><i class="bi bi-filetype-csv"></i> Export CSV</a></div>
+<form class="panel d-flex flex-wrap gap-2 align-items-end mb-3">
+  <div><label class="form-label" for="event">Event</label><select class="form-select" name="event" id="event"><option value="">All</option>{% for e in events %}<option {% if e == event %}selected{% endif %}>{{ e }}</option>{% endfor %}</select></div>
+  <div><label class="form-label" for="user">User</label><input class="form-control" name="user" id="user" value="{{ user }}"></div>
+  <button class="btn btn-outline-primary">Filter</button></form>
+<section class="panel panel-flush"><div class="table-responsive"><table class="table table-hover">
+<thead><tr><th>When</th><th>User</th><th>Event</th><th>IP address</th><th>Page</th><th>Details</th></tr></thead><tbody>
+{% for r in page %}<tr><td class="nowrap">{{ r.created_at|date:"d M Y H:i:s" }}</td><td>{{ r.username|default:"–" }}</td>
+<td><span class="pill pill-{% if 'fail' in r.event or 'lock' in r.event or 'denied' in r.event or 'reject' in r.event %}bad{% elif 'login_as' in r.event or 'mfa' in r.event %}warn{% else %}info{% endif %}">{{ r.event }}</span></td>
+<td>{{ r.ip_address|default:"" }}</td><td class="small">{{ r.path }}</td><td class="small">{{ r.details }}</td></tr>
+{% empty %}<tr><td colspan="6" class="text-muted">No events.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% include "partials/pager.html" %}
+{% endblock %}

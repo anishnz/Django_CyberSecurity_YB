@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Features{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Features</h1><p>Everything CyberQuest does, for every role.</p></div></div>
+<div class="feature-grid mb-4">{% for icon, title, text in features %}<div class="feature"><i class="bi bi-{{ icon }}"></i><h3>{{ title }}</h3><p class="mb-0">{{ text }}</p></div>{% endfor %}</div>
+<div class="row g-3">
+  <div class="col-md-6"><section class="panel h-100"><h2>For students (Ākonga)</h2><ul><li>Level trail from Cyber Starter to Cyber Pro</li><li>Study topics, practice with feedback, level exams</li><li>Badges and PDF certificates</li><li>"Report this question" and help tickets</li></ul></section></div>
+  <div class="col-md-6"><section class="panel h-100"><h2>For teachers (Kaiako)</h2><ul><li>Assign exams to sections with due dates</li><li>Class and student reports with kind words</li><li>Write own practice questions; AI drafts reviewed before use</li><li>Upload images, audio and video; embed YouTube</li></ul></section></div>
+  <div class="col-md-6"><section class="panel h-100"><h2>For schools</h2><ul><li>Classes, sections (35 students by default), students and teachers</li><li>CSV import of students; family consent tracking</li><li>Licence, Level Packs, bank payslip upload</li><li>Email templates for whānau (families)</li></ul></section></div>
+  <div class="col-md-6"><section class="panel h-100"><h2>For the Super Admin</h2><ul><li>Every setting with an overwrite warning and audit log</li><li>Login as any user for testing; business intelligence</li><li>Security log, two-step login control, health check, backups</li><li>Integrations: AI, Google Maps, WhatsApp, Viber, Facebook, Gmail</li></ul></section></div>
+</div>
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}New school{% endblock %}
+{% block content %}
+<section class="panel mx-auto" style="max-width: 720px"><h1 class="h3">New school</h1><p class="text-muted">A 30-day Free Trial starts automatically.</p>
+<form method="post" enctype="multipart/form-data">{% csrf_token %}{% include "partials/form.html" %}<button class="btn btn-primary">Create school</button></form></section>
+{% endblock %}
