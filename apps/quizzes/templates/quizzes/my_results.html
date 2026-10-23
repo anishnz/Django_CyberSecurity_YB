@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}My results{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>My results ({% L 'report' %})</h1></div>{% safe_url 'certificates:my_certificates' as cert_url %}{% if cert_url %}<a class="btn btn-outline-primary" href="{{ cert_url }}"><i class="bi bi-award"></i> My certificates</a>{% endif %}</div>
+<div class="row g-3"><div class="col-lg-4"><section class="panel"><h2>Best exam score</h2><ul class="list-unstyled mb-0">{% for lvl, pct in best %}<li class="border-bottom py-1">Level {{ lvl }}: <strong>{{ pct|floatformat:0 }}%</strong></li>{% empty %}<li class="text-muted">No exams yet.</li>{% endfor %}</ul></section>
+<section class="panel"><h2>Badges</h2><div class="d-flex flex-wrap gap-2">{% for b in badges %}<span class="badge-medal"><i class="bi bi-{{ b.icon }}"></i>{{ b.name }}</span>{% empty %}<span class="text-muted">None yet.</span>{% endfor %}</div></section></div>
+<div class="col-lg-8"><section class="panel panel-flush"><div class="table-responsive"><table class="table"><thead><tr><th>Date</th><th>Quiz</th><th>Score</th><th>Awareness</th><th></th></tr></thead><tbody>
+{% for s in sessions %}<tr><td class="nowrap">{{ s.finished_at|date:"d M Y" }}</td><td>{{ s.get_mode_display }}, Level {{ s.level.number }}</td><td><strong>{{ s.percentage|floatformat:0 }}%</strong></td><td><span class="pill pill-mute">{{ s.awareness_level }}</span></td><td><a href="{% url 'quizzes:result' s.pk %}">Review</a></td></tr>{% empty %}<tr><td colspan="5" class="text-muted">No quizzes yet.</td></tr>{% endfor %}
+</tbody></table></div></section></div></div>
+{% endblock %}

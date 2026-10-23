@@ -1,0 +1,14 @@
+{# The level trail: six stations from base camp to summit (signature element). Owner: Dinesh Upreti. #}
+<ol class="trail" aria-label="Your learning levels">
+{% for s in statuses %}
+  <li class="{% if s.status == 'passed' %}passed{% elif s.is_open %}open{% else %}locked{% endif %}{% if s.current %} current{% endif %}">
+    {% if link and s.is_open %}<a href="{% url 'quizzes:level' s.level.number %}">{% endif %}
+      <div class="station" aria-hidden="true">{% if s.status == 'passed' %}<i class="bi bi-check-lg"></i>{% elif not s.is_open %}<i class="bi bi-lock"></i>{% else %}{{ s.level.number }}{% endif %}</div>
+      <div><div class="name">Level {{ s.level.number }} {{ s.level.name }}</div><div class="who">{{ s.level.audience }}</div>
+        <div class="state">{% if s.status == 'passed' %}<span class="pill pill-ok">Passed{% if s.best is not None %} {{ s.best|floatformat:0 }}%{% endif %}</span>
+        {% elif s.status == 'open' %}<span class="pill pill-info">Open</span>{% elif s.status == 'need_pack' %}<span class="pill pill-warn">Ask your teacher</span>
+        {% else %}<span class="pill pill-mute">Pass Level {{ s.level.number|add:"-1" }} first</span>{% endif %}</div></div>
+    {% if link and s.is_open %}</a>{% endif %}
+  </li>
+{% endfor %}
+</ol>

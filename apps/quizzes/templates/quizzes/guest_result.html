@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Your score{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>You got {{ score }} out of {{ total }}</h1><p>{% if score >= 4 %}Ka pai! (Well done!) 🎉{% else %}Good try! Every expert started as a beginner. 🌱{% endif %}</p></div><a class="btn btn-outline-primary" href="{% url 'quizzes:guest_try' %}">Try again</a></div>
+<section class="panel quiz-card">{% for r in rows %}<div class="review-item"><p class="mb-1">{% if r.is_correct %}<span class="pill pill-ok">Correct</span>{% else %}<span class="pill pill-warn">Good try</span>{% endif %}</p><p class="fw-bold mb-1">{{ r.question.text }}</p>{% if not r.is_correct %}<p class="small mb-1">You chose: {{ r.answer }}</p>{% endif %}<p class="small mb-1">Safe answer: <strong>{{ r.question.correct_text }}</strong></p><p class="small text-muted mb-0">{{ r.question.feedback }}</p></div>{% endfor %}</section>
+{% endblock %}
