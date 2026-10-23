@@ -9,6 +9,7 @@ Key format:  CQ-BRIGHTSTAR-BASIC-20271231-7F3A   (product key)
 The last 4 characters are the first 4 hex characters of
 HMAC-SHA256(secret, "CQ-SCHOOL-KIND-DATE"). Editing any part breaks the check.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -23,8 +24,10 @@ from apps.core.exceptions import InvalidLicenseKeyError
 
 from .plans import PLAN_CLASSES, UNLIMITED_EXPIRY
 
-KEY_PATTERN = re.compile(r"^CQ-(?P<school>[A-Z0-9]{3,20})-(?P<kind>TRIAL|BASIC|STANDARD|UNLIMITED|L[2-6])-"
-                         r"(?P<date>\d{8})-(?P<check>[0-9A-F]{4})$")
+KEY_PATTERN = re.compile(
+    r"^CQ-(?P<school>[A-Z0-9]{3,20})-(?P<kind>TRIAL|BASIC|STANDARD|UNLIMITED|L[2-6])-"
+    r"(?P<date>\d{8})-(?P<check>[0-9A-F]{4})$"
+)
 
 
 @dataclass(frozen=True)
@@ -74,8 +77,9 @@ class LicenseKeyValidator:
             raise InvalidLicenseKeyError("Invalid key format. A key looks like CQ-SCHOOLCODE-BASIC-20271231-ABCD.")
         school, kind, date_text, check = match.group("school", "kind", "date", "check")
         if not hmac.compare_digest(self.check_code(school, kind, date_text), check):
-            raise InvalidLicenseKeyError("This key is not valid: the check code does not match. "
-                                         "It may have been typed wrongly or edited.")
+            raise InvalidLicenseKeyError(
+                "This key is not valid: the check code does not match. It may have been typed wrongly or edited."
+            )
         try:
             expiry = date(int(date_text[:4]), int(date_text[4:6]), int(date_text[6:]))
         except ValueError as exc:

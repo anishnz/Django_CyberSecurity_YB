@@ -7,6 +7,7 @@ Owner: Rajneesh Kumar (task R-13). Screens by Dinesh Upreti.
 Ticket numbers look like CQ-0042. Status flow (state machine in services.py):
 Open → Assigned → In progress → Waiting for user → Resolved → Closed (reopen within 7 days).
 """
+
 from __future__ import annotations
 
 import uuid
@@ -19,12 +20,32 @@ from django.db import models
 class Ticket(models.Model):
     """A question or problem raised by any user (or by the Contact us form / email)."""
 
-    OPEN, ASSIGNED, IN_PROGRESS, WAITING, RESOLVED, CLOSED = "open", "assigned", "in_progress", "waiting", "resolved", "closed"
-    STATUSES = [(OPEN, "Open"), (ASSIGNED, "Assigned"), (IN_PROGRESS, "In progress"), (WAITING, "Waiting for user"),
-                (RESOLVED, "Resolved"), (CLOSED, "Closed")]
-    CATEGORIES = [("login", "Login and password"), ("licence", "Licence and payment"), ("quiz", "Quiz or exam problem"),
-                  ("content", "Content error"), ("bug", "Something is broken"), ("feature", "Feature idea"),
-                  ("contact", "Website contact"), ("other", "Other")]
+    OPEN, ASSIGNED, IN_PROGRESS, WAITING, RESOLVED, CLOSED = (
+        "open",
+        "assigned",
+        "in_progress",
+        "waiting",
+        "resolved",
+        "closed",
+    )
+    STATUSES = [
+        (OPEN, "Open"),
+        (ASSIGNED, "Assigned"),
+        (IN_PROGRESS, "In progress"),
+        (WAITING, "Waiting for user"),
+        (RESOLVED, "Resolved"),
+        (CLOSED, "Closed"),
+    ]
+    CATEGORIES = [
+        ("login", "Login and password"),
+        ("licence", "Licence and payment"),
+        ("quiz", "Quiz or exam problem"),
+        ("content", "Content error"),
+        ("bug", "Something is broken"),
+        ("feature", "Feature idea"),
+        ("contact", "Website contact"),
+        ("other", "Other"),
+    ]
     PRIORITIES = [("urgent", "Urgent"), ("high", "High"), ("normal", "Normal"), ("low", "Low")]
 
     number = models.CharField(max_length=12, unique=True, editable=False)
@@ -33,15 +54,22 @@ class Ticket(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORIES, default="other")
     priority = models.CharField(max_length=10, choices=PRIORITIES, default="normal")
     status = models.CharField(max_length=15, choices=STATUSES, default=OPEN, db_index=True)
-    requester = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
-                                  related_name="tickets")
+    requester = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="tickets"
+    )
     requester_email = models.EmailField(blank=True, help_text="For tickets from the website or email.")
     requester_name = models.CharField(max_length=120, blank=True)
-    assignee = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
-                                 related_name="assigned_tickets")
+    assignee = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="assigned_tickets"
+    )
     school = models.ForeignKey("schools.School", null=True, blank=True, on_delete=models.SET_NULL)
-    question = models.ForeignKey("learning.Question", null=True, blank=True, on_delete=models.SET_NULL,
-                                 help_text="Set by 'Report this question'.")
+    question = models.ForeignKey(
+        "learning.Question",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        help_text="Set by 'Report this question'.",
+    )
     sla_due = models.DateTimeField(null=True, blank=True)
     resolved_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

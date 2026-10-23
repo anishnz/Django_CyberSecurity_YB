@@ -1,4 +1,5 @@
 """models.py - Notifications shown under the bell icon. Owner: Rajneesh Kumar (task R-08)."""
+
 from __future__ import annotations
 
 from django.conf import settings

@@ -4,6 +4,7 @@ views.py - Ticket list, new ticket, ticket detail (reply, status, assign), repor
 
 Owners: Dinesh Upreti (screens, task D-14), Rajneesh Kumar (rules in services.py)
 """
+
 from __future__ import annotations
 
 from django.contrib import messages
@@ -27,6 +28,7 @@ MEMBERS = ("super_admin", "school_admin", "teacher", "student")
 
 @role_required(*MEMBERS)
 def ticket_list(request):
+    """Tickets this user can see, with status tabs and search."""
     service = TicketService()
     rows = service.visible_to(request.user)
     status, q, mine = request.GET.get("status", "open"), request.GET.get("q", "").strip(), request.GET.get("mine")
@@ -43,17 +45,25 @@ def ticket_list(request):
         t.overdue = service.is_overdue(t)
     base = service.visible_to(request.user)
     counts = {s: base.filter(status=s).count() for s, _ in Ticket.STATUSES}
-    return render(request, "helpdesk/ticket_list.html", {"page": page, "status": status, "q": q, "mine": mine,
-                                                         "statuses": Ticket.STATUSES, "counts": counts})
+    return render(
+        request,
+        "helpdesk/ticket_list.html",
+        {"page": page, "status": status, "q": q, "mine": mine, "statuses": Ticket.STATUSES, "counts": counts},
+    )
 
 
 @role_required(*MEMBERS)
 def ticket_new(request):
+    """Create a ticket."""
     form = TicketForm(request.POST or None, request.FILES or None, user=request.user)
     if request.method == "POST" and form.is_valid():
         try:
-            ticket = TicketService().create(requester=request.user, files=form.cleaned_data["files"], request=request,
-                                            **{k: form.cleaned_data[k] for k in ("title", "description", "category", "priority")})
+            ticket = TicketService().create(
+                requester=request.user,
+                files=form.cleaned_data["files"],
+                request=request,
+                **{k: form.cleaned_data[k] for k in ("title", "description", "category", "priority")},
+            )
         except CyberQuestError as exc:
             form.add_error(None, exc.message)
         else:
@@ -71,6 +81,7 @@ def _staff_choices(ticket):
 
 @role_required(*MEMBERS)
 def ticket_detail(request, pk):
+    """One ticket: replies, attachments, status, assignment and history."""
     service = TicketService()
     ticket = get_object_or_404(Ticket.objects.select_related("requester", "assignee", "school", "question"), pk=pk)
     service.check_view(request.user, ticket)
@@ -80,8 +91,14 @@ def ticket_detail(request, pk):
         form.fields.pop("internal")
     if request.method == "POST" and form.is_valid():
         try:
-            service.comment(ticket, request.user, form.cleaned_data["body"], form.cleaned_data.get("internal", False),
-                            form.cleaned_data["files"], request)
+            service.comment(
+                ticket,
+                request.user,
+                form.cleaned_data["body"],
+                form.cleaned_data.get("internal", False),
+                form.cleaned_data["files"],
+                request,
+            )
         except CyberQuestError as exc:
             form.add_error(None, exc.message)
         else:
@@ -90,16 +107,28 @@ def ticket_detail(request, pk):
     comments = ticket.comments.prefetch_related("attachments").select_related("author")
     if not manage:
         comments = comments.filter(is_internal=False)
-    return render(request, "helpdesk/ticket_detail.html", {
-        "t": ticket, "form": form, "comments": comments, "manage": manage, "overdue": service.is_overdue(ticket),
-        "moves": [(s, label) for s, label in Ticket.STATUSES if s in TRANSITIONS.get(ticket.status, set())],
-        "staff": _staff_choices(ticket) if manage else [], "history": ticket.history.select_related("user")[:20],
-        "can_close": request.user.pk == ticket.requester_id and Ticket.CLOSED in TRANSITIONS.get(ticket.status, set())})
+    return render(
+        request,
+        "helpdesk/ticket_detail.html",
+        {
+            "t": ticket,
+            "form": form,
+            "comments": comments,
+            "manage": manage,
+            "overdue": service.is_overdue(ticket),
+            "moves": [(s, label) for s, label in Ticket.STATUSES if s in TRANSITIONS.get(ticket.status, set())],
+            "staff": _staff_choices(ticket) if manage else [],
+            "history": ticket.history.select_related("user")[:20],
+            "can_close": request.user.pk == ticket.requester_id
+            and Ticket.CLOSED in TRANSITIONS.get(ticket.status, set()),
+        },
+    )
 
 
 @role_required(*MEMBERS)
 @require_POST
 def ticket_move(request, pk):
+    """Change a ticket's status."""
     ticket = get_object_or_404(Ticket, pk=pk)
     TicketService().check_view(request.user, ticket)
     TicketService().move(ticket, request.POST.get("status", ""), request.user)
@@ -110,6 +139,7 @@ def ticket_move(request, pk):
 @role_required("super_admin", "school_admin", "teacher")
 @require_POST
 def ticket_assign(request, pk):
+    """Assign a ticket to a staff member."""
     ticket = get_object_or_404(Ticket, pk=pk)
     assignee = get_object_or_404(_staff_choices(ticket), pk=request.POST.get("assignee") or 0)
     TicketService().assign(ticket, assignee, request.user)

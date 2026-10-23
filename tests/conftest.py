@@ -9,6 +9,7 @@ Owner: Jihe Qi (QA Lead, task J-01)
   affect each other.
 * The date is fixed to 2026-10-06 so licence tests give the same result every day.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -16,10 +17,19 @@ from django.conf import settings
 from django.core.management import call_command
 from django.test import Client
 
-PASSWORDS = {"superadmin": "Everest@2026", "admin.brightstar": "Admin@2026", "admin.ktm": "Admin@2026",
-             "admin.tuivalley": "Admin@2026", "sione.faleolo": "Teacher@2026", "sita.sharma": "Teacher@2026",
-             "tama.ngata": "Kiaora@2026", "ella.johnson": "Kiaora@2026", "ruby.chen": "Kiaora@2026",
-             "bikash.thapa": "Namaste@2026", "demo_guest": "Guest@2026"}
+PASSWORDS = {
+    "superadmin": "Everest@2026",
+    "admin.brightstar": "Admin@2026",
+    "admin.ktm": "Admin@2026",
+    "admin.tuivalley": "Admin@2026",
+    "sione.faleolo": "Teacher@2026",
+    "sita.sharma": "Teacher@2026",
+    "tama.ngata": "Kiaora@2026",
+    "ella.johnson": "Kiaora@2026",
+    "ruby.chen": "Kiaora@2026",
+    "bikash.thapa": "Namaste@2026",
+    "demo_guest": "Guest@2026",
+}
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -30,7 +40,9 @@ def fixed_date():
 
 
 @pytest.fixture(scope="session")
-def django_db_setup(django_db_setup, django_db_blocker, fixed_date):  # pylint: disable=redefined-outer-name,unused-argument
+def django_db_setup(
+    django_db_setup, django_db_blocker, fixed_date
+):  # pylint: disable=redefined-outer-name,unused-argument
     """Load reference data and demo data once."""
     with django_db_blocker.unblock():
         call_command("seed_demo", verbosity=0)

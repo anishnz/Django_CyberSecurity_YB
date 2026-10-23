@@ -1,4 +1,5 @@
 """apps.py - Django app config for Schools, classes and sections. Owner: Rajneesh Kumar."""
+
 from django.apps import AppConfig
 
 

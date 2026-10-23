@@ -1,4 +1,5 @@
 """test_quizzes.py - Practice, exam, scoring, level up and Level Packs. Owners: Jihe Qi / Anish Shrestha."""
+
 import random
 
 import pytest
@@ -38,7 +39,9 @@ def test_exam_rules_fill_gaps_and_fail_when_too_few():
         ExamRules(1).build({"A": [1, 2]}, ["A"])
 
 
-@pytest.mark.parametrize("pct, label", [(95, "Excellent"), (75, "Good"), (50, "Developing"), (10, "Needs more practice")])
+@pytest.mark.parametrize(
+    "pct, label", [(95, "Excellent"), (75, "Good"), (50, "Developing"), (10, "Needs more practice")]
+)
 def test_awareness_levels_never_say_fail(pct, label):
     assert ScoringService.awareness_level(pct) == label
 
@@ -79,21 +82,22 @@ def test_tc24_passed_without_pack_says_ask_your_teacher(user, login):
     statuses = {s.level.number: s for s in LevelProgressionService().statuses(bikash)}
     assert statuses[2].status == "passed" and statuses[3].status == "need_pack"
     body = login("bikash.thapa").get("/quiz/").content.decode()
-    assert "Ask your teacher" in body and "$" not in body          # students never see prices
+    assert "Ask your teacher" in body and "$" not in body  # students never see prices
 
 
-def test_tc25_score_69_does_not_unlock(user, settings):
+def test_tc25_score_69_does_not_unlock(user):
     tama = user("tama.ngata")
     section = tama.student_profile.section
     Assignment.objects.get_or_create(level_id=3, section=section)
     service = QuizService(random.Random(9))
-    session = _answer_all(service, service.start_exam(tama, 3), 13)       # 65%
+    session = _answer_all(service, service.start_exam(tama, 3), 13)  # 65%
     assert not session.passed and session.awareness_level == "Developing"
     assert not LevelProgressionService().can_access(tama, 4)
 
 
 def test_teacher_question_only_in_practice_of_own_school():
     from apps.learning.models import Question
+
     teacher_q = Question.objects.filter(created_by__isnull=False).first()
     bright, ktm = School.objects.get(code="BRIGHTSTAR"), School.objects.get(code="KTMVALLEY")
     assert Question.objects.for_practice(1, bright).filter(pk=teacher_q.pk).exists()
@@ -112,12 +116,14 @@ def test_answering_twice_is_blocked(user):
     q = service.current_question(session)
     service.submit_answer(session, q.correct_labels)
     from apps.quizzes.models import Response
+
     with pytest.raises(Exception):
         Response.objects.create(session=session, question_id=q.pk, answer=["A"])
 
 
 def test_teacher_assigns_exam_and_students_are_notified(login):
     from apps.notifications.models import Notification
+
     c = login("sione.faleolo")
     section = School.objects.get(code="BRIGHTSTAR").classes.get(name="Year 7").sections.get(name="7B")
     c.post("/quiz/teacher/assignments/", {"section": section.pk, "level": 2, "due_date": "2026-11-01"})

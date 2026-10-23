@@ -58,6 +58,7 @@ class AccountCheck:
             if not user.school.is_active:
                 return "Your school's account is switched off. Please contact CyberQuest support."
             from apps.licensing.services import LicenseService  # pylint: disable=import-outside-toplevel
+
             if not LicenseService().is_school_active(user.school):
                 return LicenseExpiredError.default_message
         return None
@@ -194,14 +195,23 @@ class UserService:
         return name
 
     @transaction.atomic
-    def create_user(self, *, first_name, last_name, role, password, school=None, email="", by=None,
-                    username=None, **extra):
+    def create_user(
+        self, *, first_name, last_name, role, password, school=None, email="", by=None, username=None, **extra
+    ):
         """Create a user with a checked password."""
         from django.contrib.auth.password_validation import validate_password  # pylint: disable=import-outside-toplevel
         from django.core.exceptions import ValidationError as DjangoError  # pylint: disable=import-outside-toplevel
+
         username = username or self.make_username(first_name, last_name)
-        user = User(username=username, first_name=first_name, last_name=last_name, role=role, school=school,
-                    email=email, **extra)
+        user = User(
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            role=role,
+            school=school,
+            email=email,
+            **extra,
+        )
         try:
             validate_password(password, user)
         except DjangoError as exc:
@@ -215,9 +225,16 @@ class UserService:
         """Make a temporary account that stops working after the set minutes. Returns (user, password)."""
         minutes = minutes or SystemSettings.load().temp_account_minutes
         password = "Temp" + secrets.token_hex(3) + "9"
-        user = self.create_user(first_name="Temporary", last_name=secrets.token_hex(2), role=role, school=school,
-                                password=password, by=by, is_temporary=True,
-                                expires_at=timezone.now() + timedelta(minutes=minutes))
+        user = self.create_user(
+            first_name="Temporary",
+            last_name=secrets.token_hex(2),
+            role=role,
+            school=school,
+            password=password,
+            by=by,
+            is_temporary=True,
+            expires_at=timezone.now() + timedelta(minutes=minutes),
+        )
         return user, password
 
     @staticmethod
@@ -225,6 +242,7 @@ class UserService:
         """Super Admin or School Admin sets a new password; the user must change it next time."""
         from django.contrib.auth.password_validation import validate_password  # pylint: disable=import-outside-toplevel
         from django.core.exceptions import ValidationError as DjangoError  # pylint: disable=import-outside-toplevel
+
         try:
             validate_password(new_password, user)
         except DjangoError as exc:

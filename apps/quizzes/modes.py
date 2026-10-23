@@ -7,6 +7,7 @@ Owner: Anish Shrestha (task A-14)
 The quiz service asks the mode object what to do after each answer and whether
 the result counts for levelling up. Adding a new mode = one new class.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -38,8 +39,12 @@ class PracticeMode(QuizMode):
         self.feedback = feedback or FeedbackService()
 
     def after_answer(self, question, is_correct):
-        return {"is_correct": is_correct, "headline": self.feedback.answer_message(is_correct),
-                "explanation": question.feedback, "correct_answer": question.correct_text}
+        return {
+            "is_correct": is_correct,
+            "headline": self.feedback.answer_message(is_correct),
+            "explanation": question.feedback,
+            "correct_answer": question.correct_text,
+        }
 
     def counts_for_level(self):
         return False

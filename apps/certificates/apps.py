@@ -1,4 +1,5 @@
 """apps.py - Django app config for Certificates. Owner: Dinesh Upreti."""
+
 from django.apps import AppConfig
 
 

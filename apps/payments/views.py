@@ -4,6 +4,7 @@ views.py - Pay by bank transfer (School Admin) and review payslips (Super Admin)
 
 Owners: Dinesh Upreti (screens), Rajneesh Kumar (rules in services.py)
 """
+
 from __future__ import annotations
 
 from django.contrib import messages
@@ -34,9 +35,17 @@ def upload(request):
     if request.method == "POST" and form.is_valid():
         d = form.cleaned_data
         try:
-            payment = service.submit(request.user, purpose=d["purpose"], plan=d.get("plan") or "",
-                                     months=d.get("months") or 0, level=d.get("level"), bank_reference=d["bank_reference"],
-                                     paid_on=d["paid_on"], payslip=d["payslip"], request=request)
+            payment = service.submit(
+                request.user,
+                purpose=d["purpose"],
+                plan=d.get("plan") or "",
+                months=d.get("months") or 0,
+                level=d.get("level"),
+                bank_reference=d["bank_reference"],
+                paid_on=d["paid_on"],
+                payslip=d["payslip"],
+                request=request,
+            )
         except CyberQuestError as exc:
             form.add_error(None, exc.message)
         else:
@@ -52,18 +61,25 @@ def upload(request):
             quotes.append(service.quote(school, "pack", level=level))
         except CyberQuestError:
             pass
-    return render(request, "payments/upload.html", {"form": form, "quotes": quotes, "cfg": SystemSettings.load(),
-                                                    "reference": f"CQ-{school.code}"})
+    return render(
+        request,
+        "payments/upload.html",
+        {"form": form, "quotes": quotes, "cfg": SystemSettings.load(), "reference": f"CQ-{school.code}"},
+    )
 
 
 @role_required("super_admin", "school_admin")
 def payment_list(request):
+    """Payments waiting for review (Super Admin) or the school's own payments."""
     status = request.GET.get("status", "pending" if request.user.is_super_admin else "")
     rows = _visible(request.user)
     if status:
         rows = rows.filter(status=status)
-    return render(request, "payments/list.html", {"rows": rows[:200], "status": status, "statuses": Payment.STATUSES,
-                                                  "plans": PLAN_CLASSES})
+    return render(
+        request,
+        "payments/list.html",
+        {"rows": rows[:200], "status": status, "statuses": Payment.STATUSES, "plans": PLAN_CLASSES},
+    )
 
 
 @role_required("super_admin", "school_admin")
@@ -82,6 +98,7 @@ def payslip(request, pk):
 @super_admin_required
 @require_POST
 def review(request, pk):
+    """Super Admin approves or rejects a payment."""
     payment = get_object_or_404(Payment, pk=pk)
     action, note = request.POST.get("action"), request.POST.get("note", "")
     service = PaymentService()

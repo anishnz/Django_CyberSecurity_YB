@@ -1,4 +1,5 @@
 """apps.py - Django app config for Integrations and key vault. Owner: Jihe Qi."""
+
 from django.apps import AppConfig
 
 

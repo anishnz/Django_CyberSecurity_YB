@@ -1,4 +1,5 @@
 """forms.py - Contact us form. Owner: Dinesh Upreti."""
+
 from django import forms
 
 from .models import ContactMessage
@@ -12,10 +13,18 @@ class ContactForm(forms.ModelForm):
     class Meta:
         model = ContactMessage
         fields = ["name", "email", "organisation", "topic", "message"]
-        widgets = {"topic": forms.Select(choices=[("general", "General question"), ("demo", "Ask for a demo"),
-                                                  ("pricing", "Plans and pricing"), ("support", "Help with the app"),
-                                                  ("community", "Community and kura partnership")]),
-                   "message": forms.Textarea(attrs={"rows": 5})}
+        widgets = {
+            "topic": forms.Select(
+                choices=[
+                    ("general", "General question"),
+                    ("demo", "Ask for a demo"),
+                    ("pricing", "Plans and pricing"),
+                    ("support", "Help with the app"),
+                    ("community", "Community and kura partnership"),
+                ]
+            ),
+            "message": forms.Textarea(attrs={"rows": 5}),
+        }
 
     def clean_website(self):
         if self.cleaned_data.get("website"):

@@ -49,11 +49,15 @@ def login_view(request):
         user_row = User.objects.filter(username__iexact=username).first()
         if user_row and user_row.is_locked():
             SecurityLog.record(SecurityEvent.BLOCKED, request, user_row, details="account locked")
-            messages.error(request, "Too many wrong passwords. This account is locked for a short time. "
-                                    "Try again later or ask an admin to unlock it.")
+            messages.error(
+                request,
+                "Too many wrong passwords. This account is locked for a short time. "
+                "Try again later or ask an admin to unlock it.",
+            )
             return render(request, "accounts/login.html", {"form": form}, status=401)
-        user = authenticate(request, username=user_row.username if user_row else username,
-                            password=form.cleaned_data["password"])
+        user = authenticate(
+            request, username=user_row.username if user_row else username, password=form.cleaned_data["password"]
+        )
         if user is None:
             SecurityLog.record(SecurityEvent.LOGIN_FAILED, request, user_row, username=username)
             if user_row and LockoutService().register_failure(user_row, request):
@@ -146,16 +150,18 @@ def mfa_setup(request):
         codes = service.enable(request.user, secret, form.cleaned_data["code"], request)
         request.session.pop("mfa_setup_secret", None)
         messages.success(request, "Two-step login is on. Save your backup codes somewhere safe.")
-    return render(request, "accounts/mfa_setup.html", {
-        "form": form, "qr_svg": service.qr_svg(request.user, secret), "secret": secret, "codes": codes})
+    return render(
+        request,
+        "accounts/mfa_setup.html",
+        {"form": form, "qr_svg": service.qr_svg(request.user, secret), "secret": secret, "codes": codes},
+    )
 
 
 @login_required
 @require_POST
 def mfa_disable_self(request):
     """Turn off own two-step login (not allowed when admins are forced to use it)."""
-    if MFAService.required_for(request.user) or (request.user.role in ("super_admin", "school_admin")
-                                                 and _forced()):
+    if MFAService.required_for(request.user) or (request.user.role in ("super_admin", "school_admin") and _forced()):
         raise ValidationError("Two-step login is required for admin accounts.")
     MFAService.disable(request.user, request.user, request)
     messages.success(request, "Two-step login is off.")
@@ -164,6 +170,7 @@ def mfa_disable_self(request):
 
 def _forced() -> bool:
     from apps.core.models import SystemSettings  # pylint: disable=import-outside-toplevel
+
     return SystemSettings.load().force_mfa_for_admins
 
 
@@ -174,8 +181,9 @@ def user_list(request):
     users = User.objects.select_related("school").order_by("role", "first_name")
     q, role, school = request.GET.get("q", "").strip(), request.GET.get("role", ""), request.GET.get("school", "")
     if q:
-        users = users.filter(Q(username__icontains=q) | Q(first_name__icontains=q) | Q(last_name__icontains=q)
-                             | Q(email__icontains=q))
+        users = users.filter(
+            Q(username__icontains=q) | Q(first_name__icontains=q) | Q(last_name__icontains=q) | Q(email__icontains=q)
+        )
     if role:
         users = users.filter(role=role)
     if school:
@@ -183,9 +191,20 @@ def user_list(request):
     page = Paginator(users, 25).get_page(request.GET.get("page"))
     from apps.schools.models import School  # pylint: disable=import-outside-toplevel
     from .roles import ROLE_CHOICES  # pylint: disable=import-outside-toplevel
-    return render(request, "accounts/user_list.html", {
-        "page": page, "q": q, "role": role, "school": school, "roles": ROLE_CHOICES,
-        "schools": School.objects.order_by("name"), "temp_form": TemporaryUserForm()})
+
+    return render(
+        request,
+        "accounts/user_list.html",
+        {
+            "page": page,
+            "q": q,
+            "role": role,
+            "school": school,
+            "roles": ROLE_CHOICES,
+            "schools": School.objects.order_by("name"),
+            "temp_form": TemporaryUserForm(),
+        },
+    )
 
 
 @super_admin_required
@@ -197,10 +216,17 @@ def user_edit(request, pk=None):
         data = form.cleaned_data
         if user is None:
             extra = {k: data[k] for k in ("phone",)}
-            new = UserService().create_user(first_name=data["first_name"], last_name=data["last_name"],
-                                            role=data["role"], password=data["password"], school=data["school"],
-                                            email=data["email"], by=request.user,
-                                            username=data["username"] or None, **extra)
+            new = UserService().create_user(
+                first_name=data["first_name"],
+                last_name=data["last_name"],
+                role=data["role"],
+                password=data["password"],
+                school=data["school"],
+                email=data["email"],
+                by=request.user,
+                username=data["username"] or None,
+                **extra,
+            )
             messages.success(request, f"User {new.username} created.")
         else:
             saved = form.save(commit=False)
@@ -256,10 +282,17 @@ def user_temporary(request):
     form = TemporaryUserForm(request.POST)
     if not form.is_valid():
         raise ValidationError("Please choose a role and minutes between 5 and 240.")
-    user, password = UserService().create_temporary(role=form.cleaned_data["role"], school=form.cleaned_data["school"],
-                                                    by=request.user, minutes=form.cleaned_data["minutes"])
-    messages.success(request, f"Temporary account: {user.username} / {password} "
-                              f"(works until {user.expires_at:%H:%M}). Copy it now – it is shown once.")
+    user, password = UserService().create_temporary(
+        role=form.cleaned_data["role"],
+        school=form.cleaned_data["school"],
+        by=request.user,
+        minutes=form.cleaned_data["minutes"],
+    )
+    messages.success(
+        request,
+        f"Temporary account: {user.username} / {password} "
+        f"(works until {user.expires_at:%H:%M}). Copy it now – it is shown once.",
+    )
     return redirect("accounts:user_list")
 
 
@@ -292,8 +325,12 @@ def demo_accounts(request):
     """Demo test logins (only demo accounts, only while DEMO_MODE is on)."""
     if not settings.DEMO_MODE:
         raise AccessDeniedError("The demo accounts page is switched off.")
-    users = (User.objects.filter(is_demo=True, is_active=True).exclude(demo_password="")
-             .select_related("school").order_by("role", "school__name", "first_name"))
+    users = (
+        User.objects.filter(is_demo=True, is_active=True)
+        .exclude(demo_password="")
+        .select_related("school")
+        .order_by("role", "school__name", "first_name")
+    )
     return render(request, "accounts/demo_accounts.html", {"users": users})
 
 
@@ -302,10 +339,13 @@ def forgot_password(request):
     """'Forgot password?' – email, WhatsApp or Viber (whatever the Super Admin switched on)."""
     from .forms import ForgotPasswordForm  # pylint: disable=import-outside-toplevel
     from .reset import PasswordResetService  # pylint: disable=import-outside-toplevel
+
     service = PasswordResetService()
     form = ForgotPasswordForm(request.POST or None, channels=service.channels())
     if request.method == "POST" and form.is_valid():
-        messages.info(request, service.request_reset(request, form.cleaned_data["identifier"], form.cleaned_data["channel"]))
+        messages.info(
+            request, service.request_reset(request, form.cleaned_data["identifier"], form.cleaned_data["channel"])
+        )
         return redirect("accounts:login")
     return render(request, "accounts/forgot.html", {"form": form})
 
@@ -314,6 +354,7 @@ def reset_confirm(request, uidb64, token):
     """The link from the email / message: choose a new password."""
     from .forms import SetNewPasswordForm  # pylint: disable=import-outside-toplevel
     from .reset import PasswordResetService  # pylint: disable=import-outside-toplevel
+
     user = PasswordResetService.check(uidb64, token)
     if user is None:
         return render(request, "accounts/reset_invalid.html", status=400)

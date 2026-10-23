@@ -1,4 +1,5 @@
 """urls.py - Account URLs (/accounts/...). Owner: Anish Shrestha."""
+
 from django.urls import path
 
 from . import views

@@ -86,25 +86,25 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     # CyberQuest apps (owner in brackets)
-    "apps.core",            # settings, health, audit, backups (Anish / Rajneesh)
-    "apps.accounts",        # users, roles, MFA, Login as (Anish)
-    "apps.security",        # security log, lockout (Anish)
-    "apps.schools",         # schools, classes, sections, students (Rajneesh)
-    "apps.licensing",       # plans, product keys, Level Packs (Rajneesh)
-    "apps.payments",        # payslip upload and approval (Rajneesh)
-    "apps.learning",        # levels, topics, questions (Anish)
-    "apps.quizzes",         # practice, exam, scoring, badges (Anish)
-    "apps.notifications",   # Observer pattern, bell (Rajneesh)
-    "apps.emails",          # SMTP, IMAP, templates (Rajneesh)
-    "apps.helpdesk",        # tickets (Rajneesh backend, Dinesh screens)
-    "apps.reports",         # class reports, BI (Dinesh)
-    "apps.helpcentre",      # help articles, tour, explain (Dinesh)
-    "apps.certificates",    # PDF certificates with QR (Dinesh)
-    "apps.announcements",   # Pānui (Dinesh)
-    "apps.integrations",    # key vault and adapters (Jihe)
-    "apps.ai_assistant",    # AI drafts and text help (Jihe)
-    "apps.medialib",        # image, audio, video, YouTube (Jihe)
-    "apps.website",         # public website (Dinesh)
+    "apps.core",  # settings, health, audit, backups (Anish / Rajneesh)
+    "apps.accounts",  # users, roles, MFA, Login as (Anish)
+    "apps.security",  # security log, lockout (Anish)
+    "apps.schools",  # schools, classes, sections, students (Rajneesh)
+    "apps.licensing",  # plans, product keys, Level Packs (Rajneesh)
+    "apps.payments",  # payslip upload and approval (Rajneesh)
+    "apps.learning",  # levels, topics, questions (Anish)
+    "apps.quizzes",  # practice, exam, scoring, badges (Anish)
+    "apps.notifications",  # Observer pattern, bell (Rajneesh)
+    "apps.emails",  # SMTP, IMAP, templates (Rajneesh)
+    "apps.helpdesk",  # tickets (Rajneesh backend, Dinesh screens)
+    "apps.reports",  # class reports, BI (Dinesh)
+    "apps.helpcentre",  # help articles, tour, explain (Dinesh)
+    "apps.certificates",  # PDF certificates with QR (Dinesh)
+    "apps.announcements",  # Pānui (Dinesh)
+    "apps.integrations",  # key vault and adapters (Jihe)
+    "apps.ai_assistant",  # AI drafts and text help (Jihe)
+    "apps.medialib",  # image, audio, video, YouTube (Jihe)
+    "apps.website",  # public website (Dinesh)
 ]
 
 MIDDLEWARE = [
@@ -205,7 +205,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
 # ------------------------------------------------------------------- sessions
-SESSION_COOKIE_AGE = 60 * 60 * 2          # 2 hours
+SESSION_COOKIE_AGE = 60 * 60 * 2  # 2 hours
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
@@ -231,7 +231,10 @@ LOGGING = {
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
             "filename": str(LOG_DIR / "cyberquest.log"),
-            "maxBytes": 1_000_000, "backupCount": 3, "formatter": "simple", "encoding": "utf-8",
+            "maxBytes": 1_000_000,
+            "backupCount": 3,
+            "formatter": "simple",
+            "encoding": "utf-8",
         },
     },
     "loggers": {
@@ -242,7 +245,7 @@ LOGGING = {
 
 # ---------------------------------------------------------- CyberQuest rules
 CYBERQUEST = {
-    "LOCKOUT_ATTEMPTS": 5,          # wrong passwords before the account is locked
+    "LOCKOUT_ATTEMPTS": 5,  # wrong passwords before the account is locked
     "LOCKOUT_MINUTES": 15,
     "SITE_URL": env("SITE_URL", "http://127.0.0.1:8000"),
 }

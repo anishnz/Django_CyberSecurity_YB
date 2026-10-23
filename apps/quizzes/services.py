@@ -10,6 +10,7 @@ Flow:
     finish (after last answer)  -> score, percentage, awareness level, passed,
                                    badges and level up (exam only), notifications
 """
+
 from __future__ import annotations
 
 import random
@@ -59,11 +60,13 @@ class QuizService:
 
     @staticmethod
     def unfinished(student, level_number: int, mode: str) -> QuizSession | None:
-        return QuizSession.objects.filter(student=student, level__number=level_number, mode=mode,
-                                          status=QuizSession.IN_PROGRESS).first()
+        return QuizSession.objects.filter(
+            student=student, level__number=level_number, mode=mode, status=QuizSession.IN_PROGRESS
+        ).first()
 
     # ------------------------------------------------------------- start
     def start_practice(self, student, level_number: int, category: str | None = None) -> QuizSession:
+        """Start a practice round (feedback after every answer, never counts against the student)."""
         level = self._check_student(student, level_number)
         if category and category not in level.categories:
             raise ValidationError("That category is not part of this level.")
@@ -73,10 +76,17 @@ class QuizService:
         self.rng.shuffle(ids)
         count = SystemSettings.load().practice_question_count
         ids = ids[:count]
-        return QuizSession.objects.create(student=student, level=level, mode=QuizSession.PRACTICE,
-                                          category=category or "", question_ids=ids, max_score=len(ids) * 5)
+        return QuizSession.objects.create(
+            student=student,
+            level=level,
+            mode=QuizSession.PRACTICE,
+            category=category or "",
+            question_ids=ids,
+            max_score=len(ids) * 5,
+        )
 
     def start_exam(self, student, level_number: int) -> QuizSession:
+        """Start a level exam (only when the teacher assigned it to the student's section)."""
         level = self._check_student(student, level_number)
         if not self.is_assigned(student, level_number):
             raise AccessDeniedError("Your teacher has not assigned this exam yet.")
@@ -88,14 +98,16 @@ class QuizService:
             pool[cat].append(pk)
         rules = ExamRules(level_number)
         ids = rules.build(pool, level.categories, self.rng)
-        session = QuizSession.objects.create(student=student, level=level, mode=QuizSession.EXAM, question_ids=ids,
-                                             max_score=rules.total_marks)
+        session = QuizSession.objects.create(
+            student=student, level=level, mode=QuizSession.EXAM, question_ids=ids, max_score=rules.total_marks
+        )
         AuditService.log(student, "exam_started", f"level {level_number}")
         return session
 
     # ------------------------------------------------------------ answer
     @staticmethod
     def get_session(student, session_id: int) -> QuizSession:
+        """The student's own session, or NotFoundError."""
         session = QuizSession.objects.filter(pk=session_id).select_related("level").first()
         if session is None:
             raise NotFoundError("Quiz not found.")
@@ -123,8 +135,13 @@ class QuizService:
             raise ValidationError("Please choose an answer.")
         is_correct = question.check_answer(labels)
         try:
-            Response.objects.create(session=session, question_id=question.pk, answer=sorted(labels),
-                                    is_correct=is_correct, marks=question.marks_for(labels))
+            Response.objects.create(
+                session=session,
+                question_id=question.pk,
+                answer=sorted(labels),
+                is_correct=is_correct,
+                marks=question.marks_for(labels),
+            )
         except IntegrityError as exc:
             raise ValidationError("You have already answered this question.") from exc
         feedback = mode_for(session.mode).after_answer(question, is_correct)
@@ -137,21 +154,25 @@ class QuizService:
 
     # ------------------------------------------------------------ finish
     def finish(self, session: QuizSession) -> QuizSession:
+        """Score the session, save the result, unlock the next level and issue a certificate if passed."""
         responses = list(session.responses.all())
         session.score = sum(r.marks for r in responses)
         session.percentage = ScoringService.percentage(session.score, session.max_score)
         session.awareness_level = ScoringService.awareness_level(session.percentage)
         mode = mode_for(session.mode)
-        session.passed = mode.counts_for_level() and ScoringService.has_passed(session.percentage,
-                                                                                 self.progression.pass_mark())
+        session.passed = mode.counts_for_level() and ScoringService.has_passed(
+            session.percentage, self.progression.pass_mark()
+        )
         session.status = QuizSession.FINISHED
         session.finished_at = timezone.now()
         session.save()
         if mode.counts_for_level():
-            AuditService.log(session.student, "exam_finished", f"level {session.level.number}",
-                             new=f"{session.percentage}%")
-            outcome = self.progression.after_exam(session.student, session.level.number, session.passed,
-                                                  session.percentage)
+            AuditService.log(
+                session.student, "exam_finished", f"level {session.level.number}", new=f"{session.percentage}%"
+            )
+            outcome = self.progression.after_exam(
+                session.student, session.level.number, session.passed, session.percentage
+            )
             self._notify_exam(session)
             session.outcome = outcome  # attached for the result page
             if session.passed:
@@ -171,15 +192,31 @@ class QuizService:
     def _notify_exam(session: QuizSession) -> None:
         from apps.notifications.services import notify  # pylint: disable=import-outside-toplevel
         from django.contrib.auth import get_user_model  # pylint: disable=import-outside-toplevel
+
         profile = getattr(session.student, "student_profile", None)
-        teacher_ids = list(Assignment.objects.filter(section_id=getattr(profile, "section_id", None))
-                           .exclude(teacher=None).values_list("teacher_id", flat=True))
+        teacher_ids = list(
+            Assignment.objects.filter(section_id=getattr(profile, "section_id", None))
+            .exclude(teacher=None)
+            .values_list("teacher_id", flat=True)
+        )
         if not teacher_ids and session.student.school_id:
-            teacher_ids = list(get_user_model().objects.filter(school_id=session.student.school_id, role="teacher")
-                               .values_list("pk", flat=True))
-        notify("exam_completed", {"student_id": session.student.pk, "student_name": session.student.get_full_name(),
-                                  "level": session.level.number, "percentage": session.percentage,
-                                  "passed": session.passed, "teacher_ids": teacher_ids, "session_id": session.pk})
+            teacher_ids = list(
+                get_user_model()
+                .objects.filter(school_id=session.student.school_id, role="teacher")
+                .values_list("pk", flat=True)
+            )
+        notify(
+            "exam_completed",
+            {
+                "student_id": session.student.pk,
+                "student_name": session.student.get_full_name(),
+                "level": session.level.number,
+                "percentage": session.percentage,
+                "passed": session.passed,
+                "teacher_ids": teacher_ids,
+                "session_id": session.pk,
+            },
+        )
 
     # ------------------------------------------------------------ review
     @staticmethod
@@ -187,54 +224,90 @@ class QuizService:
         """Every question with the student's answer, the safe answer and the explanation."""
         rows = []
         responses = {r.question_id: r for r in session.responses.all()}
-        questions = {q.pk: q for q in Question.objects.filter(pk__in=session.question_ids).prefetch_related("options")
-                     .select_related("level")}
+        questions = {
+            q.pk: q
+            for q in Question.objects.filter(pk__in=session.question_ids)
+            .prefetch_related("options")
+            .select_related("level")
+        }
         for qid in session.question_ids:
             q = questions[qid].as_domain()
             r = responses.get(qid)
-            rows.append({"question": q, "answer": ", ".join(r.answer) if r else "–",
-                         "is_correct": bool(r and r.is_correct), "marks": r.marks if r else 0})
+            rows.append(
+                {
+                    "question": q,
+                    "answer": ", ".join(r.answer) if r else "–",
+                    "is_correct": bool(r and r.is_correct),
+                    "marks": r.marks if r else 0,
+                }
+            )
         return rows
 
     @staticmethod
     def category_breakdown(session: QuizSession) -> list[dict]:
+        """Marks per category for the result page."""
         totals = defaultdict(lambda: [0, 0])
         cats = dict(Question.objects.filter(pk__in=session.question_ids).values_list("pk", "category"))
         for r in session.responses.all():
             totals[cats[r.question_id]][0] += 1 if r.is_correct else 0
             totals[cats[r.question_id]][1] += 1
-        return [{"code": c, "name": category_name(c, session.level.number), "correct": v[0], "total": v[1],
-                 "pct": round(v[0] * 100 / v[1]) if v[1] else 0} for c, v in totals.items()]
+        return [
+            {
+                "code": c,
+                "name": category_name(c, session.level.number),
+                "correct": v[0],
+                "total": v[1],
+                "pct": round(v[0] * 100 / v[1]) if v[1] else 0,
+            }
+            for c, v in totals.items()
+        ]
 
     @staticmethod
     def topics_to_review(session: QuizSession):
-        wrong_topics = set(Question.objects.filter(pk__in=session.responses.filter(is_correct=False)
-                                                   .values_list("question_id", flat=True))
-                           .values_list("topic_code", flat=True))
+        """Topics linked to wrong answers, so the student knows what to read again."""
+        wrong_topics = set(
+            Question.objects.filter(
+                pk__in=session.responses.filter(is_correct=False).values_list("question_id", flat=True)
+            ).values_list("topic_code", flat=True)
+        )
         return LearningTopic.objects.filter(code__in=wrong_topics)
 
     def result_context(self, session: QuizSession) -> dict:
+        """Everything the result page needs in one dictionary."""
         outcome = getattr(session, "outcome", None)
         if outcome is None and session.is_exam and session.passed:
             nxt = session.level.number + 1
             unlocked = nxt <= 6 and self.progression.can_access(session.student, nxt)
-            outcome = {"badges": [], "next_level": nxt if nxt <= 6 else None,
-                       "unlocked_level": nxt if unlocked else None, "next_level_needs_pack": nxt <= 6 and not unlocked}
-        return {"session": session, "review": self.review(session), "breakdown": self.category_breakdown(session),
-                "topics": self.topics_to_review(session), "outcome": outcome,
-                "message": FeedbackService.result_message(session.percentage, session.passed, session.is_exam),
-                "colour": ScoringService.awareness_colour(session.awareness_level),
-                "pass_mark": self.progression.pass_mark(), "safety": FeedbackService.safety_reminder()}
+            outcome = {
+                "badges": [],
+                "next_level": nxt if nxt <= 6 else None,
+                "unlocked_level": nxt if unlocked else None,
+                "next_level_needs_pack": nxt <= 6 and not unlocked,
+            }
+        return {
+            "session": session,
+            "review": self.review(session),
+            "breakdown": self.category_breakdown(session),
+            "topics": self.topics_to_review(session),
+            "outcome": outcome,
+            "message": FeedbackService.result_message(session.percentage, session.passed, session.is_exam),
+            "colour": ScoringService.awareness_colour(session.awareness_level),
+            "pass_mark": self.progression.pass_mark(),
+            "safety": FeedbackService.safety_reminder(),
+        }
 
     # ------------------------------------------------------------- guest
     def guest_questions(self, count: int = 5):
         ids = list(Question.objects.system().filter(level__number=1).values_list("pk", flat=True))
         self.rng.shuffle(ids)
-        return [q.as_domain() for q in Question.objects.filter(pk__in=ids[:count]).prefetch_related("options")
-                .select_related("level")]
+        return [
+            q.as_domain()
+            for q in Question.objects.filter(pk__in=ids[:count]).prefetch_related("options").select_related("level")
+        ]
 
     @staticmethod
     def grade_guest(post) -> dict:
+        """Mark the short Demo Guest quiz without saving anything."""
         ids = [int(x) for x in post.getlist("question_id") if x.isdigit()][:5]
         rows, score = [], 0
         for q in Question.objects.filter(pk__in=ids).prefetch_related("options").select_related("level"):

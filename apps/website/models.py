@@ -4,6 +4,7 @@ models.py - Public website content: slider and contact messages
 
 Owner: Dinesh Upreti (public website)
 """
+
 from __future__ import annotations
 
 from django.db import models
@@ -14,8 +15,11 @@ class Slide(models.Model):
 
     title = models.CharField(max_length=100)
     caption = models.CharField(max_length=200)
-    image = models.ImageField(upload_to="website/slides/", blank=True,
-                              help_text="Optional upload (max 5 MB). Without it, the built-in illustration is used.")
+    image = models.ImageField(
+        upload_to="website/slides/",
+        blank=True,
+        help_text="Optional upload (max 5 MB). Without it, the built-in illustration is used.",
+    )
     static_image = models.CharField(max_length=120, blank=True, help_text="Built-in illustration in static/img/slides/")
     order = models.PositiveSmallIntegerField(default=1)
     is_active = models.BooleanField(default=True)

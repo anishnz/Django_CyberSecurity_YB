@@ -9,6 +9,7 @@ Owner: Anish Shrestha (task A-20)
 * Privacy: names and email addresses are removed from what we send (NFR-04).
 * Two approvals: teacher (facts) + Cultural Guide when Māori content is found.
 """
+
 from __future__ import annotations
 
 import re
@@ -25,16 +26,25 @@ from .models import AIDraft
 
 User = get_user_model()
 EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
-MAORI_HINTS = re.compile(r"[āēīōūĀĒĪŌŪ]|\b(kia ora|whānau|whanau|tikanga|te reo|marae|kaiako|ākonga|akonga|aroha|"
-                         r"mana|tapu|kaitiaki|whakapapa)\b", re.IGNORECASE)
+MAORI_HINTS = re.compile(
+    r"[āēīōūĀĒĪŌŪ]|\b(kia ora|whānau|whanau|tikanga|te reo|marae|kaiako|ākonga|akonga|aroha|"
+    r"mana|tapu|kaitiaki|whakapapa)\b",
+    re.IGNORECASE,
+)
 PROMPTS = {
-    AIDraft.QUESTION: ("Write ONE multiple-choice QUESTION for New Zealand students (Level {level}).\n"
-                       "Use exactly this format:\nQuestion: ...\nA: ...\nB: ...\nC: ...\nD: ...\nAnswer: <letter>\n"
-                       "Feedback: one or two sentences that teach the safe choice.\nTOPIC: {topic}"),
+    AIDraft.QUESTION: (
+        "Write ONE multiple-choice QUESTION for New Zealand students (Level {level}).\n"
+        "Use exactly this format:\nQuestion: ...\nA: ...\nB: ...\nC: ...\nD: ...\nAnswer: <letter>\n"
+        "Feedback: one or two sentences that teach the safe choice.\nTOPIC: {topic}"
+    ),
     AIDraft.TIP: "Write one short cyber-safety tip (2-3 sentences) for children aged 10-13.\nTOPIC: {topic}",
-    AIDraft.PARENT: ("Write a short, friendly message (under 120 words) to parents and whānau about what their child "
-                     "is learning in CyberQuest and one thing to talk about at home.\nTOPIC: {topic}"),
-    AIDraft.EXPLAIN: "Explain this cyber-safety idea in simple words for a 10-year-old (under 100 words).\nTOPIC: {topic}",
+    AIDraft.PARENT: (
+        "Write a short, friendly message (under 120 words) to parents and whānau about what their child "
+        "is learning in CyberQuest and one thing to talk about at home.\nTOPIC: {topic}"
+    ),
+    AIDraft.EXPLAIN: (
+        "Explain this cyber-safety idea in simple words for a 10-year-old (under 100 words).\nTOPIC: {topic}"
+    ),
 }
 MAX_EXPLAINS_PER_HOUR = 20
 
@@ -62,7 +72,9 @@ def parse_question(text: str) -> dict:
             fields[key.lower()] = value
     answer = (fields.get("answer") or "")[:1].upper()
     if not fields.get("question") or len(options) < 2 or answer not in options or not fields.get("feedback"):
-        raise ValidationError("The draft is not in the question format (Question, A–D, Answer, Feedback). Please edit it.")
+        raise ValidationError(
+            "The draft is not in the question format (Question, A–D, Answer, Feedback). Please edit it."
+        )
     return {"text": fields["question"][:400], "options": options, "answer": answer, "feedback": fields["feedback"]}
 
 
@@ -78,6 +90,7 @@ class AIDraftService:
 
     @transaction.atomic
     def create(self, user, kind: str, request_text: str, topic=None) -> AIDraft:
+        """Ask the AI (or the offline helper) for a draft. Names are removed first."""
         if not (user.is_teacher or user.is_super_admin or getattr(user, "is_cultural_guide", False)):
             raise AccessDeniedError("Only teachers can ask the AI for drafts.")
         request_text = (request_text or "").strip()[:300]
@@ -92,15 +105,25 @@ class AIDraftService:
         try:
             text = ai.generate(prompt, max_tokens=450)
         except IntegrationError as exc:
-            raise ValidationError(f"The AI service did not answer ({exc.message}). Try again or use the offline helper.") from exc
-        draft = AIDraft.objects.create(kind=kind, topic=topic, request_text=subject, text=text[:4000], provider=ai.label,
-                                       needs_cultural_check=bool(MAORI_HINTS.search(text)), created_by=user,
-                                       school=user.school)
+            raise ValidationError(
+                f"The AI service did not answer ({exc.message}). Try again or use the offline helper."
+            ) from exc
+        draft = AIDraft.objects.create(
+            kind=kind,
+            topic=topic,
+            request_text=subject,
+            text=text[:4000],
+            provider=ai.label,
+            needs_cultural_check=bool(MAORI_HINTS.search(text)),
+            created_by=user,
+            school=user.school,
+        )
         AuditService.log(user, "ai_draft_created", f"draft {draft.pk}", new=ai.label)
         return draft
 
     @staticmethod
     def edit(user, draft: AIDraft, text: str, needs_cultural: bool) -> None:
+        """Save the teacher's changes; the approvals start again."""
         if draft.status in (AIDraft.PUBLISHED,):
             raise ValidationError("A published draft cannot be changed.")
         draft.text = text.strip()[:4000]
@@ -113,6 +136,7 @@ class AIDraftService:
 
     @staticmethod
     def approve(user, draft: AIDraft, as_role: str) -> AIDraft:
+        """Give the teacher or cultural approval; both done means 'approved'."""
         if draft.status not in (AIDraft.DRAFT,):
             raise ValidationError("Only drafts waiting for approval can be approved.")
         if as_role == "teacher":
@@ -133,6 +157,7 @@ class AIDraftService:
 
     @staticmethod
     def reject(user, draft: AIDraft, note: str) -> None:
+        """Reject a draft with a short reason."""
         if len((note or "").strip()) < 3:
             raise ValidationError("Please write why (a few words).")
         draft.status, draft.review_note = AIDraft.REJECTED, note.strip()[:300]
@@ -164,19 +189,28 @@ class PageHelper:
 
     @staticmethod
     def answer(view_name: str, role: str, question: str) -> tuple[str, object]:
+        """Answer a question about a page from its help article (AI when a key is on)."""
         from apps.helpcentre.services import HelpService  # pylint: disable=import-outside-toplevel
+
         article = HelpService.for_page(view_name, role)
         question = scrub(question.strip()[:300])
         if not question:
             return "", article
-        context = f"{article.title}: {article.summary}\n{article.body}" if article else "CyberQuest school learning app."
-        prompt = (f"You are the help assistant inside CyberQuest. Answer in 2-4 short sentences using ONLY this guide. "
-                  f"If the guide does not cover it, say so and suggest the Help centre or a ticket.\nGUIDE:\n{context}\n"
-                  f"QUESTION: {question}")
+        context = (
+            f"{article.title}: {article.summary}\n{article.body}" if article else "CyberQuest school learning app."
+        )
+        prompt = (
+            f"You are the help assistant inside CyberQuest. Answer in 2-4 short sentences using ONLY this guide. "
+            f"If the guide does not cover it, say so and suggest the Help centre or a ticket.\nGUIDE:\n{context}\n"
+            f"QUESTION: {question}"
+        )
         ai = IntegrationService().ai()
         if ai.provider == "offline":
-            return (f"Here is the guide for this page: {article.summary}" if article else
-                    "There is no guide for this page yet. Please open the Help centre or create a ticket."), article
+            return (
+                f"Here is the guide for this page: {article.summary}"
+                if article
+                else "There is no guide for this page yet. Please open the Help centre or create a ticket."
+            ), article
         try:
             return ai.generate(prompt, max_tokens=250), article
         except IntegrationError:

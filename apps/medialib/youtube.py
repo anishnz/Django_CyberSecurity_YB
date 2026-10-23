@@ -7,6 +7,7 @@ Owner: Jihe Qi (task J-12)
 Only real YouTube links are accepted. The embed uses youtube-nocookie.com
 (privacy-enhanced mode), which the Content Security Policy allows in iframes.
 """
+
 from __future__ import annotations
 
 import re

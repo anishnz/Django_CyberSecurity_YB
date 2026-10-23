@@ -1,4 +1,8 @@
-"""test_sprint4_features.py - Help centre, announcements, AI drafts, media, password reset, display. Owner: Jihe Qi (QA)."""
+"""test_sprint4_features.py - Help centre, announcements, AI drafts, media, password reset, display.
+
+Owner: Jihe Qi (QA).
+"""
+
 import re
 
 import pytest
@@ -40,7 +44,10 @@ def test_ai_explain_works_for_guests_offline():
 # ----------------------------------------------------------- announcements
 def test_announcement_audience(user):
     student, teacher, other = user("tama.ngata"), user("sione.faleolo"), user("bikash.thapa")
-    titles = lambda u: set(AnnouncementService.visible_to(u).values_list("title", flat=True))  # noqa: E731
+
+    def titles(u):
+        return set(AnnouncementService.visible_to(u).values_list("title", flat=True))
+
     assert "Year 7 exam on Friday" in titles(student) and "New Level 4 topics" not in titles(student)
     assert "New Level 4 topics" in titles(teacher) and "Year 7 exam on Friday" not in titles(teacher)
     assert "Year 7 exam on Friday" not in titles(other) and "Cyber Smart Week" in titles(other)
@@ -72,7 +79,7 @@ def test_two_approvals_then_publish(user):
     draft.needs_cultural_check = True
     draft.save()
     AIDraftService.approve(sione, draft, "teacher")
-    assert draft.status == AIDraft.DRAFT                       # still waiting for the Kaiārahi
+    assert draft.status == AIDraft.DRAFT  # still waiting for the Kaiārahi
     with pytest.raises(AccessDeniedError):
         AIDraftService.approve(sione, draft, "cultural")
     AIDraftService.approve(jane, draft, "cultural")
@@ -96,9 +103,19 @@ def test_students_cannot_open_ai_pages(login):
 def test_cultural_media_hidden_until_checked(user):
     sione, jane, tama = user("sione.faleolo"), user("jane.wilson"), user("tama.ngata")
     topic = LearningTopic.objects.filter(level__number=1).first()
-    m = MediaService.upload(sione, {"kind": "image", "title": "Marae poster", "description": "", "alt_text": "poster",
-                                    "topic": topic, "needs_cultural_check": True, "is_published": True},
-                            SimpleUploadedFile("p.png", PNG, content_type="image/png"))
+    m = MediaService.upload(
+        sione,
+        {
+            "kind": "image",
+            "title": "Marae poster",
+            "description": "",
+            "alt_text": "poster",
+            "topic": topic,
+            "needs_cultural_check": True,
+            "is_published": True,
+        },
+        SimpleUploadedFile("p.png", PNG, content_type="image/png"),
+    )
     assert m not in MediaService.for_topic(topic, tama)[0]
     MediaService.cultural_approve(jane, m)
     assert m in MediaService.for_topic(topic, tama)[0]
@@ -108,9 +125,18 @@ def test_youtube_and_media_pages(login, user):
     client = login("sione.faleolo")
     assert client.get("/media-library/").status_code == 200
     client.post("/media-library/video/", {"title": "Spot the scam", "url": "https://youtu.be/dQw4w9WgXcQ"})
-    assert VideoEmbed.objects.filter(title="Spot the scam", video_id="dQw4w9WgXcQ", school=user("sione.faleolo").school).exists()
-    r = client.post("/media-library/upload/", {"kind": "image", "title": "Bad", "is_published": "on",
-                                               "file": SimpleUploadedFile("x.png", b"MZ\x90\x00evil", content_type="image/png")})
+    assert VideoEmbed.objects.filter(
+        title="Spot the scam", video_id="dQw4w9WgXcQ", school=user("sione.faleolo").school
+    ).exists()
+    r = client.post(
+        "/media-library/upload/",
+        {
+            "kind": "image",
+            "title": "Bad",
+            "is_published": "on",
+            "file": SimpleUploadedFile("x.png", b"MZ\x90\x00evil", content_type="image/png"),
+        },
+    )
     assert r.status_code == 200 and not MediaFile.objects.filter(title="Bad").exists()
 
 
@@ -119,7 +145,7 @@ def _reset_link():
     return re.search(r"http://testserver(/accounts/reset/[^\s]+/)", mail.outbox[-1].body).group(1)
 
 
-def test_forgot_password_by_email(user):
+def test_forgot_password_by_email():
     mail.outbox = []
     client = Client()
     r = client.post("/accounts/forgot/", {"identifier": "sione.faleolo", "channel": "email"})
@@ -127,8 +153,10 @@ def test_forgot_password_by_email(user):
     link = _reset_link()
     r = client.post(link, {"new_password": "NewPass@2026x", "confirm": "NewPass@2026x"})
     assert r.status_code == 302
-    assert Client().post("/accounts/login/", {"username": "sione.faleolo", "password": "NewPass@2026x"}).status_code == 302
-    assert client.get(link).status_code == 400                  # one-time link
+    assert (
+        Client().post("/accounts/login/", {"username": "sione.faleolo", "password": "NewPass@2026x"}).status_code == 302
+    )
+    assert client.get(link).status_code == 400  # one-time link
 
 
 def test_forgot_password_same_message_and_no_student_reset():

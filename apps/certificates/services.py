@@ -4,6 +4,7 @@ services.py - Issue certificates and draw the PDF (A4 landscape, QR code)
 
 Owner: Dinesh Upreti (task D-16)
 """
+
 from __future__ import annotations
 
 import io
@@ -24,10 +25,17 @@ class CertificateService:
         if not session.passed or session.mode != "exam":
             return None
         student = session.student
-        cert, created = Certificate.objects.get_or_create(student=student, level=session.level, defaults={
-            "session": session, "student_name": student.get_full_name() or student.username,
-            "school_name": student.school.name if student.school else "", "percentage": session.percentage,
-            "awareness_level": session.awareness_level})
+        cert, created = Certificate.objects.get_or_create(
+            student=student,
+            level=session.level,
+            defaults={
+                "session": session,
+                "student_name": student.get_full_name() or student.username,
+                "school_name": student.school.name if student.school else "",
+                "percentage": session.percentage,
+                "awareness_level": session.awareness_level,
+            },
+        )
         if not created and session.percentage > cert.percentage:
             cert.session, cert.percentage, cert.awareness_level = session, session.percentage, session.awareness_level
             cert.save()
@@ -35,6 +43,7 @@ class CertificateService:
 
     @staticmethod
     def pdf(cert: Certificate, verify_url: str) -> bytes:
+        """Draw the A4 landscape certificate with the student's name, score and a QR code to the verify page."""
         # pylint: disable=import-outside-toplevel
         from reportlab.graphics import renderPDF
         from reportlab.graphics.barcode.qr import QrCodeWidget
@@ -43,6 +52,7 @@ class CertificateService:
         from reportlab.lib.pagesizes import A4, landscape
         from reportlab.pdfgen import canvas
         from apps.core.pdf import register_fonts
+
         regular, bold = register_fonts()
         width, height = landscape(A4)
         buf = io.BytesIO()

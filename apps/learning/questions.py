@@ -12,6 +12,7 @@ Owner: Anish Shrestha (task A-13)
 
 These classes do not know about Django, so they are easy to unit test.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -40,15 +41,29 @@ def normalise_answer(answer) -> list[str]:
     return sorted({p.strip().upper() for p in parts if p and p.strip()})
 
 
-class QuestionBase(ABC):
-    """Abstract parent for every question type."""
+class QuestionBase(ABC):  # pylint: disable=too-many-instance-attributes
+    """Abstract parent for every question type (a domain object that mirrors one question row)."""
 
     Q_TYPE = ""
     TYPE_LABEL = ""
 
-    def __init__(self, *, pk=None, code=None, level_number=1, category="", text="", options=(), feedback="",
-                 marks=MARKS_PER_QUESTION, topic_code="", scenario_text="", nz_context=False, created_by=None,
-                 school_id=None):
+    def __init__(  # pylint: disable=too-many-arguments
+        self,
+        *,
+        pk=None,
+        code=None,
+        level_number=1,
+        category="",
+        text="",
+        options=(),
+        feedback="",
+        marks=MARKS_PER_QUESTION,
+        topic_code="",
+        scenario_text="",
+        nz_context=False,
+        created_by=None,
+        school_id=None,
+    ):
         self.pk = pk
         self.code = code
         self.level_number = level_number

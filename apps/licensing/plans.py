@@ -12,6 +12,7 @@ Concepts:
       always active, Basic/Standard allow 7 grace days, Trial has none.
     * Factory: ``plan_for(code, ...)`` returns the right class.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -26,8 +27,8 @@ class Plan(ABC):
 
     CODE = ""
     DISPLAY_NAME = ""
-    MAX_SECTIONS: int | None = None   # None = no limit
-    MONTHLY_PRICE = Decimal("0")      # NZD per school per month
+    MAX_SECTIONS: int | None = None  # None = no limit
+    MONTHLY_PRICE = Decimal("0")  # NZD per school per month
     GRACE_DAYS = 0
 
     def __init__(self, start_date: date, expiry_date: date, community_discount: bool = False):
@@ -57,6 +58,7 @@ class Plan(ABC):
         return self.MONTHLY_PRICE * (Decimal("0.5") if self.community_discount else 1)
 
     def status_label(self, today: date) -> str:
+        """Text such as 'Active – 10 days left', 'Grace period' or 'Expired'."""
         if not self.is_active(today):
             return "Expired"
         if self.in_grace_period(today):

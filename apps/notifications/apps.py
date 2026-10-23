@@ -1,4 +1,5 @@
 """apps.py - Django app config for Notifications. Owner: Rajneesh Kumar."""
+
 from django.apps import AppConfig
 
 
@@ -12,4 +13,3 @@ class NotificationsConfig(AppConfig):
     def ready(self) -> None:
         """Connect signal receivers when Django starts."""
         from . import signals  # noqa: F401  pylint: disable=import-outside-toplevel,unused-import
-

@@ -1,4 +1,5 @@
 """test_reports.py - BI numbers, privacy, exports and access. Owner: Jihe Qi (QA)."""
+
 import pytest
 
 from apps.reports.services import BIService

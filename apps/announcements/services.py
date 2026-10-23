@@ -1,4 +1,5 @@
 """services.py - Who sees which announcement, and who may post. Owner: Rajneesh Kumar."""
+
 from __future__ import annotations
 
 from django.db.models import Q
@@ -10,6 +11,8 @@ from .models import Announcement
 
 
 class AnnouncementService:
+    """Who sees which announcement, and who may post."""
+
     @staticmethod
     def visible_to(user):
         """Current announcements for this user (date window, school and audience)."""
@@ -23,6 +26,7 @@ class AnnouncementService:
 
     @staticmethod
     def manageable_by(user):
+        """Announcements this admin may edit."""
         if user.is_super_admin:
             return Announcement.objects.all()
         if user.is_school_admin:
@@ -30,6 +34,7 @@ class AnnouncementService:
         raise AccessDeniedError("Only admins can manage announcements.")
 
     def save(self, user, obj: Announcement) -> Announcement:
+        """Check the rules and save (a School Admin always posts to their own school)."""
         if not (user.is_super_admin or user.is_school_admin):
             raise AccessDeniedError("Only admins can post announcements.")
         if user.is_school_admin:

@@ -1,4 +1,5 @@
 """test_payments.py - Quotes with GST, payslip checks, approve/reject, receipts, privacy. Owner: Jihe Qi (QA)."""
+
 from datetime import timedelta
 from decimal import Decimal
 
@@ -35,7 +36,9 @@ def test_community_discount_halves_plan_price(user):
 def test_submit_and_approve_adds_level_pack(user):
     admin, boss = user("admin.ktm"), user("superadmin")
     Payment.objects.filter(school=admin.school, status="pending").delete()
-    p = PaymentService().submit(admin, purpose="pack", level=5, bank_reference="KTM-L5", paid_on=today(), payslip=_slip())
+    p = PaymentService().submit(
+        admin, purpose="pack", level=5, bank_reference="KTM-L5", paid_on=today(), payslip=_slip()
+    )
     assert p.number.startswith("PAY-") and p.status == "pending"
     PaymentService().approve(p, boss)
     assert LevelPackService().has_pack(admin.school, 5) and p.status == "approved"
@@ -45,8 +48,15 @@ def test_submit_and_approve_adds_level_pack(user):
 def test_approve_plan_extends_licence(user):
     admin, boss = user("admin.tuivalley"), user("superadmin")
     Payment.objects.filter(school=admin.school).delete()
-    p = PaymentService().submit(admin, purpose="plan", plan="STANDARD", months=3, bank_reference="TUI-3",
-                                paid_on=today() - timedelta(days=1), payslip=_slip())
+    p = PaymentService().submit(
+        admin,
+        purpose="plan",
+        plan="STANDARD",
+        months=3,
+        bank_reference="TUI-3",
+        paid_on=today() - timedelta(days=1),
+        payslip=_slip(),
+    )
     PaymentService().approve(p, boss)
     lic = License.objects.get(school=admin.school)
     assert lic.plan == "STANDARD" and lic.expiry_date > today()
@@ -57,14 +67,35 @@ def test_rules(user):
     with pytest.raises(ValidationError):
         PaymentService().submit(admin, purpose="pack", level=2, bank_reference="X", paid_on=today(), payslip=_slip())
     with pytest.raises(ValidationError):
-        PaymentService().submit(admin, purpose="plan", plan="BASIC", months=1, bank_reference="X",
-                                paid_on=today() + timedelta(days=3), payslip=_slip())
+        PaymentService().submit(
+            admin,
+            purpose="plan",
+            plan="BASIC",
+            months=1,
+            bank_reference="X",
+            paid_on=today() + timedelta(days=3),
+            payslip=_slip(),
+        )
     with pytest.raises(UploadRejectedError):
-        PaymentService().submit(admin, purpose="plan", plan="BASIC", months=1, bank_reference="X", paid_on=today(),
-                                payslip=_slip("slip.pdf", b"MZ\x90\x00not a pdf"))
+        PaymentService().submit(
+            admin,
+            purpose="plan",
+            plan="BASIC",
+            months=1,
+            bank_reference="X",
+            paid_on=today(),
+            payslip=_slip("slip.pdf", b"MZ\x90\x00not a pdf"),
+        )
     with pytest.raises(AccessDeniedError):
-        PaymentService().submit(user("sione.faleolo"), purpose="plan", plan="BASIC", months=1, bank_reference="X",
-                                paid_on=today(), payslip=_slip())
+        PaymentService().submit(
+            user("sione.faleolo"),
+            purpose="plan",
+            plan="BASIC",
+            months=1,
+            bank_reference="X",
+            paid_on=today(),
+            payslip=_slip(),
+        )
 
 
 def test_reject_needs_reason_and_no_receipt(user):
@@ -75,7 +106,7 @@ def test_reject_needs_reason_and_no_receipt(user):
     with pytest.raises(ValidationError):
         PaymentService.receipt_pdf(p)
     with pytest.raises(ValidationError):
-        PaymentService().approve(p, user("superadmin"))       # already reviewed
+        PaymentService().approve(p, user("superadmin"))  # already reviewed
 
 
 def test_payslips_are_private(login):

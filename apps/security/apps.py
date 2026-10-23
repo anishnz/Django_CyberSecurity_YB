@@ -1,4 +1,5 @@
 """apps.py - Django app config for Security log. Owner: Anish Shrestha."""
+
 from django.apps import AppConfig
 
 

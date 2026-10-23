@@ -7,6 +7,7 @@ Owner: Rajneesh Kumar (task R-14). Screens by Dinesh Upreti.
 Templates use {placeholders} such as {name}, {ticket}, {school}. The Super Admin
 can edit the text; the key stays the same so the code always finds it.
 """
+
 from __future__ import annotations
 
 import secrets
@@ -17,8 +18,12 @@ from django.db import models
 class EmailTemplate(models.Model):
     """An editable email (subject + body) used by the system or for bulk mail."""
 
-    AUDIENCES = [("system", "System (automatic)"), ("parents", "Parents / whānau"), ("teachers", "Teachers"),
-                 ("admins", "School Admins")]
+    AUDIENCES = [
+        ("system", "System (automatic)"),
+        ("parents", "Parents / whānau"),
+        ("teachers", "Teachers"),
+        ("admins", "School Admins"),
+    ]
 
     key = models.SlugField(max_length=40, unique=True)
     name = models.CharField(max_length=100)

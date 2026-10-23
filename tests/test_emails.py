@@ -1,4 +1,5 @@
 """test_emails.py - Templates, placeholders, bulk preview/send, unsubscribe, inbox rules. Owner: Jihe Qi (QA)."""
+
 from email.message import EmailMessage as PyEmail
 
 import pytest
@@ -55,6 +56,7 @@ def test_bulk_page_preview_then_send(login):
 def test_unsubscribe_needs_post():
     row = Unsubscribe.objects.create(email="p@example.org")
     from django.test import Client  # pylint: disable=import-outside-toplevel
+
     client = Client()
     client.get(f"/email/unsubscribe/{row.token}/")
     row.refresh_from_db()

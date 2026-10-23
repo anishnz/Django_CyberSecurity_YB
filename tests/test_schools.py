@@ -1,4 +1,5 @@
 """test_schools.py - Schools, sections (35 limit), overwrite warnings, CSV import. Owners: Jihe Qi / Rajneesh Kumar."""
+
 import io
 
 import pytest
@@ -29,7 +30,7 @@ def test_capacity_change_needs_warning_then_confirm(login):
     r = c.post(f"/schools/sections/{s.pk}/capacity/", {"capacity": 40})
     assert r.status_code == 200 and b"Overwrite warning" in r.content
     s.refresh_from_db()
-    assert s.capacity == 35                               # nothing saved yet
+    assert s.capacity == 35  # nothing saved yet
     c.post(f"/schools/sections/{s.pk}/capacity/", {"capacity": 40, "confirmed": "yes"})
     s.refresh_from_db()
     assert s.capacity == 40 and AuditLog.objects.filter(action="section_capacity").exists()
@@ -38,6 +39,7 @@ def test_capacity_change_needs_warning_then_confirm(login):
 def test_capacity_cannot_go_below_students():
     s = _section("BRIGHTSTAR", "7C")
     from apps.core.exceptions import ValidationError
+
     with pytest.raises(ValidationError):
         SchoolService().preview_capacity(s, 10)
 
@@ -64,9 +66,11 @@ def test_trial_plan_allows_one_section():
 
 def test_csv_import_preview_then_import():
     school = School.objects.get(code="BRIGHTSTAR")
-    data = ("first_name,last_name,section,password,family_consent,parent_email\n"
-            "Aroha,Testing,7B,Kiaora2026x,yes,p@example.com\nBad<script>,Name,7B,Kiaora2026x,yes,\n"
-            "Full,Section,7C,Kiaora2026x,yes,\n")
+    data = (
+        "first_name,last_name,section,password,family_consent,parent_email\n"
+        "Aroha,Testing,7B,Kiaora2026x,yes,p@example.com\nBad<script>,Name,7B,Kiaora2026x,yes,\n"
+        "Full,Section,7C,Kiaora2026x,yes,\n"
+    )
     preview = PeopleService().import_csv(school, io.BytesIO(data.encode()), commit=False)
     assert len(preview.added) == 1 and len(preview.errors) == 2
     result = PeopleService().import_csv(school, io.BytesIO(data.encode()), commit=True)

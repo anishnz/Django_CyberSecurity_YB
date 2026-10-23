@@ -30,9 +30,11 @@ def role_required(*roles: str):
         def wrapped(request, *args, **kwargs):
             if request.user.role not in roles:
                 from apps.security.services import SecurityLog  # pylint: disable=import-outside-toplevel
+
                 SecurityLog.record("access_denied", request, request.user, details=f"needs {', '.join(roles)}")
                 raise AccessDeniedError()
             return view(request, *args, **kwargs)
+
         return wrapped
 
     return decorator
@@ -71,6 +73,7 @@ def audit_log(action: str):
                 details = ", ".join(f"{k}={v}" for k, v in kwargs.items())
                 AuditService.log(request.user, action, details or request.path)
             return response
+
         return wrapped
 
     return decorator
@@ -85,6 +88,7 @@ class RoleRequiredMixin:
         """Check login and role before the view runs."""
         if not request.user.is_authenticated:
             from django.contrib.auth.views import redirect_to_login  # pylint: disable=import-outside-toplevel
+
             return redirect_to_login(request.get_full_path())
         if self.allowed_roles and request.user.role not in self.allowed_roles:
             raise AccessDeniedError()

@@ -1,4 +1,5 @@
 """urls.py - /admin-panel/ URLs for the Super Admin."""
+
 from django.urls import path
 
 from . import views

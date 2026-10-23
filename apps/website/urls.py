@@ -1,4 +1,5 @@
 """urls.py - Public website URLs."""
+
 from django.urls import path
 
 from . import views

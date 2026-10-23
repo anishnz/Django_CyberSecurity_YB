@@ -6,6 +6,7 @@ Owner: Anish Shrestha (task A-11); content by Jihe Qi with the Māori liaison te
 Dictionaries as lookup tables keep the rules in one place (no long if/else).
 Every level exam = 4 categories × 5 questions × 5 marks = 100 marks.
 """
+
 from __future__ import annotations
 
 # Code -> (name, Bootstrap icon)

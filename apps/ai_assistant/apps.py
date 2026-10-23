@@ -1,4 +1,5 @@
 """apps.py - Django app config for AI assistant. Owner: Jihe Qi."""
+
 from django.apps import AppConfig
 
 

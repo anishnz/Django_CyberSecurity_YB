@@ -1,6 +1,9 @@
 """dev.py - Settings for a developer laptop (debug on, SQLite)."""
-from .base import *  # noqa: F401,F403  (settings files import everything on purpose)
+
+from .base import *  # noqa: F401,F403  # pylint: disable=wildcard-import,unused-wildcard-import
 
 DEBUG = True
-STORAGES = {"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-            "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}}
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}

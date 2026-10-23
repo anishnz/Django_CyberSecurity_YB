@@ -38,10 +38,14 @@ class SecurityLog:
         """Save one security event and copy it to the log file."""
         name = username or getattr(user, "username", "") or ""
         entry = SecurityEvent.objects.create(
-            event=event, user=user if getattr(user, "pk", None) else None, username=name,
+            event=event,
+            user=user if getattr(user, "pk", None) else None,
+            username=name,
             ip_address=client_ip(request),
             user_agent=(request.META.get("HTTP_USER_AGENT", "")[:300] if request else ""),
-            path=(request.path[:300] if request else ""), details=details)
+            path=(request.path[:300] if request else ""),
+            details=details,
+        )
         logger.info("SECURITY %s user=%s ip=%s %s", event, name, entry.ip_address, details)
         return entry
 

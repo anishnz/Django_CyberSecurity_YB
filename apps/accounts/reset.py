@@ -12,6 +12,7 @@ Owner: Anish Shrestha (task A-21) with Jihe Qi (messaging adapters)
 * WhatsApp and Viber only appear when the Super Admin switched them on in
   Integrations (and the feature switch is on).
 """
+
 from __future__ import annotations
 
 from datetime import timedelta
@@ -31,8 +32,10 @@ from apps.security.services import SecurityLog
 
 User = get_user_model()
 MAX_PER_HOUR = 3
-GENERIC_MESSAGE = ("If an account matches, we sent a reset link. It works for 1 hour. "
-                   "Students: please ask your teacher to reset your password.")
+GENERIC_MESSAGE = (
+    "If an account matches, we sent a reset link. It works for 1 hour. "
+    "Students: please ask your teacher to reset your password."
+)
 
 
 class PasswordResetService:
@@ -40,7 +43,9 @@ class PasswordResetService:
 
     @staticmethod
     def channels() -> list[tuple[str, str]]:
+        """Email always, plus WhatsApp and Viber when they are switched on."""
         from apps.integrations.services import IntegrationService  # pylint: disable=import-outside-toplevel
+
         service, out = IntegrationService(), [("email", "Email")]
         for name, label in (("whatsapp", "WhatsApp"), ("viber", "Viber")):
             if FeatureSwitch.is_on(name) and service.enabled(name):
@@ -57,31 +62,44 @@ class PasswordResetService:
     @staticmethod
     def _too_many(user) -> bool:
         since = timezone.now() - timedelta(hours=1)
-        return SecurityEvent.objects.filter(user=user, event="password_reset_requested", created_at__gte=since).count() >= MAX_PER_HOUR
+        return (
+            SecurityEvent.objects.filter(user=user, event="password_reset_requested", created_at__gte=since).count()
+            >= MAX_PER_HOUR
+        )
 
     @staticmethod
     def link(request, user) -> str:
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        return request.build_absolute_uri(reverse("accounts:reset_confirm", args=[uid, default_token_generator.make_token(user)]))
+        return request.build_absolute_uri(
+            reverse("accounts:reset_confirm", args=[uid, default_token_generator.make_token(user)])
+        )
 
     def request_reset(self, request, identifier: str, channel: str) -> str:
         """Send a link if possible. Always returns the same message."""
         user = self._find(identifier)
         if user is None or user.is_student or user.is_guest or self._too_many(user):
-            SecurityLog.record("password_reset_ignored", request, user, username=identifier[:150],
-                               details="no match, student/guest or too many requests")
+            SecurityLog.record(
+                "password_reset_ignored",
+                request,
+                user,
+                username=identifier[:150],
+                details="no match, student/guest or too many requests",
+            )
             return GENERIC_MESSAGE
         SecurityLog.record("password_reset_requested", request, user, details=f"via {channel}")
         url = self.link(request, user)
         name = user.first_name or user.username
         if channel == "email" and user.email:
             from apps.emails.services import EmailService  # pylint: disable=import-outside-toplevel
+
             EmailService().send_template("password_reset", user.email, {"name": name, "link": url})
         elif channel in dict(self.channels()) and channel != "email" and user.phone:
             from apps.integrations.services import IntegrationService  # pylint: disable=import-outside-toplevel
+
             try:
-                IntegrationService().adapter(channel).send(user.phone, f"Kia ora {name}, reset your CyberQuest "
-                                                                       f"password here (1 hour): {url}")
+                IntegrationService().adapter(channel).send(
+                    user.phone, f"Kia ora {name}, reset your CyberQuest " f"password here (1 hour): {url}"
+                )
             except IntegrationError as exc:
                 SecurityLog.record("password_reset_failed", request, user, details=f"{channel}: {exc.message}")
         return GENERIC_MESSAGE

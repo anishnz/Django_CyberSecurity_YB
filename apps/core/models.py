@@ -23,44 +23,80 @@ class SystemSettings(models.Model):
     """Every system-wide rule the Super Admin can change (one row only)."""
 
     default_section_capacity = models.PositiveSmallIntegerField(
-        default=35, validators=[MinValueValidator(1), MaxValueValidator(60)],
-        help_text="Default number of students allowed in a new section.")
+        default=35,
+        validators=[MinValueValidator(1), MaxValueValidator(60)],
+        help_text="Default number of students allowed in a new section.",
+    )
     exam_pass_mark = models.PositiveSmallIntegerField(
-        default=70, validators=[MinValueValidator(50), MaxValueValidator(100)],
-        help_text="Percentage needed to pass a level exam.")
+        default=70,
+        validators=[MinValueValidator(50), MaxValueValidator(100)],
+        help_text="Percentage needed to pass a level exam.",
+    )
     practice_question_count = models.PositiveSmallIntegerField(
-        default=10, validators=[MinValueValidator(5), MaxValueValidator(20)],
-        help_text="Number of questions in a practice quiz.")
+        default=10,
+        validators=[MinValueValidator(5), MaxValueValidator(20)],
+        help_text="Number of questions in a practice quiz.",
+    )
     temp_account_minutes = models.PositiveSmallIntegerField(
-        default=15, validators=[MinValueValidator(5), MaxValueValidator(240)],
-        help_text="How long a temporary account works.")
+        default=15,
+        validators=[MinValueValidator(5), MaxValueValidator(240)],
+        help_text="How long a temporary account works.",
+    )
     license_warning_days = models.PositiveSmallIntegerField(
-        default=14, validators=[MinValueValidator(1), MaxValueValidator(60)],
-        help_text="Warn School Admins this many days before a licence ends.")
+        default=14,
+        validators=[MinValueValidator(1), MaxValueValidator(60)],
+        help_text="Warn School Admins this many days before a licence ends.",
+    )
     image_max_mb = models.PositiveSmallIntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(20)])
-    audio_max_mb = models.PositiveSmallIntegerField(default=20, validators=[MinValueValidator(1), MaxValueValidator(50)])
-    video_max_mb = models.PositiveSmallIntegerField(default=100, validators=[MinValueValidator(5), MaxValueValidator(500)])
-    document_max_mb = models.PositiveSmallIntegerField(default=10, validators=[MinValueValidator(1), MaxValueValidator(25)])
+    audio_max_mb = models.PositiveSmallIntegerField(
+        default=20, validators=[MinValueValidator(1), MaxValueValidator(50)]
+    )
+    video_max_mb = models.PositiveSmallIntegerField(
+        default=100, validators=[MinValueValidator(5), MaxValueValidator(500)]
+    )
+    document_max_mb = models.PositiveSmallIntegerField(
+        default=10, validators=[MinValueValidator(1), MaxValueValidator(25)]
+    )
     force_mfa_for_admins = models.BooleanField(default=False, help_text="Admins must use two-step login.")
     maintenance_mode = models.BooleanField(default=False, help_text="Show 'Back soon' to everyone except Super Admins.")
-    maintenance_message = models.CharField(max_length=200, default="CyberQuest is being updated. Please come back soon.")
+    maintenance_message = models.CharField(
+        max_length=200, default="CyberQuest is being updated. Please come back soon."
+    )
     contact_email = models.EmailField(default="hello@cyberquest.local")
     contact_phone = models.CharField(max_length=40, default="+64 9 000 0000")
     welcome_video_url = models.URLField(blank=True, help_text="YouTube link shown on the public home page.")
-    bank_account_name = models.CharField(max_length=80, default="Mount Everest Digital Limited",
-                                         help_text="Shown on the payment page and receipts.")
-    bank_account_number = models.CharField(max_length=30, default="00-0000-0000000-00 (demo)",
-                                           help_text="Bank account for licence payments (demo number until set).")
+    bank_account_name = models.CharField(
+        max_length=80, default="Mount Everest Digital Limited", help_text="Shown on the payment page and receipts."
+    )
+    bank_account_number = models.CharField(
+        max_length=30,
+        default="00-0000-0000000-00 (demo)",
+        help_text="Bank account for licence payments (demo number until set).",
+    )
     gst_number = models.CharField(max_length=20, default="000-000-000 (demo)", help_text="GST number on receipts.")
     updated_at = models.DateTimeField(auto_now=True)
     updated_by = models.CharField(max_length=150, blank=True)
 
     # Fields shown on the settings page, with their friendly names.
     EDITABLE = [
-        "default_section_capacity", "exam_pass_mark", "practice_question_count", "temp_account_minutes",
-        "license_warning_days", "image_max_mb", "audio_max_mb", "video_max_mb", "document_max_mb",
-        "force_mfa_for_admins", "maintenance_mode", "maintenance_message", "contact_email",
-        "contact_phone", "welcome_video_url", "bank_account_name", "bank_account_number", "gst_number",
+        "default_section_capacity",
+        "exam_pass_mark",
+        "practice_question_count",
+        "temp_account_minutes",
+        "license_warning_days",
+        "image_max_mb",
+        "audio_max_mb",
+        "video_max_mb",
+        "document_max_mb",
+        "force_mfa_for_admins",
+        "maintenance_mode",
+        "maintenance_message",
+        "contact_email",
+        "contact_phone",
+        "welcome_video_url",
+        "bank_account_name",
+        "bank_account_number",
+        "gst_number",
     ]
 
     class Meta:
@@ -87,8 +123,12 @@ class SystemSettings(models.Model):
 
     def max_bytes(self, kind: str) -> int:
         """Upload size limit in bytes for 'image', 'audio', 'video' or 'document'."""
-        mb = {"image": self.image_max_mb, "audio": self.audio_max_mb, "video": self.video_max_mb,
-              "document": self.document_max_mb}.get(kind, self.document_max_mb)
+        mb = {
+            "image": self.image_max_mb,
+            "audio": self.audio_max_mb,
+            "video": self.video_max_mb,
+            "document": self.document_max_mb,
+        }.get(kind, self.document_max_mb)
         return mb * 1024 * 1024
 
 

@@ -1,4 +1,5 @@
 """apps.py - Django app config for Public website. Owner: Dinesh Upreti."""
+
 from django.apps import AppConfig
 
 

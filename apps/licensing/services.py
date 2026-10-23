@@ -7,6 +7,7 @@ Owner: Rajneesh Kumar (tasks R-05, R-06)
 Uses the Plan classes (plans.py) and the key validator (keys.py). Sends events to
 the NotificationCenter (Observer pattern) when something changes.
 """
+
 from __future__ import annotations
 
 from datetime import timedelta
@@ -25,6 +26,7 @@ from .plans import FREE_LEVEL, LEVEL_PACK_PRICES, UNLIMITED_EXPIRY
 
 def _notify(event: str, data: dict) -> None:
     from apps.notifications.services import notify  # pylint: disable=import-outside-toplevel
+
     notify(event, data)
 
 
@@ -55,25 +57,41 @@ class LicenseService:
         if lic is None:
             raise LicenseLimitError("This school has no licence yet.")
         if not lic.plan_obj.can_add_section(school.section_count):
-            raise LicenseLimitError(f"Your {lic.plan_obj.DISPLAY_NAME} plan allows {lic.plan_obj.section_limit_label} "
-                                    "section(s). Ask about upgrading your plan.")
+            raise LicenseLimitError(
+                f"Your {lic.plan_obj.DISPLAY_NAME} plan allows {lic.plan_obj.section_limit_label} "
+                "section(s). Ask about upgrading your plan."
+            )
 
     @transaction.atomic
     def start_trial(self, school, days: int = 30) -> License:
-        lic, _ = License.objects.update_or_create(school=school, defaults={
-            "plan": "TRIAL", "start_date": today(), "expiry_date": today() + timedelta(days=days)})
+        """Give a new school the free 30-day trial."""
+        lic, _ = License.objects.update_or_create(
+            school=school,
+            defaults={"plan": "TRIAL", "start_date": today(), "expiry_date": today() + timedelta(days=days)},
+        )
         return lic
 
     @transaction.atomic
     def set_plan(self, school, plan: str, expiry, by=None, key: str = "") -> License:
         """Change the plan (used by product keys and approved payments)."""
         old = self.get(school)
-        lic, _ = License.objects.update_or_create(school=school, defaults={
-            "plan": plan, "start_date": today(), "expiry_date": expiry or UNLIMITED_EXPIRY,
-            "product_key": key, "last_warning_sent": None})
-        AuditService.log(by, "license_updated", school.code, old.plan if old else "-", f"{plan} until {lic.expiry_date}")
-        _notify("license_updated", {"school_id": school.pk, "plan": lic.get_plan_display(),
-                                    "expiry": lic.expiry_date.strftime("%d %b %Y")})
+        lic, _ = License.objects.update_or_create(
+            school=school,
+            defaults={
+                "plan": plan,
+                "start_date": today(),
+                "expiry_date": expiry or UNLIMITED_EXPIRY,
+                "product_key": key,
+                "last_warning_sent": None,
+            },
+        )
+        AuditService.log(
+            by, "license_updated", school.code, old.plan if old else "-", f"{plan} until {lic.expiry_date}"
+        )
+        _notify(
+            "license_updated",
+            {"school_id": school.pk, "plan": lic.get_plan_display(), "expiry": lic.expiry_date.strftime("%d %b %Y")},
+        )
         return lic
 
     def apply_product_key(self, school, key: str, by=None) -> License:
@@ -87,6 +105,7 @@ class LicenseService:
 
     @staticmethod
     def set_discount(school, on: bool, by=None) -> License:
+        """Turn the 50% community discount on or off."""
         lic = License.objects.get(school=school)
         AuditService.log(by, "discount_changed", school.code, lic.community_discount, on)
         lic.community_discount = on
@@ -102,8 +121,10 @@ class LicenseService:
             if left is not None and 0 <= left <= warn_days and lic.last_warning_sent != today():
                 lic.last_warning_sent = today()
                 lic.save(update_fields=["last_warning_sent"])
-                _notify("license_expiring", {"school_id": lic.school_id, "days": left,
-                                             "expiry": lic.expiry_date.strftime("%d %b %Y")})
+                _notify(
+                    "license_expiring",
+                    {"school_id": lic.school_id, "days": left, "expiry": lic.expiry_date.strftime("%d %b %Y")},
+                )
                 sent += 1
         return sent
 
@@ -125,8 +146,10 @@ class LevelPackService:
 
     @staticmethod
     def add_pack(school, level: int, by=None, key: str = "", expiry=None) -> LevelPack:
-        pack, created = LevelPack.objects.get_or_create(school=school, level=level,
-                                                        defaults={"product_key": key, "expiry_date": expiry})
+        """Add a Level Pack to a school (once per level) and tell the school."""
+        pack, created = LevelPack.objects.get_or_create(
+            school=school, level=level, defaults={"product_key": key, "expiry_date": expiry}
+        )
         if created:
             AuditService.log(by, "level_pack_added", school.code, new=f"Level {level}")
             _notify("level_pack_added", {"school_id": school.pk, "level": level})
@@ -140,6 +163,8 @@ class LevelPackService:
         """Rows for the Level Packs table (admins only – students never see prices)."""
         owned = self.owned_levels(school)
         rows = [{"level": FREE_LEVEL, "price": 0, "owned": True, "free": True}]
-        rows += [{"level": lvl, "price": price, "owned": lvl in owned, "free": False}
-                 for lvl, price in LEVEL_PACK_PRICES.items()]
+        rows += [
+            {"level": lvl, "price": price, "owned": lvl in owned, "free": False}
+            for lvl, price in LEVEL_PACK_PRICES.items()
+        ]
         return rows

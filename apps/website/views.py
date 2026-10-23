@@ -7,6 +7,7 @@ Pages: Home (slider + video), Features, Levels, Pricing, Te Tiriti and community
 About us, Team, Contact us, FAQ, Privacy. "Try as Demo Guest" logs in as the
 read-only demo account.
 """
+
 from __future__ import annotations
 
 from django.conf import settings
@@ -28,12 +29,21 @@ from .models import Slide
 User = get_user_model()
 
 DEFAULT_SLIDES = [
-    {"title": "Learn. Play. Decide.", "caption": "Short, game-style lessons that help tamariki stay safe online.",
-     "static_image": "img/slides/slide1.svg"},
-    {"title": "Built with our community", "caption": "English first, with te reo Māori in brackets. Checked by our Kaiārahi.",
-     "static_image": "img/slides/slide2.svg"},
-    {"title": "Reports teachers can use", "caption": "Kind, simple reports for every class – never the word 'Fail'.",
-     "static_image": "img/slides/slide3.svg"},
+    {
+        "title": "Learn. Play. Decide.",
+        "caption": "Short, game-style lessons that help tamariki stay safe online.",
+        "static_image": "img/slides/slide1.svg",
+    },
+    {
+        "title": "Built with our community",
+        "caption": "English first, with te reo Māori in brackets. Checked by our Kaiārahi.",
+        "static_image": "img/slides/slide2.svg",
+    },
+    {
+        "title": "Reports teachers can use",
+        "caption": "Kind, simple reports for every class – never the word 'Fail'.",
+        "static_image": "img/slides/slide3.svg",
+    },
 ]
 
 FEATURES = [
@@ -56,8 +66,11 @@ def _slides():
 
 def home(request):
     cfg = SystemSettings.load()
-    return render(request, "website/home.html", {
-        "slides": _slides(), "features": FEATURES[:6], "video_url": safe_embed_url(cfg.welcome_video_url)})
+    return render(
+        request,
+        "website/home.html",
+        {"slides": _slides(), "features": FEATURES[:6], "video_url": safe_embed_url(cfg.welcome_video_url)},
+    )
 
 
 def features(request):
@@ -66,6 +79,7 @@ def features(request):
 
 def levels(request):
     from apps.learning.models import Level  # pylint: disable=import-outside-toplevel
+
     return render(request, "website/levels.html", {"levels": Level.objects.prefetch_related("topics")})
 
 
@@ -97,10 +111,13 @@ def contact(request):
         msg = form.save()
         try:
             from apps.helpdesk.services import TicketService  # pylint: disable=import-outside-toplevel
+
             ticket = TicketService().from_contact(msg)
             msg.ticket_number = ticket.number
             msg.save(update_fields=["ticket_number"])
-            messages.success(request, f"Ngā mihi (thank you)! Your message is ticket {ticket.number}. We will reply by email.")
+            messages.success(
+                request, f"Ngā mihi (thank you)! Your message is ticket {ticket.number}. We will reply by email."
+            )
         except ImportError:
             messages.success(request, "Ngā mihi (thank you)! We will reply by email.")
         return redirect("website:contact")
@@ -125,4 +142,5 @@ def guest_login(request):
 @login_required
 def guest_tour(request):
     from apps.learning.models import Level  # pylint: disable=import-outside-toplevel
+
     return render(request, "website/guest_tour.html", {"levels": Level.objects.prefetch_related("topics")})
