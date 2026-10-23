@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Upload a file{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Upload a file</h1><p>Use pictures and sounds you made or have permission to use. Do not upload photos of students.</p></div>
+<a class="btn btn-outline-primary" href="{% url 'medialib:media_list' %}">Back</a></div>
+<section class="panel" style="max-width: 720px"><form method="post" enctype="multipart/form-data">{% csrf_token %}{% include "partials/form.html" %}
+<button class="btn btn-primary"><i class="bi bi-upload"></i> Upload</button></form></section>
+{% endblock %}

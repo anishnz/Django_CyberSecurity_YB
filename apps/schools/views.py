@@ -58,7 +58,9 @@ def school_detail(request, pk):
     school = get_object_or_404(School, pk=pk)
     classes = school.classes.prefetch_related("sections")
     admins = User.objects.filter(school=school).exclude(role="student").order_by("role")
-    return render(request, "schools/school_detail.html", {"school": school, "classes": classes, "staff": admins})
+    from apps.integrations.services import map_for  # pylint: disable=import-outside-toplevel
+    return render(request, "schools/school_detail.html", {"school": school, "classes": classes, "staff": admins,
+                                                          "map": map_for(school.address, school.latitude, school.longitude)})
 
 
 @super_admin_required

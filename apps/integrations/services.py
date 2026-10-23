@@ -85,3 +85,16 @@ class IntegrationService:
             out.append({"provider": name, "cls": cls, "row": row, "extra": [
                 (k, label, (row.extra.get(k) if row and row.extra.get(k) else default)) for k, label, default in cls.extra_fields]})
         return out
+
+
+def map_for(query: str = "", lat=None, lng=None) -> dict:
+    """Google Maps for a place: an embedded map when a key is saved, otherwise a free 'Open in Google Maps' link."""
+    from urllib.parse import quote_plus  # pylint: disable=import-outside-toplevel
+    where = f"{lat},{lng}" if lat is not None and lng is not None else (query or "")
+    if not where or not FeatureSwitch.is_on("maps"):
+        return {}
+    out = {"link": f"https://www.google.com/maps/search/?api=1&query={quote_plus(where)}"}
+    service = IntegrationService()
+    if service.enabled("google_maps"):
+        out["embed"] = service.adapter("google_maps").embed_url(where)
+    return out

@@ -66,11 +66,10 @@ def topic_page(request, code):
     topic = get_object_or_404(LearningTopic.objects.select_related("level"), code=code)
     if not LevelProgressionService().can_access(request.user, topic.level.number):
         raise LevelLockedError()
-    from apps.medialib.models import MediaFile, VideoEmbed  # pylint: disable=import-outside-toplevel
+    from apps.medialib.services import MediaService  # pylint: disable=import-outside-toplevel
+    media, videos = MediaService.for_topic(topic, request.user)
     return render(request, "quizzes/topic.html", {
-        "topic": topic, "siblings": topic.level.topics.all(),
-        "media": MediaFile.objects.filter(topic=topic, is_published=True),
-        "videos": VideoEmbed.objects.filter(topic=topic)})
+        "topic": topic, "siblings": topic.level.topics.all(), "media": media, "videos": videos})
 
 
 @student_only
