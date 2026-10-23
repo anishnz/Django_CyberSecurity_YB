@@ -106,3 +106,57 @@ html.cq-large { font-size: 118.75%; }
   .cq-nav .me-auto .nav-link .bi { display: none; }
   .cq-nav .cq-role { display: none; }
 }
+
+/* Landing page: problem, facts, law, solution, architecture (Sprint 5, Dinesh) */
+.story { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 1.2rem 1.25rem; height: 100%; }
+.story i { font-size: 1.6rem; color: var(--pohutukawa); }
+.story h3 { font-size: 1.1rem; margin: .5rem 0 .4rem; }
+.story p { margin: 0; color: var(--ink); }
+.problem-lead { font-size: 1.15rem; max-width: 70ch; }
+.fact { border-left: 5px solid var(--kowhai); background: #fff; border-radius: 0 12px 12px 0; padding: 1rem 1.1rem; height: 100%; }
+.fact .num { font-size: 2.2rem; font-weight: 700; color: var(--harbour); line-height: 1; }
+.fact p { margin: .45rem 0 .5rem; }
+.fact a { font-size: .85rem; }
+.law { border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.1rem; background: #fff; height: 100%; }
+.law h3 { font-size: 1.02rem; margin-bottom: .35rem; }
+.fire-exit { display: grid; grid-template-columns: auto 1fr; gap: 1.25rem; align-items: center; background: var(--harbour);
+  color: #e9f3f4; border-radius: 18px; padding: 1.75rem 2rem; }
+.fire-exit .sign { width: 88px; height: 88px; border-radius: 14px; background: #1f8a4c; display: grid; place-items: center; }
+.fire-exit .sign i { font-size: 3rem; color: #fff; }
+.fire-exit h2 { color: #fff; margin-bottom: .4rem; }
+.fire-exit p { margin: 0; font-size: 1.12rem; max-width: 72ch; }
+.checklist { list-style: none; padding: 0; margin: 0; }
+.checklist li { position: relative; padding: .35rem 0 .35rem 1.8rem; }
+.checklist li::before { content: "\F26E"; font-family: "bootstrap-icons"; position: absolute; left: 0; top: .32rem; color: var(--fern); }
+.feature-group { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 1.2rem 1.25rem; height: 100%; }
+.feature-group h3 { font-size: 1.1rem; display: flex; gap: .5rem; align-items: center; }
+.feature-group ul { margin: .5rem 0 0; padding-left: 1.1rem; }
+.feature-group li { margin-bottom: .25rem; }
+.steps { counter-reset: step; list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .75rem; }
+.steps li { counter-increment: step; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: .9rem 1rem .9rem 3.2rem; position: relative; }
+.steps li::before { content: counter(step); position: absolute; left: .9rem; top: .85rem; width: 1.7rem; height: 1.7rem; border-radius: 50%;
+  background: var(--harbour); color: #fff; font-weight: 700; display: grid; place-items: center; font-size: .9rem; }
+.steps strong { display: block; color: var(--harbour); }
+.arch-scroll { overflow-x: auto; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: .75rem; }
+.arch { display: block; width: 100%; min-width: 900px; height: auto; font-family: inherit; }
+.arch text { font-size: 13.5px; fill: var(--ink); }
+.arch .arch-h { font-size: 15px; font-weight: 700; fill: var(--harbour); }
+.arch .arch-small { font-size: 12px; fill: var(--muted); }
+.arch .arch-col { font-size: 16px; font-weight: 700; fill: var(--harbour); }
+.arch .arch-note { font-size: 11.5px; fill: var(--muted); font-style: italic; }
+.arch-person rect { fill: var(--tide); stroke: var(--harbour-2); stroke-width: 1.2; }
+.arch-box rect { fill: #fff; stroke: var(--line); stroke-width: 1.5; }
+.arch-service rect { fill: var(--kowhai-soft); stroke: var(--kowhai); stroke-width: 1.5; }
+.arch-data rect, .arch-data path, .arch-data ellipse { fill: var(--fern-soft); stroke: var(--fern); stroke-width: 1.5; }
+.arch-ext rect { fill: #fff; stroke: var(--harbour-2); stroke-width: 1.2; stroke-dasharray: 5 4; }
+.arch-container { fill: var(--paper); stroke: var(--harbour); stroke-width: 2; }
+.arch-line path, path.arch-line { stroke: var(--harbour-2); stroke-width: 1.6; fill: none; }
+.arch-dashed path, path.arch-dashed { stroke-dasharray: 6 5; }
+.arch-arrowhead { fill: var(--harbour-2); }
+[data-bs-theme="dark"] .story, [data-bs-theme="dark"] .fact, [data-bs-theme="dark"] .law, [data-bs-theme="dark"] .feature-group,
+[data-bs-theme="dark"] .steps li, [data-bs-theme="dark"] .arch-scroll, [data-bs-theme="dark"] .arch-box rect, [data-bs-theme="dark"] .arch-ext rect { background: #142326; fill: #142326; }
+[data-bs-theme="dark"] .arch .arch-h, [data-bs-theme="dark"] .arch .arch-col, [data-bs-theme="dark"] .fact .num, [data-bs-theme="dark"] .steps strong { fill: #E9F4F5; color: #E9F4F5; }
+@media (max-width: 767.98px) {
+  .fire-exit { grid-template-columns: 1fr; padding: 1.4rem; }
+  .fire-exit .sign { width: 64px; height: 64px; }
+}
