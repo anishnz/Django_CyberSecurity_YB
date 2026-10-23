@@ -166,3 +166,15 @@ html.cq-large { font-size: 118.75%; }
 .offcanvas-body { overflow-wrap: anywhere; }
 /* Keep screen-reader-only labels inside scrolling tables (they are position:absolute) */
 .table-responsive { position: relative; }
+
+/* Team photos and meetings slider (Dinesh) */
+.team-photo { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 3px solid var(--tide); }
+.team-card .team-photo[width="72"] { width: 72px; height: 72px; }
+.thumb { object-fit: cover; border-radius: 8px; }
+.meeting-carousel { border-radius: 14px; overflow: hidden; background: #0E3B43; }
+.meeting-carousel .carousel-item img { aspect-ratio: 16 / 9; object-fit: contain; background: #0E3B43; }
+.meeting-caption { position: absolute; left: 0; right: 0; bottom: 0; padding: 2.2rem 1.2rem .9rem;
+  color: #fff; background: linear-gradient(transparent, rgba(0, 0, 0, .78)); }
+.meeting-carousel .carousel-indicators { margin-bottom: .35rem; }
+.empty-photos { border: 2px dashed var(--line); border-radius: 14px; padding: 2rem 1rem; text-align: center; }
+.empty-photos .bi { font-size: 2rem; color: var(--muted); }
