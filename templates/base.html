@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.min.css' %}">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  <script src="{% static 'js/theme.js' %}"></script>
   {% block head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}" data-page="{{ request.resolver_match.view_name|default:'' }}">
@@ -55,13 +56,14 @@
           <ul class="dropdown-menu dropdown-menu-end">
             <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}"><i class="bi bi-key"></i> Change {% L 'password' %}</a></li>
             <li><a class="dropdown-item" href="{% url 'accounts:mfa_setup' %}"><i class="bi bi-shield-check"></i> Two-step login</a></li>
+            {% if user.role != 'guest' %}{% safe_url 'announcements:list' as panui %}{% if panui %}<li><a class="dropdown-item" href="{{ panui }}"><i class="bi bi-megaphone"></i> Announcements (Pānui)</a></li>{% endif %}{% endif %}
             {% safe_url 'helpcentre:index' as helpurl %}{% if helpurl %}<li><a class="dropdown-item" href="{{ helpurl }}"><i class="bi bi-question-circle"></i> {% L 'help' %}</a></li>{% endif %}
             {% if user.is_super_admin %}
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item" href="{% url 'core:settings' %}"><i class="bi bi-sliders"></i> {% L 'settings' %}</a></li>
               <li><a class="dropdown-item" href="{% url 'security:log' %}"><i class="bi bi-shield-exclamation"></i> Security log</a></li>
               <li><a class="dropdown-item" href="{% url 'core:audit_log' %}"><i class="bi bi-journal-text"></i> Audit log</a></li>
-              {% safe_url 'integrations:index' as intg %}{% if intg %}<li><a class="dropdown-item" href="{{ intg }}"><i class="bi bi-plug"></i> Integrations</a></li>{% endif %}
+              {% safe_url 'integrations:list' as intg %}{% if intg %}<li><a class="dropdown-item" href="{{ intg }}"><i class="bi bi-plug"></i> Integrations</a></li>{% endif %}
             {% endif %}
             <li><hr class="dropdown-divider"></li>
             <li><form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="dropdown-item" type="submit"><i class="bi bi-box-arrow-right"></i> {% L 'logout' %}</button></form></li>
@@ -84,6 +86,10 @@
   <div class="container py-3 d-flex flex-wrap gap-3 justify-content-between small">
     <span>{{ project.name }} {{ project.version }} by {{ project.company }}. {{ project.tagline }}</span>
     <span>{{ project.code }} · {{ project.college }} · <a href="{% url 'website:about' %}">About this project</a> · <a href="{% url 'website:privacy' %}">Privacy</a></span>
+    <span class="d-flex gap-2" role="group" aria-label="Display options">
+      <button class="btn btn-sm btn-outline-secondary" type="button" data-display-toggle="dark" aria-pressed="false"><i class="bi bi-moon-stars" aria-hidden="true"></i> Dark mode</button>
+      <button class="btn btn-sm btn-outline-secondary" type="button" data-display-toggle="large" aria-pressed="false"><i class="bi bi-type" aria-hidden="true"></i> Larger text</button>
+    </span>
   </div>
 </footer>
 <script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
