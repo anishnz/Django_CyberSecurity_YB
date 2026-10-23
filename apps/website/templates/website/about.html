@@ -6,9 +6,14 @@
 <p>CyberQuest started as an offline prototype for schools in Northland (Te Tai Tokerau). Teachers asked for safe, simple cyber-safety lessons that tamariki enjoy. The team rebuilt it in Django to add help desk tickets, email to whānau, certificates, business reports and integrations – while keeping the same kind, bilingual learning design.</p>
 <p class="small text-muted mb-0">This is a student project: {{ project.course }}, {{ project.college }}. Lecturer: {{ project.lecturer }}. Project code {{ project.code }}. The company, client, schools and students are simulated; all names in the demo data are made up.</p></section>
 <h2>Our team</h2>
-<div class="row g-3 mb-3">{% for name, sid, role in project.team %}
-  <div class="col-md-6 col-lg-3"><div class="team-card"><div class="avatar mb-2" aria-hidden="true">{{ name|slice:":1" }}</div><h3 class="mb-1">{{ name }}</h3><p class="small text-muted mb-1">Student ID {{ sid }}</p><p class="mb-0">{{ role }}</p></div></div>
+<div class="row g-3 mb-3">{% for m in team %}
+  <div class="col-md-6 col-lg-3"><div class="team-card" id="member-{{ m.pk }}">
+    {% if m.image_url %}<img class="team-photo mb-2" src="{{ m.image_url }}" alt="Photo of {{ m.name }}" width="96" height="96">{% else %}<div class="avatar mb-2" aria-hidden="true">{{ m.initials }}</div>{% endif %}
+    <h3 class="mb-1">{{ m.name }}</h3>{% if m.student_id %}<p class="small text-muted mb-1">Student ID {{ m.student_id }}</p>{% endif %}<p class="mb-1">{{ m.role }}</p>
+    {% if m.bio %}<p class="small mb-0">{{ m.bio }}</p>{% endif %}</div></div>
 {% endfor %}</div>
+{% if user.is_super_admin %}<p class="small"><a href="{% url 'website:manage' %}"><i class="bi bi-upload"></i> Upload team photos and meeting photos</a></p>{% endif %}
+{% include "website/_meeting_slider.html" %}
 <h2>Community advisers (simulated)</h2>
 <div class="row g-3">
   <div class="col-md-4"><div class="team-card"><h3 class="mb-1">Kiri Rāwiri</h3><p class="sim">Simulated role</p><p class="mb-0">Māori Community Liaison – te reo Māori labels and Kiwi examples.</p></div></div>

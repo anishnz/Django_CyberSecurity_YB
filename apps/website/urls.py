@@ -17,4 +17,8 @@ urlpatterns = [
     path("website/contact/", views.contact, name="contact"),
     path("guest/start/", views.guest_login, name="guest_login"),
     path("guest/", views.guest_tour, name="guest_tour"),
+    path("website/manage/", views.manage, name="manage"),
+    path("website/manage/team/<int:pk>/", views.manage_member, name="manage_member"),
+    path("website/manage/photos/add/", views.manage_photo_add, name="manage_photo_add"),
+    path("website/manage/photos/<int:pk>/<slug:action>/", views.manage_photo_action, name="manage_photo_action"),
 ]

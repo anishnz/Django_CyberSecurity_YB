@@ -64,6 +64,7 @@
               <li><a class="dropdown-item" href="{% url 'security:log' %}"><i class="bi bi-shield-exclamation"></i> Security log</a></li>
               <li><a class="dropdown-item" href="{% url 'core:audit_log' %}"><i class="bi bi-journal-text"></i> Audit log</a></li>
               {% safe_url 'integrations:list' as intg %}{% if intg %}<li><a class="dropdown-item" href="{{ intg }}"><i class="bi bi-plug"></i> Integrations</a></li>{% endif %}
+              <li><a class="dropdown-item" href="{% url 'website:manage' %}"><i class="bi bi-images"></i> Website content</a></li>
             {% endif %}
             <li><hr class="dropdown-divider"></li>
             <li><form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="dropdown-item" type="submit"><i class="bi bi-box-arrow-right"></i> {% L 'logout' %}</button></form></li>

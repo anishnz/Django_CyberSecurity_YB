@@ -6,6 +6,8 @@ Owner: Dinesh Upreti (public website)
 Pages: Home (slider + video), Features, Levels, Pricing, Te Tiriti and community,
 About us, Team, Contact us, FAQ, Privacy. "Try as Demo Guest" logs in as the
 read-only demo account.
+
+Website content page (Super Admin): upload team photos and meeting photos.
 """
 
 from __future__ import annotations
@@ -14,18 +16,21 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
-from apps.core.exceptions import AccessDeniedError
+from apps.accounts.decorators import super_admin_required
+from apps.core.exceptions import AccessDeniedError, UploadRejectedError
 from apps.core.models import SystemSettings
 from apps.licensing.plans import LEVEL_PACK_PRICES, PLAN_CLASSES
 from apps.medialib.youtube import safe_embed_url
 from apps.security.services import SecurityLog
 
 from . import content
-from .forms import ContactForm
-from .models import Slide
+from .forms import ContactForm, MeetingPhotoForm, TeamMemberForm
+from .models import MeetingPhoto, Slide, TeamMember
+from .services import WebsiteContentService
 
 User = get_user_model()
 
@@ -94,7 +99,9 @@ def community(request):
 
 
 def about(request):
-    return render(request, "website/about.html")
+    """About us: our team (with photos) and the meetings slider."""
+    service = WebsiteContentService()
+    return render(request, "website/about.html", {"team": service.team(), "meeting_photos": service.meeting_photos()})
 
 
 def faq(request):
@@ -145,3 +152,67 @@ def guest_tour(request):
     from apps.learning.models import Level  # pylint: disable=import-outside-toplevel
 
     return render(request, "website/guest_tour.html", {"levels": Level.objects.prefetch_related("topics")})
+
+
+# --------------------------------------------------------------------------- Website content (Super Admin)
+@super_admin_required
+def manage(request):
+    """Website content page: team photos and bios, meeting photos for the slider."""
+    members = [(m, TeamMemberForm(initial={"bio": m.bio}, prefix=f"m{m.pk}")) for m in TeamMember.objects.all()]
+    return render(
+        request,
+        "website/manage.html",
+        {"members": members, "photo_form": MeetingPhotoForm(), "photos": MeetingPhoto.objects.all()},
+    )
+
+
+@super_admin_required
+@require_POST
+def manage_member(request, pk):
+    """Save one team member's bio and/or new photo."""
+    member = get_object_or_404(TeamMember, pk=pk)
+    form = TeamMemberForm(request.POST, request.FILES, prefix=f"m{member.pk}")
+    service = WebsiteContentService(request.user, request)
+    if request.POST.get("remove_photo"):
+        service.remove_member_photo(member)
+        messages.info(request, f"Photo removed for {member.name}.")
+    elif form.is_valid():
+        try:
+            service.update_member(member, bio=form.cleaned_data["bio"], photo=form.cleaned_data["photo"])
+            messages.success(request, f"Saved {member.name}.")
+        except UploadRejectedError as exc:
+            messages.error(request, exc.message)
+    else:
+        messages.error(request, "Please upload a JPG, PNG or WebP picture.")
+    return redirect(f"{reverse('website:manage')}#team-{member.pk}")
+
+
+@super_admin_required
+@require_POST
+def manage_photo_add(request):
+    """Upload one meeting photo."""
+    form = MeetingPhotoForm(request.POST, request.FILES)
+    if form.is_valid():
+        try:
+            WebsiteContentService(request.user, request).add_meeting_photo(form)
+            messages.success(request, "Meeting photo added to the slider.")
+        except UploadRejectedError as exc:
+            messages.error(request, exc.message)
+    else:
+        messages.error(request, "Please add a title and a JPG, PNG or WebP photo.")
+    return redirect(f"{reverse('website:manage')}#meetings")
+
+
+@super_admin_required
+@require_POST
+def manage_photo_action(request, pk, action):
+    """Show/hide or delete one meeting photo."""
+    photo = get_object_or_404(MeetingPhoto, pk=pk)
+    service = WebsiteContentService(request.user, request)
+    if action == "toggle":
+        service.toggle_meeting_photo(photo)
+        messages.info(request, f"'{photo.title}' is now {'shown' if photo.is_active else 'hidden'}.")
+    elif action == "delete":
+        service.delete_meeting_photo(photo)
+        messages.info(request, "Meeting photo deleted.")
+    return redirect(f"{reverse('website:manage')}#meetings")
