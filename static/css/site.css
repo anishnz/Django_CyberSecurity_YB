@@ -67,3 +67,42 @@ body.dark .table { color: var(--ink); }
 .kpi .value { font-size: 1.7rem; font-weight: 700; line-height: 1.1; }
 .kpi .label { color: var(--muted); font-size: .9rem; }
 .chart-box { position: relative; height: 280px; }
+
+/* Sprint 4 – Explain this page button, help (Dinesh Upreti) */
+.explain-btn { position: fixed; right: 1rem; bottom: 1rem; z-index: 1030; box-shadow: 0 4px 14px rgba(14, 59, 67, .25); }
+@media (max-width: 575px) { .explain-btn span { display: none; } }
+.help-body ul { padding-left: 1.2rem; }
+.tour-steps { padding-left: 1.2rem; }
+@media print { .explain-btn, .cq-nav, .cq-footer { display: none !important; } }
+.video-thumb { width: 200px; aspect-ratio: 16 / 9; flex: none; }
+.video-thumb iframe { width: 100%; height: 100%; border: 0; border-radius: 6px; }
+.map-frame { aspect-ratio: 16 / 10; }
+.map-frame iframe { width: 100%; height: 100%; border: 0; border-radius: 8px; }
+
+/* Display options (Sprint 4, Dinesh): larger text and dark mode */
+html.cq-large { font-size: 118.75%; }
+[data-display-toggle][aria-pressed="true"] { background: var(--harbour); color: #fff; border-color: var(--harbour); }
+[data-bs-theme="dark"] {
+  --paper: #0F1B1D; --ink: #E4EEF0; --muted: #A7B9BC; --line: #2C4044; --tide: #17292C;
+  --kowhai-soft: #3A3212; --fern-soft: #16301F; --pohutukawa-soft: #3A1A20; --harbour-2: #6CC3CF;
+  --bs-body-bg: var(--paper); --bs-body-color: var(--ink); --bs-link-color: #7FD0DB; --bs-link-color-rgb: 127, 208, 219;
+}
+[data-bs-theme="dark"] .panel, [data-bs-theme="dark"] .stat, [data-bs-theme="dark"] .kpi, [data-bs-theme="dark"] .cq-footer,
+[data-bs-theme="dark"] .feature, [data-bs-theme="dark"] .price-card, [data-bs-theme="dark"] .team-card,
+[data-bs-theme="dark"] .score-ring > div, [data-bs-theme="dark"] .skip-link { background: #142326; color: var(--ink); }
+[data-bs-theme="dark"] .overwrite { background: #2B2610; }
+[data-bs-theme="dark"] .stat strong, [data-bs-theme="dark"] h1, [data-bs-theme="dark"] h2, [data-bs-theme="dark"] h3, [data-bs-theme="dark"] h4 { color: #E9F4F5; }
+[data-bs-theme="dark"] .table { --bs-table-bg: transparent; --bs-table-color: var(--ink); }
+[data-bs-theme="dark"] .btn-outline-primary { --bs-btn-color: #7FD0DB; --bs-btn-border-color: #3E7F88; }
+[data-bs-theme="dark"] .pill-ok { color: #9BE0B4; }
+[data-bs-theme="dark"] .pill-warn { color: #FFD866; }
+[data-bs-theme="dark"] .pill-bad { color: #FFA3B0; }
+[data-bs-theme="dark"] .pill-info { color: #9FD9E1; }
+[data-bs-theme="dark"] .pill-mute { background: #263538; color: #C3D0D2; }
+[data-bs-theme="dark"] [data-display-toggle][aria-pressed="true"] { background: #6CC3CF; color: #0F1B1D; border-color: #6CC3CF; }
+/* Long staff menus: tighter links on mid-size screens so everything fits on one line */
+@media (min-width: 1200px) and (max-width: 1599.98px) {
+  .cq-nav .nav-link { padding: .4rem .45rem !important; font-size: .95rem; }
+  .cq-nav .me-auto .nav-link .bi { display: none; }
+  .cq-nav .cq-role { display: none; }
+}

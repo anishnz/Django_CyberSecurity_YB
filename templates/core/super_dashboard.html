@@ -4,6 +4,7 @@
 <div class="page-head"><div><h1>{% L 'hello' %}, {{ user.display_name }}</h1><p>Super Admin {% L 'dashboard' %} – every school, licence and setting.</p></div>
   <div class="d-flex gap-2 flex-wrap"><a class="btn btn-outline-primary" href="{% url 'accounts:user_list' %}"><i class="bi bi-person-badge"></i> Login as…</a>
   {% safe_url 'reports:bi_dashboard' as bi %}{% if bi %}<a class="btn btn-primary" href="{{ bi }}"><i class="bi bi-graph-up"></i> Business intelligence</a>{% endif %}</div></div>
+{% load panui %}{% announcements_panel %}
 <div class="stat-row mb-3">
   {% for label, value in kpis.items %}<div class="stat"><strong>{{ value }}</strong><span>{{ label|capfirst }}</span></div>{% endfor %}
   <div class="stat"><strong>{{ pending_payments }}</strong><span>Payslips to review</span></div>

@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}Help (Āwhina){% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Help (Āwhina)</h1><p>Short guides for what you can do in CyberQuest. On any page, press <strong>Explain this page</strong> at the bottom right.</p></div>
+{% safe_url 'helpdesk:ticket_new' as tnew %}{% if user.is_authenticated and tnew and user.role != 'guest' %}<a class="btn btn-outline-primary" href="{{ tnew }}"><i class="bi bi-life-preserver"></i> Still stuck? Open a ticket</a>{% endif %}</div>
+<div class="row g-3">
+<div class="col-lg-8">
+<form class="panel d-flex gap-2" role="search"><label class="visually-hidden" for="q">Search help</label>
+<input class="form-control" id="q" name="q" value="{{ q }}" placeholder="Search, for example 'certificate' or 'payslip'"><button class="btn btn-primary">Search</button></form>
+{% for a in articles %}<section class="panel"><h2 class="h5 mb-1"><a href="{% url 'helpcentre:article' a.slug %}">{{ a.title }}</a></h2><p class="mb-0">{{ a.summary }}</p></section>
+{% empty %}<section class="panel"><p class="mb-0">No help matches "{{ q }}". Try a shorter word.</p></section>{% endfor %}
+</div>
+<div class="col-lg-4"><section class="panel"><h2 class="h5">Getting started</h2><ol class="tour-steps mb-0">
+{% for title, name, text in tour %}{% safe_url name as href %}<li class="mb-2">{% if href %}<a href="{{ href }}">{{ title }}</a>{% else %}{{ title }}{% endif %}<div class="small text-muted">{{ text }}</div></li>{% endfor %}
+</ol></section></div></div>
+{% endblock %}

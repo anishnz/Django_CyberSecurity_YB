@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Pay by bank transfer{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Pay by bank transfer</h1><p>Pay at your bank, then upload the payslip here. The Super Admin checks it and switches on your plan or Level Pack. We never ask for card details.</p></div>
+<a class="btn btn-outline-primary" href="{% url 'payments:payment_list' %}">My payments</a></div>
+<div class="row g-3">
+<div class="col-lg-5">
+  <section class="panel"><h2 class="h5">1. Pay to this account</h2><dl class="mb-0">
+  <dt>Account name</dt><dd>{{ cfg.bank_account_name }}</dd>
+  <dt>Account number</dt><dd><code>{{ cfg.bank_account_number }}</code></dd>
+  <dt>Reference</dt><dd><code>{{ reference }}</code></dd></dl></section>
+  <section class="panel panel-flush"><h2 class="h5 px-3 pt-3">Prices (NZD)</h2><div class="table-responsive"><table class="table table-sm mb-0">
+  <thead><tr><th>Item</th><th class="text-end">Before GST</th><th class="text-end">GST</th><th class="text-end">Total</th></tr></thead><tbody>
+  {% for q in quotes %}<tr><td>{{ q.item }}</td><td class="text-end">{{ q.amount_ex_gst }}</td><td class="text-end">{{ q.gst }}</td><td class="text-end"><strong>{{ q.total }}</strong></td></tr>{% endfor %}
+  </tbody></table></div><p class="small text-muted px-3 py-2 mb-0">3 and 6 months are also possible. The total is shown again on your receipt.</p></section>
+</div>
+<div class="col-lg-7"><section class="panel"><h2 class="h5">2. Upload the payslip</h2>
+<form method="post" enctype="multipart/form-data">{% csrf_token %}{% include "partials/form.html" %}
+<button class="btn btn-primary"><i class="bi bi-upload"></i> Send for review</button></form></section></div>
+</div>
+{% endblock %}

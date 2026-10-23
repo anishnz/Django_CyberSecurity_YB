@@ -137,6 +137,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.core.context_processors.project",
+                "apps.helpcentre.context_processors.page_help",
             ],
         },
     },
@@ -172,6 +173,7 @@ LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "accounts:home"
 LOGOUT_REDIRECT_URL = "website:home"
 
+PASSWORD_RESET_TIMEOUT = 3600  # reset links work for 1 hour
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 8}},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},

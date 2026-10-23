@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ p.number }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ p.number }}: {{ p.item }}</h1><p>{{ p.school.name }} · sent by {{ p.submitted_by|default:"–" }} on {{ p.created_at|date:"d M Y H:i" }}</p></div>
+<a class="btn btn-outline-primary" href="{% url 'payments:payment_list' %}">All payments</a></div>
+<div class="row g-3"><div class="col-lg-6"><section class="panel"><dl class="mb-0">
+<dt>Status</dt><dd><span class="pill pill-{% if p.status == 'approved' %}ok{% elif p.status == 'rejected' %}bad{% else %}warn{% endif %}">{{ p.get_status_display }}</span></dd>
+<dt>Amount</dt><dd>${{ p.amount_ex_gst }} + GST ${{ p.gst }} = <strong>${{ p.total }}</strong></dd>
+<dt>Bank reference</dt><dd>{{ p.bank_reference }}</dd><dt>Paid on</dt><dd>{{ p.paid_on|date:"d M Y" }}</dd>
+{% if p.reviewed_at %}<dt>Reviewed</dt><dd>{{ p.reviewed_at|date:"d M Y H:i" }} by {{ p.reviewed_by }}</dd>{% endif %}
+{% if p.review_note %}<dt>Note</dt><dd>{{ p.review_note }}</dd>{% endif %}</dl>
+<div class="d-flex gap-2 mt-3"><a class="btn btn-outline-primary" href="{% url 'payments:payslip' p.pk %}" target="_blank" rel="noopener"><i class="bi bi-file-earmark"></i> Open payslip</a>
+{% if p.status == 'approved' %}<a class="btn btn-primary" href="{% url 'payments:receipt' p.pk %}"><i class="bi bi-filetype-pdf"></i> Receipt (PDF)</a>{% endif %}</div></section></div>
+{% if user.is_super_admin and p.status == 'pending' %}
+<div class="col-lg-6"><section class="panel overwrite"><h2 class="h5">Review</h2>
+<p class="small">Approving changes the school's licence or adds the Level Pack straight away.</p>
+<form method="post" action="{% url 'payments:review' p.pk %}">{% csrf_token %}
+<label class="form-label" for="note">Note to the school</label><textarea class="form-control mb-2" id="note" name="note" rows="3" maxlength="300" placeholder="Needed when you reject."></textarea>
+<button class="btn btn-primary" name="action" value="approve"><i class="bi bi-check2-circle"></i> Approve</button>
+<button class="btn btn-outline-danger" name="action" value="reject"><i class="bi bi-x-circle"></i> Reject</button></form></section></div>{% endif %}
+</div>
+{% endblock %}
