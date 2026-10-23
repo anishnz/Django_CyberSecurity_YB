@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}Students{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Students ({% L 'student' %})</h1></div>
+<div class="d-flex gap-2"><a class="btn btn-primary" href="{% url 'schools:student_new' %}"><i class="bi bi-person-plus"></i> Add student</a><a class="btn btn-outline-primary" href="{% url 'schools:student_import' %}"><i class="bi bi-filetype-csv"></i> Import CSV</a></div></div>
+<form class="panel d-flex flex-wrap gap-2 align-items-end mb-3"><div><label class="form-label" for="q">Search</label><input class="form-control" id="q" name="q" value="{{ q }}"></div>
+<div><label class="form-label" for="section">Section</label><select class="form-select" id="section" name="section"><option value="">All</option>{% for s in sections %}<option value="{{ s.pk }}" {% if s.pk|stringformat:"s" == section_id %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></div><button class="btn btn-outline-primary">Filter</button></form>
+<section class="panel panel-flush"><div class="table-responsive"><table class="table table-hover align-middle">
+<thead><tr><th>Name</th><th>Username</th><th>Section</th><th>Level</th><th>Family consent</th><th>Status</th><th class="text-end">Actions</th></tr></thead><tbody>
+{% for p in students %}<tr><td>{{ p.user.get_full_name }}</td><td><code>{{ p.user.username }}</code></td><td>{{ p.section|default:"–" }}</td><td>{{ p.current_level }}</td>
+<td>{% if p.family_consent %}<span class="pill pill-ok">Yes</span>{% else %}<span class="pill pill-warn">Waiting</span>{% endif %}</td>
+<td>{% if p.user.is_active %}<span class="pill pill-ok">On</span>{% else %}<span class="pill pill-bad">Off</span>{% endif %}</td>
+<td class="text-end nowrap"><a class="btn btn-sm btn-outline-primary" href="{% url 'schools:student_edit' p.pk %}"><i class="bi bi-pencil"></i> Edit</a>
+<form method="post" action="{% url 'schools:person_toggle' p.user.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-outline-secondary" title="Switch on/off"><i class="bi bi-power"></i></button></form></td></tr>
+{% empty %}<tr><td colspan="7" class="text-muted">No students found.</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

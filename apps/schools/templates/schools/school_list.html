@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}Schools{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Schools ({% L 'school' %})</h1><p>Every school, its plan and status.</p></div><a class="btn btn-primary" href="{% url 'schools:school_new' %}"><i class="bi bi-plus-lg"></i> New school</a></div>
+<section class="panel panel-flush"><div class="table-responsive"><table class="table table-hover align-middle">
+<thead><tr><th>Code</th><th>Name</th><th>Region</th><th>Plan</th><th>Ends</th><th>Students</th><th>Status</th></tr></thead><tbody>
+{% for s in schools %}<tr><td><code>{{ s.code }}</code></td><td><a href="{% url 'schools:school_detail' s.pk %}">{{ s.name }}</a>{% if s.is_demo %} <span class="pill pill-mute">demo</span>{% endif %}</td><td>{{ s.get_region_display }}</td>
+<td>{{ s.license.get_plan_display|default:"–" }}</td><td class="nowrap">{% if s.license.plan == 'UNLIMITED' %}Never{% else %}{{ s.license.expiry_date|date:"d M Y" }}{% endif %}</td><td>{{ s.users_n }}</td>
+<td>{% if s.is_active %}<span class="pill pill-ok">Active</span>{% else %}<span class="pill pill-bad">Off</span>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="7" class="text-muted">No schools yet.</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}
