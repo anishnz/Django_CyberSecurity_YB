@@ -47,6 +47,11 @@ class SystemSettings(models.Model):
     contact_email = models.EmailField(default="hello@cyberquest.local")
     contact_phone = models.CharField(max_length=40, default="+64 9 000 0000")
     welcome_video_url = models.URLField(blank=True, help_text="YouTube link shown on the public home page.")
+    bank_account_name = models.CharField(max_length=80, default="Mount Everest Digital Limited",
+                                         help_text="Shown on the payment page and receipts.")
+    bank_account_number = models.CharField(max_length=30, default="00-0000-0000000-00 (demo)",
+                                           help_text="Bank account for licence payments (demo number until set).")
+    gst_number = models.CharField(max_length=20, default="000-000-000 (demo)", help_text="GST number on receipts.")
     updated_at = models.DateTimeField(auto_now=True)
     updated_by = models.CharField(max_length=150, blank=True)
 
@@ -55,7 +60,7 @@ class SystemSettings(models.Model):
         "default_section_capacity", "exam_pass_mark", "practice_question_count", "temp_account_minutes",
         "license_warning_days", "image_max_mb", "audio_max_mb", "video_max_mb", "document_max_mb",
         "force_mfa_for_admins", "maintenance_mode", "maintenance_message", "contact_email",
-        "contact_phone", "welcome_video_url",
+        "contact_phone", "welcome_video_url", "bank_account_name", "bank_account_number", "gst_number",
     ]
 
     class Meta:
