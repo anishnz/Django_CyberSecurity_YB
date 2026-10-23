@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Pricing{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Pricing</h1><p>Per school, in New Zealand dollars (GST 15% added on invoices). Students never see prices.</p></div></div>
+<div class="row g-3 mb-4">{% for p in plans %}
+  <div class="col-md-6 col-lg-3"><div class="price-card{% if p.CODE == 'STANDARD' %} featured{% endif %}"><h2>{{ p.DISPLAY_NAME }}</h2>
+    <p class="price">${{ p.MONTHLY_PRICE|floatformat:0 }}<span class="fs-6 text-muted">/month</span></p>
+    <ul class="small"><li>Sections: {{ p.section_limit_label }}</li><li>{% if p.CODE == 'TRIAL' %}30 days{% elif p.CODE == 'UNLIMITED' %}Never expires{% else %}7-day grace period{% endif %}</li><li>Level 1 included</li></ul></div></div>
+{% endfor %}</div>
+<section class="panel"><h2>Level Packs (per school, per year)</h2>
+  <table class="table"><thead><tr><th>Level</th><th>Price (NZD)</th></tr></thead><tbody><tr><td>Level 1</td><td>Free</td></tr>
+  {% for lvl, price in packs.items %}<tr><td>Level {{ lvl }}</td><td>${{ price|floatformat:0 }}</td></tr>{% endfor %}</tbody></table>
+  <p class="small text-muted mb-0">Payment: bank transfer. Upload the payslip in the app; our team approves it and turns the plan on. 50% community discount for kura and small rural schools.</p></section>
+{% endblock %}
