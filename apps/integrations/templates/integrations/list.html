@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Integrations{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Integrations</h1>
+<p>Connect outside services. Everything works without them. Keys are saved encrypted and shown masked; every change is written to the security log.</p></div>
+<a class="btn btn-outline-primary" href="{% url 'integrations:ai_test' %}"><i class="bi bi-stars"></i> AI test page</a></div>
+<div class="row g-3">
+{% for c in cards %}
+<div class="col-lg-6" id="{{ c.provider }}"><section class="panel h-100">
+  <div class="d-flex justify-content-between align-items-start gap-2">
+    <h2 class="h5 mb-1">{{ c.cls.label }}</h2>
+    {% with s=c.row.status|default:"not_set" %}
+    <span class="pill pill-{% if s == 'connected' %}good{% elif s == 'error' %}bad{% elif s == 'saved' %}warn{% else %}info{% endif %}">{% if not c.cls.needs_secret %}ready{% else %}{{ s|cut:"_"|default:"not set" }}{% endif %}</span>
+    {% endwith %}
+  </div>
+  <p class="small text-muted">{{ c.cls.help_text }}</p>
+  {% if c.row.last_error %}<div class="alert alert-warning small py-2">{{ c.row.last_error }}</div>{% endif %}
+  {% if c.cls.provider != "offline" %}
+  <form method="post" action="{% url 'integrations:save' c.provider %}" autocomplete="off">{% csrf_token %}
+    {% if c.cls.needs_secret %}
+    <label class="form-label" for="s-{{ c.provider }}">{{ c.cls.secret_label }}</label>
+    <input class="form-control mb-1" type="password" id="s-{{ c.provider }}" name="secret" maxlength="500" placeholder="{% if c.row.has_secret %}Saved: {{ c.row.masked }} (leave empty to keep){% else %}Paste the key{% endif %}">
+    {% endif %}
+    {% for key, label, value in c.extra %}
+    <label class="form-label mt-2" for="{{ c.provider }}-{{ key }}">{{ label }}</label>
+    <input class="form-control" id="{{ c.provider }}-{{ key }}" name="{{ key }}" value="{{ value }}" maxlength="200">
+    {% endfor %}
+    <div class="form-check mt-2"><input class="form-check-input" type="checkbox" name="enabled" id="on-{{ c.provider }}" {% if c.row.enabled %}checked{% endif %}>
+      <label class="form-check-label" for="on-{{ c.provider }}">Switched on</label></div>
+    <button class="btn btn-primary btn-sm mt-2"><i class="bi bi-save"></i> Save</button>
+  </form>
+  {% endif %}
+  <div class="d-flex gap-2 mt-2">
+    <form method="post" action="{% url 'integrations:test' c.provider %}">{% csrf_token %}<button class="btn btn-outline-primary btn-sm"><i class="bi bi-plug"></i> Test connection</button></form>
+    {% if c.row.has_secret %}<form method="post" action="{% url 'integrations:clear' c.provider %}">{% csrf_token %}<button class="btn btn-outline-danger btn-sm"><i class="bi bi-x-circle"></i> Remove key</button></form>{% endif %}
+  </div>
+  {% if c.row.last_checked %}<p class="small text-muted mt-2 mb-0">Last checked {{ c.row.last_checked|date:"d M Y H:i" }}</p>{% endif %}
+</section></div>
+{% endfor %}
+</div>
+{% endblock %}
