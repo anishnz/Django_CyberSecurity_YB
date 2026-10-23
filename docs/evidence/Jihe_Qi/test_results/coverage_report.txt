@@ -125,7 +125,7 @@ apps/medialib/services.py                                45      3    93%
 apps/medialib/urls.py                                     4      0   100%
 apps/medialib/validators.py                              26      2    92%
 apps/medialib/views.py                                   70     24    66%
-apps/medialib/youtube.py                                 25     10    60%
+apps/medialib/youtube.py                                 25      8    68%
 apps/notifications/__init__.py                            0      0   100%
 apps/notifications/apps.py                                7      0   100%
 apps/notifications/models.py                             16      1    94%
@@ -177,9 +177,10 @@ apps/security/views.py                                   29     18    38%
 apps/website/__init__.py                                  0      0   100%
 apps/website/admin.py                                     3      0   100%
 apps/website/apps.py                                      5      0   100%
+apps/website/content.py                                  16      0   100%
 apps/website/forms.py                                    12      3    75%
 apps/website/models.py                                   25      2    92%
 apps/website/urls.py                                      4      0   100%
-apps/website/views.py                                    69     38    45%
+apps/website/views.py                                    70     34    51%
 -------------------------------------------------------------------------
-TOTAL                                                  6056   1250    79%
+TOTAL                                                  6073   1244    80%
