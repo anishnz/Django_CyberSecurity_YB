@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}{% L 'levels' %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Six {% L 'levels' %}</h1><p>From beginner to advanced. Each level has 4 study topics and a 20-question exam (100 marks).</p></div></div>
+<div class="row g-3">{% for lvl in levels %}
+  <div class="col-md-6 col-lg-4"><section class="panel h-100"><h2><i class="bi bi-{{ lvl.icon }}"></i> {{ lvl.title }}</h2>
+    <p class="small text-muted mb-1">{{ lvl.audience }}{% if lvl.is_free %} · <span class="pill pill-ok">Free</span>{% endif %}</p><p>{{ lvl.description }}</p>
+    <ul class="small mb-0">{% for t in lvl.topics.all %}<li>{{ t.title }}</li>{% endfor %}</ul></section></div>
+{% empty %}<p class="text-muted">Levels will appear after the content is imported.</p>{% endfor %}</div>
+{% endblock %}

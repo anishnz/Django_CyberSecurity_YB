@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Two-step login{% endblock %}
+{% block content %}
+<section class="panel mx-auto mt-4" style="max-width: 480px">
+  <h1 class="h3"><i class="bi bi-shield-lock"></i> Two-step login</h1>
+  <p>Kia ora {{ pending.display_name }}. Open your authenticator app and type the 6-digit code for <strong>CyberQuest</strong>. You can also use a backup code.</p>
+  <form method="post">{% csrf_token %}{% include "partials/form.html" %}<button class="btn btn-primary w-100">Check code</button></form>
+</section>
+{% endblock %}

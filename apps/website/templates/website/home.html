@@ -1,0 +1,53 @@
+{% extends "base.html" %}{% load static cq %}
+{% block title %}{% L 'home' %}{% endblock %}
+{% block main_class %}{% endblock %}
+{% block content %}
+<section class="hero" aria-label="Introduction">
+  <div id="heroCarousel" class="carousel slide container" data-bs-ride="carousel" data-bs-interval="7000">
+    <div class="carousel-indicators">{% for s in slides %}<button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active" aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>{% endfor %}</div>
+    <div class="carousel-inner">
+    {% for s in slides %}
+      <div class="carousel-item{% if forloop.first %} active{% endif %}"><div class="hero-slide">
+        <div><p class="tagline mb-2">{{ project.tagline }}</p><h1>{{ s.title }}</h1><p>{{ s.caption }}</p>
+          <div class="d-flex flex-wrap gap-2 mt-3"><a class="btn btn-kowhai btn-lg" href="{% url 'accounts:login' %}"><i class="bi bi-box-arrow-in-right"></i> {% L 'login' %}</a>
+          {% if demo_mode %}<form method="post" action="{% url 'website:guest_login' %}">{% csrf_token %}<button class="btn btn-outline-light btn-lg"><i class="bi bi-eye"></i> Try as Demo Guest</button></form>{% endif %}</div></div>
+        <div>{% if s.image %}<img src="{{ s.image.url }}" alt="{{ s.title }}">{% else %}<img src="{% static s.static_image %}" alt="">{% endif %}</div>
+      </div></div>
+    {% endfor %}
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Previous</span></button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Next</span></button>
+  </div>
+</section>
+
+<section class="section"><div class="container">
+  <div class="row g-4 align-items-center">
+    <div class="col-lg-5"><h2>What is CyberQuest?</h2>
+      <p class="lead-text">A cyber-safety learning platform for New Zealand schools. Students (Ākonga) learn in short topics, practise with kind feedback, and pass a 20-question exam to move up six levels. Teachers (Kaiako) see simple reports; schools manage everything in one place.</p>
+      <a class="btn btn-primary" href="{% url 'website:features' %}">See all features</a></div>
+    <div class="col-lg-7"><div class="video-frame">
+      {% if video_url %}<iframe src="{{ video_url }}" title="CyberQuest introduction video" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      {% else %}<div class="video-empty position-absolute top-0 start-0 w-100 h-100"><div><i class="bi bi-youtube fs-1"></i><p class="mb-0">Our introduction video will appear here.<br><span class="small">Super Admin: add the YouTube link in Settings → welcome_video_url.</span></p></div></div>{% endif %}
+    </div></div>
+  </div>
+</div></section>
+
+<section class="section section-tide"><div class="container">
+  <h2>How it works</h2>
+  <div class="row g-3">
+    <div class="col-md-4"><div class="feature h-100"><i class="bi bi-book"></i><h3>1. Study (Ako)</h3><p>Short topics with Kiwi and marae examples – 3 to 7 minutes each.</p></div></div>
+    <div class="col-md-4"><div class="feature h-100"><i class="bi bi-controller"></i><h3>2. Practise</h3><p>Instant feedback after every answer. Mistakes help us learn.</p></div></div>
+    <div class="col-md-4"><div class="feature h-100"><i class="bi bi-trophy"></i><h3>3. Prove it</h3><p>A 20-question exam; pass to earn a badge, a certificate and the next level.</p></div></div>
+  </div>
+</div></section>
+
+<section class="section"><div class="container">
+  <h2>Main features</h2>
+  <div class="feature-grid">{% for icon, title, text in features %}<div class="feature"><i class="bi bi-{{ icon }}"></i><h3>{{ title }}</h3><p class="mb-0">{{ text }}</p></div>{% endfor %}</div>
+</div></section>
+
+<section class="section section-tide"><div class="container"><div class="cta d-flex flex-wrap justify-content-between align-items-center gap-3">
+  <div><h2 class="mb-1">Bring CyberQuest to your kura (school)</h2><p class="mb-0">Free 30-day trial. 50% community discount for kura and small rural schools.</p></div>
+  <div class="d-flex gap-2"><a class="btn btn-primary btn-lg" href="{% url 'website:contact' %}">{% L 'contact' %}</a><a class="btn btn-outline-primary btn-lg" href="{% url 'website:pricing' %}">See pricing</a></div>
+</div></div></section>
+{% endblock %}

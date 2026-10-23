@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Audit log{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Audit log</h1><p>Who changed what, and when (old value → new value).</p></div>
+  <form class="d-flex gap-2"><select name="action" class="form-select" aria-label="Filter by action"><option value="">All actions</option>{% for a in actions %}<option {% if a == action %}selected{% endif %}>{{ a }}</option>{% endfor %}</select><button class="btn btn-outline-primary">Filter</button></form></div>
+<section class="panel panel-flush"><div class="table-responsive"><table class="table table-hover">
+<thead><tr><th>When</th><th>User</th><th>Action</th><th>Target</th><th>Old → New</th><th>Details</th></tr></thead><tbody>
+{% for r in page %}<tr><td class="nowrap">{{ r.created_at|date:"d M Y H:i" }}</td><td>{{ r.username }}</td><td><span class="pill pill-info">{{ r.action }}</span></td><td>{{ r.target }}</td><td>{% if r.old_value or r.new_value %}{{ r.old_value|default:"–" }} → {{ r.new_value|default:"–" }}{% endif %}</td><td class="small">{{ r.details }}</td></tr>
+{% empty %}<tr><td colspan="6" class="text-muted">No entries yet.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% include "partials/pager.html" %}
+{% endblock %}

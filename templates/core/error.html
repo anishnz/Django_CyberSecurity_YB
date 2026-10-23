@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ title|default:status }}{% endblock %}
+{% block content %}
+<section class="panel mt-4 text-center mx-auto" style="max-width: 640px">
+  <p class="display-6 mb-1" aria-hidden="true">{% if status == 404 %}🧭{% elif status == 403 %}🔒{% else %}🛠️{% endif %}</p>
+  <h1>{{ title|default:"Please check and try again" }}</h1>
+  <p class="lead-text mx-auto">{{ message }}</p>
+  <p class="text-muted small">Error code {{ status }}</p>
+  <a class="btn btn-primary" href="{% if user.is_authenticated %}{% url 'accounts:home' %}{% else %}{% url 'website:home' %}{% endif %}"><i class="bi bi-house"></i> Go to my home page</a>
+</section>
+{% endblock %}
