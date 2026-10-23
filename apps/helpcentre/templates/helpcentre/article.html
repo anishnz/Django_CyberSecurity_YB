@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}{% if a %}{{ a.title }}{% else %}Help{% endif %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% if a %}{{ a.title }}{% else %}Help{% endif %}</h1>{% if a %}<p>{{ a.summary }}</p>{% endif %}</div>
+<a class="btn btn-outline-primary" href="{% url 'helpcentre:index' %}">All help</a></div>
+<section class="panel help-body" style="max-width: 780px">{% if a %}{{ a.body|simple_format }}
+{% if video %}<div class="ratio ratio-16x9 mt-3"><iframe src="{{ video }}" title="{{ a.title }} video" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>{% endif %}
+{% else %}<p class="mb-0">This guide is for a different role.</p>{% endif %}</section>
+{% endblock %}
