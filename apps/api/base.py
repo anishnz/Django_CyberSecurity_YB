@@ -112,8 +112,8 @@ class ApiView(View, ABC):
         return response
 
 
-class SuperAdminApiView(ApiView):  # pylint: disable=abstract-method  (still abstract on purpose)
-    """Endpoints for the Super Admin only. Same-origin only (no CORS)."""
+class SuperAdminApiView(ApiView):  # pylint: disable=abstract-method
+    """Endpoints for the Super Admin only. Same-origin only (no CORS). Still abstract on purpose."""
 
     super_admin_only = True
     allow_cors = False
