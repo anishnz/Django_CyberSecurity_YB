@@ -20,33 +20,92 @@
   </div>
 </section>
 
-<section class="section"><div class="container">
+<section class="section" id="problem" aria-labelledby="problem-h"><div class="container">
+  <h2 id="problem-h">Born online. Not born safe.</h2>
+  <p class="problem-lead">{{ c.PROBLEM_INTRO }}</p>
+  <p class="problem-lead">{{ c.PROBLEM_TURN }}</p>
+  <h3 class="h4 mt-4">What could happen</h3>
+  <div class="row g-3">{% for icon, title, story in c.STORIES %}
+    <div class="col-md-6 col-lg-4"><article class="story"><i class="bi bi-{{ icon }}" aria-hidden="true"></i><h3>{{ title }}</h3><p>{{ story }}</p></article></div>{% endfor %}
+  </div>
+  <p class="small text-muted mt-2 mb-0">{{ c.STORIES_NOTE }}</p>
+</div></section>
+
+<section class="section section-tide" id="facts" aria-labelledby="facts-h"><div class="container">
+  <h2 id="facts-h">The numbers in Aotearoa New Zealand</h2>
+  <div class="row g-3">{% for num, text, source, url in c.NZ_FACTS %}
+    <div class="col-sm-6 col-lg-3"><div class="fact"><div class="num">{{ num }}</div><p>{{ text }}</p>
+      <a href="{{ url }}" target="_blank" rel="noopener">Source: {{ source }}</a></div></div>{% endfor %}
+  </div>
+  <p class="small text-muted mt-2 mb-0">{{ c.FACTS_NOTE }}</p>
+</div></section>
+
+<section class="section" id="ethics-law" aria-labelledby="law-h"><div class="container">
+  <div class="row g-4">
+    <div class="col-lg-4"><h2>IT ethics children meet every day</h2>
+      <p>Not everything wrong online is a scam. These are ethics questions CyberQuest helps students think about:</p>
+      <ul class="checklist">{% for e in c.ETHICS %}<li>{{ e }}</li>{% endfor %}</ul></div>
+    <div class="col-lg-8"><h2 id="law-h">New Zealand cyber law in simple words</h2>
+      <div class="row g-3">{% for name, text, url in c.NZ_LAWS %}
+        <div class="col-md-6"><div class="law"><h3><a href="{{ url }}" target="_blank" rel="noopener">{{ name }}</a></h3><p class="mb-0">{{ text }}</p></div></div>{% endfor %}
+      </div>
+      <p class="small mt-3 mb-0">Need help now? {% for label, url in c.HELP_LINKS %}<a href="{{ url }}" target="_blank" rel="noopener">{{ label }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}. This is general information, not legal advice.</p>
+    </div>
+  </div>
+</div></section>
+
+<section class="section pt-0" aria-labelledby="fire-h"><div class="container">
+  <div class="fire-exit"><div class="sign" aria-hidden="true"><i class="bi bi-door-open"></i></div>
+    <div><h2 id="fire-h">Show the exits before the fire</h2><p>{{ c.FIRE_EXIT }}</p></div></div>
+</div></section>
+
+<section class="section section-tide" id="about" aria-labelledby="about-h"><div class="container">
   <div class="row g-4 align-items-center">
-    <div class="col-lg-5"><h2>What is CyberQuest?</h2>
-      <p class="lead-text">A cyber-safety learning platform for New Zealand schools. Students (Ākonga) learn in short topics, practise with kind feedback, and pass a 20-question exam to move up six levels. Teachers (Kaiako) see simple reports; schools manage everything in one place.</p>
-      <a class="btn btn-primary" href="{% url 'website:features' %}">See all features</a></div>
-    <div class="col-lg-7"><div class="video-frame">
+    <div class="col-lg-6"><h2 id="about-h">Our answer: CyberQuest</h2>
+      <ul class="checklist">{% for point in c.ABOUT_US %}<li>{{ point }}</li>{% endfor %}</ul>
+      <a class="btn btn-primary mt-3" href="{% url 'website:levels' %}">See the six levels</a></div>
+    <div class="col-lg-6"><div class="video-frame">
       {% if video_url %}<iframe src="{{ video_url }}" title="CyberQuest introduction video" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
       {% else %}<div class="video-empty position-absolute top-0 start-0 w-100 h-100"><div><i class="bi bi-youtube fs-1"></i><p class="mb-0">Our introduction video will appear here.<br><span class="small">Super Admin: add the YouTube link in Settings → welcome_video_url.</span></p></div></div>{% endif %}
     </div></div>
   </div>
 </div></section>
 
-<section class="section section-tide"><div class="container">
-  <h2>How it works</h2>
-  <div class="row g-3">
-    <div class="col-md-4"><div class="feature h-100"><i class="bi bi-book"></i><h3>1. Study (Ako)</h3><p>Short topics with Kiwi and marae examples – 3 to 7 minutes each.</p></div></div>
-    <div class="col-md-4"><div class="feature h-100"><i class="bi bi-controller"></i><h3>2. Practise</h3><p>Instant feedback after every answer. Mistakes help us learn.</p></div></div>
-    <div class="col-md-4"><div class="feature h-100"><i class="bi bi-trophy"></i><h3>3. Prove it</h3><p>A 20-question exam; pass to earn a badge, a certificate and the next level.</p></div></div>
+<section class="section"><div class="container">
+  <h2>How learning works</h2>
+  <ol class="steps">
+    <li><strong>Study (Ako)</strong>Short topics with Kiwi and marae examples – 3 to 7 minutes each.</li>
+    <li><strong>Practise</strong>Instant, kind feedback after every answer. Mistakes help us learn.</li>
+    <li><strong>Prove it</strong>A 20-question exam; pass to earn a badge, a certificate and the next level.</li>
+  </ol>
+</div></section>
+
+<section class="section section-tide" id="ai" aria-labelledby="ai-h"><div class="container">
+  <div class="row g-4">
+    <div class="col-lg-7"><h2 id="ai-h">How AI helps – with people in charge</h2>
+      <ul class="checklist">{% for point in c.AI_HELPS %}<li>{{ point }}</li>{% endfor %}</ul></div>
+    <div class="col-lg-5"><div class="law h-auto mt-lg-5"><h3><i class="bi bi-shield-check" aria-hidden="true"></i> Our promise</h3><p class="mb-0">{{ c.AI_LIMIT }}</p></div></div>
   </div>
 </div></section>
 
-<section class="section"><div class="container">
-  <h2>Main features</h2>
-  <div class="feature-grid">{% for icon, title, text in features %}<div class="feature"><i class="bi bi-{{ icon }}"></i><h3>{{ title }}</h3><p class="mb-0">{{ text }}</p></div>{% endfor %}</div>
+<section class="section" id="features" aria-labelledby="features-h"><div class="container">
+  <h2 id="features-h">Everything in one platform</h2>
+  <div class="row g-3">{% for icon, group, items in c.FEATURE_GROUPS %}
+    <div class="col-md-6 col-lg-4"><div class="feature-group"><h3><i class="bi bi-{{ icon }}" aria-hidden="true"></i> {{ group }}</h3>
+      <ul>{% for item in items %}<li>{{ item }}</li>{% endfor %}</ul></div></div>{% endfor %}
+  </div>
+  <a class="btn btn-outline-primary mt-3" href="{% url 'website:features' %}">All features</a>
 </div></section>
 
-<section class="section section-tide"><div class="container"><div class="cta d-flex flex-wrap justify-content-between align-items-center gap-3">
+<section class="section section-tide" id="architecture" aria-labelledby="arch-h"><div class="container">
+  <h2 id="arch-h">How CyberQuest works inside</h2>
+  <p class="problem-lead">The system architecture: what happens between a click in the browser and the answer on the screen.</p>
+  {% include "website/_architecture.html" %}
+  <h3 class="h4 mt-4">The journey of one request</h3>
+  <ol class="steps">{% for title, text in c.REQUEST_STEPS %}<li><strong>{{ title }}</strong>{{ text }}</li>{% endfor %}</ol>
+</div></section>
+
+<section class="section"><div class="container"><div class="cta d-flex flex-wrap justify-content-between align-items-center gap-3">
   <div><h2 class="mb-1">Bring CyberQuest to your kura (school)</h2><p class="mb-0">Free 30-day trial. 50% community discount for kura and small rural schools.</p></div>
   <div class="d-flex gap-2"><a class="btn btn-primary btn-lg" href="{% url 'website:contact' %}">{% L 'contact' %}</a><a class="btn btn-outline-primary btn-lg" href="{% url 'website:pricing' %}">See pricing</a></div>
 </div></div></section>

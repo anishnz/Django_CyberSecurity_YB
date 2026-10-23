@@ -1,0 +1,141 @@
+{% comment %}
+System architecture diagram (inline SVG – no JavaScript, works offline, follows dark mode).
+Owner: Dinesh Upreti with Anish Shrestha (system design).
+{% endcomment %}
+<figure class="arch-figure" aria-labelledby="arch-caption">
+<div class="arch-scroll">
+<svg class="arch" viewBox="0 0 1280 650" role="img" aria-labelledby="arch-title arch-desc">
+  <title id="arch-title">CyberQuest system architecture</title>
+  <desc id="arch-desc">Users open CyberQuest in a browser. Requests go into a Docker container running waitress and Django:
+  middleware, views with role checks, the service layer and the models. Data is saved in the database and media folder.
+  Optional outside services are AI providers, Gmail, Google Maps, WhatsApp, Viber and YouTube.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="arch-arrowhead"/></marker>
+  </defs>
+
+  <!-- column titles -->
+  <text class="arch-col" x="105" y="34" text-anchor="middle">People</text>
+  <text class="arch-col" x="320" y="34" text-anchor="middle">Browser</text>
+  <text class="arch-col" x="950" y="34" text-anchor="middle">Data</text>
+  <text class="arch-col" x="1170" y="34" text-anchor="middle">Outside services</text>
+  <text class="arch-note" x="1170" y="52" text-anchor="middle">only when switched on · encrypted keys</text>
+
+  <!-- people -->
+  <g class="arch-person">
+    <rect x="20" y="70" width="170" height="44" rx="22"/><text x="105" y="97" text-anchor="middle">Students (Ākonga)</text>
+    <rect x="20" y="128" width="170" height="44" rx="22"/><text x="105" y="155" text-anchor="middle">Teachers (Kaiako)</text>
+    <rect x="20" y="186" width="170" height="44" rx="22"/><text x="105" y="213" text-anchor="middle">School Admins</text>
+    <rect x="20" y="244" width="170" height="44" rx="22"/><text x="105" y="271" text-anchor="middle">Super Admin</text>
+    <rect x="20" y="302" width="170" height="44" rx="22"/><text x="105" y="329" text-anchor="middle">Visitors, Demo Guest</text>
+  </g>
+  <g class="arch-line">
+    <path d="M190 92 L240 190" marker-end="url(#arrow)"/><path d="M190 150 L240 200" marker-end="url(#arrow)"/>
+    <path d="M190 208 L240 208" marker-end="url(#arrow)"/><path d="M190 266 L240 216" marker-end="url(#arrow)"/>
+    <path d="M190 324 L240 226" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- browser -->
+  <g class="arch-box">
+    <rect x="240" y="140" width="160" height="140" rx="12"/>
+    <text x="320" y="170" text-anchor="middle" class="arch-h">Web browser</text>
+    <text x="320" y="196" text-anchor="middle">Bootstrap pages</text>
+    <text x="320" y="216" text-anchor="middle">Chart.js charts</text>
+    <text x="320" y="236" text-anchor="middle">Dark mode, large text</text>
+    <text x="320" y="262" text-anchor="middle" class="arch-small">HTTPS · CSRF · CSP</text>
+  </g>
+  <path class="arch-line" d="M400 196 L470 110" marker-end="url(#arrow)"/>
+  <path class="arch-line" d="M470 124 L400 226" marker-end="url(#arrow)"/>
+
+  <!-- docker container -->
+  <rect class="arch-container" x="450" y="20" width="380" height="615" rx="16"/>
+  <text class="arch-col" x="640" y="46" text-anchor="middle">Docker container</text>
+  <text class="arch-note" x="640" y="62" text-anchor="middle">run.bat finds a free port (8000–8020)</text>
+
+  <g class="arch-box">
+    <rect x="470" y="78" width="340" height="52" rx="10"/>
+    <text x="640" y="101" text-anchor="middle" class="arch-h">waitress web server</text>
+    <text x="640" y="120" text-anchor="middle" class="arch-small">WhiteNoise serves CSS, JS, fonts</text>
+
+    <rect x="470" y="152" width="340" height="62" rx="10"/>
+    <text x="640" y="175" text-anchor="middle" class="arch-h">Django middleware</text>
+    <text x="640" y="194" text-anchor="middle" class="arch-small">security headers · maintenance · account status</text>
+    <text x="640" y="208" text-anchor="middle" class="arch-small">two-step login (MFA) · friendly errors</text>
+
+    <rect x="470" y="236" width="340" height="62" rx="10"/>
+    <text x="640" y="259" text-anchor="middle" class="arch-h">URLs and views</text>
+    <text x="640" y="278" text-anchor="middle" class="arch-small">@role_required · 5 roles · Login as · forms</text>
+    <text x="640" y="292" text-anchor="middle" class="arch-small">19 Django apps</text>
+  </g>
+  <g class="arch-service">
+    <rect x="470" y="320" width="340" height="150" rx="10"/>
+    <text x="640" y="344" text-anchor="middle" class="arch-h">Service layer (OOP)</text>
+    <text x="490" y="370">Quiz engine – Strategy (practice / exam)</text>
+    <text x="490" y="391">Questions – Factory · Roles, plans – polymorphism</text>
+    <text x="490" y="412">Notices and emails – Observer</text>
+    <text x="490" y="433">Integrations – Adapter · Tickets – state machine</text>
+    <text x="490" y="454">Payments · BI · AI drafts · certificates</text>
+  </g>
+  <g class="arch-box">
+    <rect x="470" y="492" width="340" height="52" rx="10"/>
+    <text x="640" y="515" text-anchor="middle" class="arch-h">Models (Django ORM)</text>
+    <text x="640" y="534" text-anchor="middle" class="arch-small">users, schools, licences, questions, results…</text>
+
+    <rect x="470" y="566" width="340" height="52" rx="10"/>
+    <text x="640" y="589" text-anchor="middle" class="arch-h">Logs and health</text>
+    <text x="640" y="608" text-anchor="middle" class="arch-small">security · audit · email logs · /health/</text>
+  </g>
+  <g class="arch-line">
+    <path d="M640 130 L640 150" marker-end="url(#arrow)"/><path d="M640 214 L640 234" marker-end="url(#arrow)"/>
+    <path d="M640 298 L640 318" marker-end="url(#arrow)"/><path d="M640 470 L640 490" marker-end="url(#arrow)"/>
+    <path d="M640 544 L640 564" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- data -->
+  <g class="arch-data">
+    <path d="M880 470 v52 a70 14 0 0 0 140 0 v-52"/><ellipse cx="950" cy="470" rx="70" ry="14"/>
+    <text x="950" y="506" text-anchor="middle" class="arch-h">Database</text>
+    <text x="950" y="524" text-anchor="middle" class="arch-small">SQLite or PostgreSQL</text>
+    <rect x="880" y="340" width="140" height="70" rx="10"/>
+    <text x="950" y="368" text-anchor="middle" class="arch-h">Media folder</text>
+    <text x="950" y="388" text-anchor="middle" class="arch-small">uploads, payslips</text>
+    <text x="950" y="402" text-anchor="middle" class="arch-small">safe random names</text>
+    <rect x="880" y="560" width="140" height="62" rx="10"/>
+    <text x="950" y="586" text-anchor="middle" class="arch-h">Backups</text>
+    <text x="950" y="606" text-anchor="middle" class="arch-small">keep the last 10</text>
+  </g>
+  <g class="arch-line">
+    <path d="M810 518 L878 505" marker-end="url(#arrow)"/>
+    <path d="M810 410 L878 380" marker-end="url(#arrow)"/>
+    <path d="M950 538 L950 558" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- outside services -->
+  <g class="arch-ext">
+    <rect x="1080" y="70" width="180" height="62" rx="10"/>
+    <text x="1170" y="95" text-anchor="middle" class="arch-h">AI providers</text>
+    <text x="1170" y="115" text-anchor="middle" class="arch-small">Claude · OpenAI · Gemini</text>
+    <rect x="1080" y="148" width="180" height="62" rx="10"/>
+    <text x="1170" y="173" text-anchor="middle" class="arch-h">Gmail</text>
+    <text x="1170" y="193" text-anchor="middle" class="arch-small">SMTP send · IMAP auto-reply</text>
+    <rect x="1080" y="226" width="180" height="62" rx="10"/>
+    <text x="1170" y="251" text-anchor="middle" class="arch-h">WhatsApp · Viber</text>
+    <text x="1170" y="271" text-anchor="middle" class="arch-small">password reset links</text>
+    <rect x="1080" y="304" width="180" height="62" rx="10"/>
+    <text x="1170" y="329" text-anchor="middle" class="arch-h">Google Maps</text>
+    <text x="1170" y="349" text-anchor="middle" class="arch-small">school locations</text>
+    <rect x="1080" y="382" width="180" height="62" rx="10"/>
+    <text x="1170" y="407" text-anchor="middle" class="arch-h">YouTube</text>
+    <text x="1170" y="427" text-anchor="middle" class="arch-small">privacy-mode videos</text>
+  </g>
+  <g class="arch-line arch-dashed">
+    <path d="M810 345 L1078 101" marker-end="url(#arrow)"/>
+    <path d="M810 360 L1078 179" marker-end="url(#arrow)"/>
+    <path d="M810 375 L1078 257" marker-end="url(#arrow)"/>
+  </g>
+  <text class="arch-note" x="1170" y="466" text-anchor="middle">Maps and YouTube load straight</text>
+  <text class="arch-note" x="1170" y="482" text-anchor="middle">in the browser (allowed by CSP)</text>
+</svg>
+</div>
+<figcaption id="arch-caption" class="small text-muted mt-2">Solid arrows: every request. Dashed arrows: optional outside services. The app works fully without them (offline AI helper, local email log).</figcaption>
+</figure>

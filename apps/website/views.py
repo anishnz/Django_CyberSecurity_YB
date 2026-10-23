@@ -23,6 +23,7 @@ from apps.licensing.plans import LEVEL_PACK_PRICES, PLAN_CLASSES
 from apps.medialib.youtube import safe_embed_url
 from apps.security.services import SecurityLog
 
+from . import content
 from .forms import ContactForm
 from .models import Slide
 
@@ -69,7 +70,7 @@ def home(request):
     return render(
         request,
         "website/home.html",
-        {"slides": _slides(), "features": FEATURES[:6], "video_url": safe_embed_url(cfg.welcome_video_url)},
+        {"slides": _slides(), "c": content, "video_url": safe_embed_url(cfg.welcome_video_url)},
     )
 
 
