@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ level.title }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ level.title }}</h1><p>{{ level.description }}</p></div><a class="btn btn-outline-primary" href="{% url 'learning:level_list' %}">All levels</a></div>
+<section class="panel"><h2>Study topics</h2><ul>{% for t in topics %}<li><code>{{ t.code }}</code> {{ t.title }} <span class="text-muted small">({{ t.category_name }}, {{ t.minutes }} min)</span></li>{% endfor %}</ul></section>
+<section class="panel"><h2>Questions ({{ questions|length }})</h2>
+{% for q in questions %}<div class="review-item"><p class="mb-1"><code>{{ q.code|default:q.pk }}</code> <span class="pill pill-info">{{ q.category_name }}</span> <span class="pill pill-mute">{{ q.get_q_type_display }}</span>{% if q.created_by %} <span class="pill pill-warn">Teacher: {{ q.created_by }} ({{ q.school.code }})</span>{% endif %}
+<a class="small ms-2" href="{% url 'learning:question_edit' q.pk %}">Edit</a></p>
+<p class="fw-bold mb-1">{{ q.text }}</p><ul class="small mb-1">{% for o in q.options.all %}<li{% if o.is_correct %} class="text-success fw-bold"{% endif %}>{{ o.label }}. {{ o.text }}</li>{% endfor %}</ul><p class="small text-muted mb-0">{{ q.feedback }}</p></div>{% endfor %}</section>
+{% endblock %}

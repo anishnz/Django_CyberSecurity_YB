@@ -1,0 +1,9 @@
+# Code style settings (Jihe Qi, QA Lead). Run:  black .   and   pylint apps cyberquest tests
+[tool.black]
+line-length = 120
+skip-string-normalization = true
+extend-exclude = "migrations|staticfiles"
+
+[tool.coverage.run]
+source = ["apps"]
+omit = ["*/migrations/*", "*/tests/*"]

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Users{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Users</h1><p>Create, switch off, reset passwords, manage two-step login, or <strong>Login as</strong> any user to test their dashboard.</p></div>
+  <a class="btn btn-primary" href="{% url 'accounts:user_new' %}"><i class="bi bi-person-plus"></i> New user</a></div>
+<form class="panel d-flex flex-wrap gap-2 align-items-end mb-3">
+  <div><label class="form-label" for="q">Search</label><input class="form-control" id="q" name="q" value="{{ q }}" placeholder="Name, username or email"></div>
+  <div><label class="form-label" for="role">Role</label><select class="form-select" id="role" name="role"><option value="">All</option>{% for code, label in roles %}<option value="{{ code }}" {% if code == role %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+  <div><label class="form-label" for="school">School</label><select class="form-select" id="school" name="school"><option value="">All</option>{% for s in schools %}<option value="{{ s.pk }}" {% if s.pk|stringformat:"s" == school %}selected{% endif %}>{{ s.name }}</option>{% endfor %}</select></div>
+  <button class="btn btn-outline-primary">Filter</button>
+</form>
+<section class="panel panel-flush"><div class="table-responsive"><table class="table table-hover align-middle">
+<thead><tr><th>Name</th><th>Username</th><th>Role</th><th>School</th><th>Status</th><th>MFA</th><th class="text-end">Actions</th></tr></thead><tbody>
+{% for u in page %}<tr>
+  <td>{{ u.get_full_name|default:u.username }}</td><td><code>{{ u.username }}</code></td><td>{{ u.role_obj.label }}</td><td>{{ u.school|default:"–" }}</td>
+  <td>{% if not u.is_active %}<span class="pill pill-bad">Off</span>{% elif u.is_locked %}<span class="pill pill-warn">Locked</span>{% elif u.expires_at %}<span class="pill pill-warn">Temp</span>{% else %}<span class="pill pill-ok">On</span>{% endif %}</td>
+  <td>{% if u.mfa_enabled %}<span class="pill pill-ok">On</span>{% else %}<span class="pill pill-mute">Off</span>{% endif %}</td>
+  <td class="text-end nowrap">
+    <a class="btn btn-sm btn-outline-primary" href="{% url 'accounts:user_edit' u.pk %}" title="Edit"><i class="bi bi-pencil"></i></a>
+    <a class="btn btn-sm btn-outline-primary" href="{% url 'accounts:user_reset' u.pk %}" title="Reset password"><i class="bi bi-key"></i></a>
+    {% if not u.is_super_admin %}<a class="btn btn-sm btn-kowhai" href="{% url 'accounts:login_as' u.pk %}" title="Login as"><i class="bi bi-person-badge"></i> Login as</a>{% endif %}
+    <form method="post" action="{% url 'accounts:user_toggle' u.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-outline-secondary" title="Switch on/off"><i class="bi bi-power"></i></button></form>
+    {% if u.mfa_enabled %}<form method="post" action="{% url 'accounts:user_security' u.pk %}" class="d-inline" data-confirm="Turn off two-step login for {{ u.username }}?">{% csrf_token %}<input type="hidden" name="action" value="disable"><button class="btn btn-sm btn-outline-danger" title="Turn off MFA"><i class="bi bi-shield-x"></i></button></form>{% endif %}
+    {% if u.is_locked %}<form method="post" action="{% url 'accounts:user_security' u.pk %}" class="d-inline">{% csrf_token %}<input type="hidden" name="action" value="unlock"><button class="btn btn-sm btn-outline-warning" title="Unlock"><i class="bi bi-unlock"></i></button></form>{% endif %}
+  </td></tr>
+{% empty %}<tr><td colspan="7" class="text-muted">No users match.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% include "partials/pager.html" %}
+<section class="panel mt-3" style="max-width: 760px"><h2><i class="bi bi-clock-history"></i> Temporary account</h2>
+  <p class="small text-muted">For a visitor or a quick test. It stops working after the minutes you choose.</p>
+  <form method="post" action="{% url 'accounts:user_temporary' %}" class="row g-2 align-items-end">{% csrf_token %}
+    {% for f in temp_form %}<div class="col-sm-4"><label class="form-label" for="{{ f.id_for_label }}">{{ f.label }}</label>{% load cq %}{{ f|bs }}</div>{% endfor %}
+    <div class="col-12"><button class="btn btn-outline-primary">Create temporary account</button></div></form></section>
+{% endblock %}

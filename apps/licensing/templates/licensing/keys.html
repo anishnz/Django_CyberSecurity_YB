@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Key generator{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Key generator</h1><p>Company tool used at the Mount Everest Digital office. A key works only for its own school; the last four characters are a check code.</p></div></div>
+<div class="row g-3"><div class="col-lg-6"><section class="panel"><form method="post">{% csrf_token %}
+<div class="mb-2"><label class="form-label" for="sc">School</label><select class="form-select" id="sc" name="school_code">{% for s in schools %}<option value="{{ s.code }}" {% if chosen.school_code == s.code %}selected{% endif %}>{{ s.name }} ({{ s.code }})</option>{% endfor %}</select></div>
+<div class="mb-2"><label class="form-label" for="kind">Key type</label><select class="form-select" id="kind" name="kind"><optgroup label="Product key (plan)">{% for code, name in plans %}<option value="{{ code }}" {% if chosen.kind == code %}selected{% endif %}>{{ name }}</option>{% endfor %}</optgroup><optgroup label="Level Pack key">{% for n in levels %}<option value="{{ n }}" {% if chosen.kind == n %}selected{% endif %}>Level Pack {{ n|slice:'1:' }}</option>{% endfor %}</optgroup></select></div>
+<div class="mb-3"><label class="form-label" for="exp">Expiry date</label><input class="form-control" id="exp" type="date" name="expiry" value="{{ chosen.expiry }}"><div class="form-text">Leave empty for Unlimited.</div></div><button class="btn btn-primary"><i class="bi bi-key"></i> Make key</button></form></section></div>
+<div class="col-lg-6">{% if generated %}<section class="panel overwrite"><h2>New key</h2><p class="code-key fs-5 mb-2">{{ generated }}</p><p class="text-muted mb-0">Give this key to the school. They enter it on their Licence page.</p></section>{% endif %}
+<section class="panel panel-tide"><h2>Key format</h2><p class="code-key">CQ-SCHOOLCODE-PLAN-YYYYMMDD-CHECK</p><p class="mb-0">CHECK = first 4 characters of HMAC-SHA256 over the other parts, so changing the date or plan makes the key invalid.</p></section></div></div>
+{% endblock %}

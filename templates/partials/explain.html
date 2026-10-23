@@ -1,0 +1,19 @@
+{% load cq %}{% comment %}"Explain this page" – opens a side panel with the help article for this page (Bootstrap offcanvas, no inline JS). Owner: Dinesh Upreti.{% endcomment %}
+{% safe_url 'helpcentre:index' as help_index %}{% if help_index %}
+<button class="btn btn-kowhai explain-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#explain" aria-controls="explain">
+  <i class="bi bi-question-circle"></i> <span>Explain this page</span></button>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="explain" aria-labelledby="explain-title">
+  <div class="offcanvas-header"><h2 class="offcanvas-title h5" id="explain-title">{% if page_help %}{{ page_help.title }}{% else %}About this page{% endif %}</h2>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div>
+  <div class="offcanvas-body">
+    {% if page_help %}<p class="lead fs-6">{{ page_help.summary }}</p>{{ page_help.body|simple_format }}
+    <a href="{% url 'helpcentre:article' page_help.slug %}">Open the full guide</a>
+    {% else %}<p>There is no guide for this page yet. The help centre has guides for every role.</p>{% endif %}
+    {% safe_url 'ai_assistant:explain' as ai_explain %}{% if ai_explain %}
+    <hr><form method="post" action="{{ ai_explain }}">{% csrf_token %}<input type="hidden" name="page" value="{{ request.resolver_match.view_name }}">
+      <label class="form-label" for="explain-q">Ask a question about this page</label>
+      <textarea class="form-control mb-2" id="explain-q" name="question" rows="2" maxlength="300" placeholder="For example: how do I unlock Level 2?"></textarea>
+      <button class="btn btn-outline-primary btn-sm"><i class="bi bi-stars"></i> Ask the helper</button></form>{% endif %}
+    <hr><a class="btn btn-outline-primary btn-sm" href="{{ help_index }}"><i class="bi bi-book"></i> Help centre</a>
+  </div>
+</div>{% endif %}

@@ -1,0 +1,99 @@
+{% load static cq %}<!doctype html>
+<html lang="en-NZ">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ project.name }}{% endblock %} · {{ project.name }}</title>
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  <script src="{% static 'js/theme.js' %}"></script>
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}" data-page="{{ request.resolver_match.view_name|default:'' }}">
+<a class="visually-hidden-focusable skip-link" href="#main">Skip to main content</a>
+{% if impersonating %}
+  <div class="impersonation-bar" role="alert">
+    <i class="bi bi-person-badge"></i> Viewing as <strong>{{ user }}</strong> – {{ user.role_obj.label }}
+    <form method="post" action="{% url 'accounts:login_as_stop' %}" class="d-inline ms-2">{% csrf_token %}
+      <button class="btn btn-sm btn-light" type="submit"><i class="bi bi-box-arrow-left"></i> Return to Super Admin</button>
+    </form>
+  </div>
+{% endif %}
+{% block navbar %}
+<nav class="navbar navbar-expand-xl navbar-dark cq-nav" aria-label="Main">
+  <div class="container-fluid px-lg-4">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="{% if user.is_authenticated %}{% url 'accounts:home' %}{% else %}{% url 'website:home' %}{% endif %}">
+      <img src="{% static 'img/logo.svg' %}" alt="" width="34" height="34"> <span>{{ project.name }}</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Open menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav me-auto">
+      {% if user.is_authenticated %}
+        {% for label, name, icon in menu %}{% safe_url name as href %}{% if href %}
+          <li class="nav-item"><a class="nav-link{% if request.path == href %} active{% endif %}" href="{{ href }}"><i class="bi bi-{{ icon }}"></i> {{ label }}</a></li>
+        {% endif %}{% endfor %}
+      {% else %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'website:features' %}">Features</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'website:levels' %}">{% L 'levels' %}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'website:pricing' %}">Pricing</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'website:community' %}">{% L 'community' %}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'website:about' %}">{% L 'about' %}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'website:contact' %}">{% L 'contact' %}</a></li>
+      {% endif %}
+      </ul>
+      <ul class="navbar-nav align-items-xl-center gap-xl-2">
+      {% if user.is_authenticated %}
+        {% safe_url 'notifications:list' as bell %}
+        <li class="nav-item"><a class="nav-link" href="{{ bell }}" aria-label="Notices ({{ unread_count }} unread)"><i class="bi bi-bell"></i>{% if unread_count %}<span class="bell-count">{{ unread_count }}</span>{% endif %}</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle nowrap" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ user.display_name }} <span class="cq-role">{{ user.role_obj.label }}</span></a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}"><i class="bi bi-key"></i> Change {% L 'password' %}</a></li>
+            <li><a class="dropdown-item" href="{% url 'accounts:mfa_setup' %}"><i class="bi bi-shield-check"></i> Two-step login</a></li>
+            {% if user.role != 'guest' %}{% safe_url 'announcements:list' as panui %}{% if panui %}<li><a class="dropdown-item" href="{{ panui }}"><i class="bi bi-megaphone"></i> Announcements (Pānui)</a></li>{% endif %}{% endif %}
+            {% safe_url 'helpcentre:index' as helpurl %}{% if helpurl %}<li><a class="dropdown-item" href="{{ helpurl }}"><i class="bi bi-question-circle"></i> {% L 'help' %}</a></li>{% endif %}
+            {% if user.is_super_admin %}
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'core:settings' %}"><i class="bi bi-sliders"></i> {% L 'settings' %}</a></li>
+              <li><a class="dropdown-item" href="{% url 'security:log' %}"><i class="bi bi-shield-exclamation"></i> Security log</a></li>
+              <li><a class="dropdown-item" href="{% url 'core:audit_log' %}"><i class="bi bi-journal-text"></i> Audit log</a></li>
+              {% safe_url 'integrations:list' as intg %}{% if intg %}<li><a class="dropdown-item" href="{{ intg }}"><i class="bi bi-plug"></i> Integrations</a></li>{% endif %}
+            {% endif %}
+            <li><hr class="dropdown-divider"></li>
+            <li><form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="dropdown-item" type="submit"><i class="bi bi-box-arrow-right"></i> {% L 'logout' %}</button></form></li>
+          </ul>
+        </li>
+      {% else %}
+        <li class="nav-item"><a class="btn btn-kowhai btn-sm" href="{% url 'accounts:login' %}"><i class="bi bi-box-arrow-in-right"></i> {% L 'login' %}</a></li>
+      {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+{% endblock %}
+<main id="main" class="{% block main_class %}container py-4{% endblock %}">
+  {% block messages %}{% include "partials/messages.html" %}{% endblock %}
+  {% block content %}{% endblock %}
+</main>
+{% include "partials/explain.html" %}
+<footer class="cq-footer">
+  <div class="container py-3 d-flex flex-wrap gap-3 justify-content-between small">
+    <span>{{ project.name }} {{ project.version }} by {{ project.company }}. {{ project.tagline }}</span>
+    <span>{{ project.code }} · {{ project.college }} · <a href="{% url 'website:about' %}">About this project</a> · <a href="{% url 'website:privacy' %}">Privacy</a></span>
+    <span class="d-flex gap-2" role="group" aria-label="Display options">
+      <button class="btn btn-sm btn-outline-secondary" type="button" data-display-toggle="dark" aria-pressed="false"><i class="bi bi-moon-stars" aria-hidden="true"></i> Dark mode</button>
+      <button class="btn btn-sm btn-outline-secondary" type="button" data-display-toggle="large" aria-pressed="false"><i class="bi bi-type" aria-hidden="true"></i> Larger text</button>
+    </span>
+  </div>
+</footer>
+<script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/app.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

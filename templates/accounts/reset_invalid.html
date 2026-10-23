@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Link not valid{% endblock %}
+{% block content %}
+<section class="panel mx-auto mt-4" style="max-width: 520px"><h1 class="h3">This link does not work</h1>
+<p>It may be older than 1 hour or already used. Please ask for a new link.</p>
+<a class="btn btn-primary" href="{% url 'accounts:forgot' %}">Ask for a new link</a></section>
+{% endblock %}

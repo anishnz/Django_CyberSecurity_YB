@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Add student{% endblock %}
+{% block content %}
+<section class="panel mx-auto" style="max-width: 720px"><h1 class="h3">Add a student</h1><p class="text-muted">The username is made automatically (first.last). A full section cannot take more students.</p>
+<form method="post">{% csrf_token %}{% include "partials/form.html" %}<button class="btn btn-primary">Add student</button> <a class="btn btn-outline-primary" href="{% url 'schools:student_list' %}">Cancel</a></form></section>
+{% endblock %}

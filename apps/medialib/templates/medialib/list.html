@@ -1,0 +1,34 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}Media library{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Media library</h1><p>Pictures, audio, video, PDFs and YouTube videos for topic pages. Files are checked for their real type and size.</p></div>
+<a class="btn btn-primary" href="{% url 'medialib:media_upload' %}"><i class="bi bi-upload"></i> Upload a file</a></div>
+<p class="small text-muted">Size limits: {% for k, mb in limits.items %}{{ k }} {{ mb }} MB{% if not forloop.last %}, {% endif %}{% endfor %}.</p>
+{% if waiting %}<section class="panel panel-note"><h2 class="h5"><i class="bi bi-feather"></i> Waiting for the cultural check</h2>
+<p class="small">These have Māori language, images or tikanga. Students see them after a Cultural Guide (Kaiārahi) checks them.</p>
+<ul class="list-unstyled mb-0">{% for m in waiting %}<li class="d-flex justify-content-between align-items-center border-bottom py-2"><span>{{ m.title }} <span class="small text-muted">({{ m.get_kind_display }}, by {{ m.owner|default:"–" }})</span></span>
+{% if user.is_cultural_guide %}<form method="post" action="{% url 'medialib:cultural_approve' m.pk %}">{% csrf_token %}<button class="btn btn-sm btn-success">Give cultural check</button></form>{% endif %}</li>{% endfor %}</ul></section>{% endif %}
+<nav class="d-flex flex-wrap gap-2 mb-3" aria-label="File type"><a class="btn btn-sm {% if not kind %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?">All</a>
+{% for v, l in kinds %}<a class="btn btn-sm {% if kind == v %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?kind={{ v }}">{{ l }}</a>{% endfor %}</nav>
+<section class="panel panel-flush"><div class="table-responsive"><table class="table table-hover align-middle">
+<thead><tr><th>Preview</th><th>Title</th><th>Topic</th><th>Size</th><th>Students see it?</th><th></th></tr></thead><tbody>
+{% for m in files %}<tr>
+<td>{% if m.kind == 'image' %}<img src="{{ m.file.url }}" alt="{{ m.alt_text|default:m.title }}" class="rounded" width="72">{% elif m.kind == 'audio' %}<audio controls preload="none" src="{{ m.file.url }}"></audio>{% elif m.kind == 'video' %}<i class="bi bi-film fs-3" aria-hidden="true"></i>{% else %}<i class="bi bi-file-earmark-pdf fs-3" aria-hidden="true"></i>{% endif %}</td>
+<td>{{ m.title }}<div class="small text-muted">{{ m.get_kind_display }}{% if not m.school %} · all schools{% endif %}</div></td>
+<td class="small">{{ m.topic|default:"–" }}</td><td class="small">{{ m.size_bytes|filesizeformat }}</td>
+<td>{% if m.visible_to_students %}<span class="pill pill-ok">yes</span>{% elif not m.is_published %}<span class="pill pill-mute">hidden</span>{% else %}<span class="pill pill-warn">after cultural check</span>{% endif %}</td>
+<td><a class="btn btn-sm btn-outline-primary" href="{{ m.file.url }}" target="_blank" rel="noopener">Open</a>
+<form class="d-inline" method="post" action="{% url 'medialib:media_delete' m.pk %}">{% csrf_token %}<button class="btn btn-sm btn-outline-danger">Remove</button></form></td></tr>
+{% empty %}<tr><td colspan="6" class="text-muted">No files yet. Upload a picture, sound or video for a topic.</td></tr>{% endfor %}
+</tbody></table></div></section>
+<div class="row g-3 mt-1"><div class="col-lg-5"><section class="panel"><h2 class="h5"><i class="bi bi-youtube"></i> Add a YouTube video</h2>
+<form method="post" action="{% url 'medialib:video_add' %}">{% csrf_token %}{% with form=video_form %}{% include "partials/form.html" %}{% endwith %}
+<button class="btn btn-primary">Add video</button></form>
+<p class="small text-muted mt-2">Videos play in privacy mode (youtube-nocookie.com).</p></section></div>
+<div class="col-lg-7"><section class="panel"><h2 class="h5">YouTube videos</h2>
+{% for v in videos %}<div class="d-flex gap-3 align-items-start border-bottom py-2">
+<div class="video-thumb"><iframe src="{{ v.embed_url }}" title="{{ v.title }}" loading="lazy" allow="encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+<div class="flex-grow-1"><strong>{{ v.title }}</strong><div class="small text-muted">{{ v.topic|default:"No topic" }}</div></div>
+<form method="post" action="{% url 'medialib:video_delete' v.pk %}">{% csrf_token %}<button class="btn btn-sm btn-outline-danger">Remove</button></form></div>
+{% empty %}<p class="text-muted">No videos yet.</p>{% endfor %}</section></div></div>
+{% endblock %}

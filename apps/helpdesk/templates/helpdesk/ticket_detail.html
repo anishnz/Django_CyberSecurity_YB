@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ t.number }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ t.number }}: {{ t.title }}</h1>
+<p>{{ t.get_category_display }} · {{ t.get_priority_display }} priority · from {{ t.who }}{% if t.school %} ({{ t.school }}){% endif %}</p></div>
+<a class="btn btn-outline-primary" href="{% url 'helpdesk:ticket_list' %}">All tickets</a></div>
+<div class="row g-3">
+<div class="col-lg-8">
+  <section class="panel"><p class="mb-1"><span class="pill pill-info">{{ t.get_status_display }}</span>{% if overdue %} <span class="pill pill-bad">past target time</span>{% endif %}</p>
+    <div class="mt-2">{{ t.description|linebreaks }}</div>
+    {% if t.question %}<p class="small">Question reported: <strong>{{ t.question.code|default:t.question.pk }}</strong> – {{ t.question.text }}
+    {% if manage %} <a href="{% url 'learning:question_edit' t.question.pk %}">Open question</a>{% endif %}</p>{% endif %}
+  </section>
+  {% for c in comments %}
+  <section class="panel{% if c.is_internal %} panel-note{% endif %}">
+    <p class="small text-muted mb-1">{{ c.author|default:c.author_name|default:t.who }} · {{ c.created_at|date:"d M Y H:i" }}{% if c.is_internal %} · <strong>internal note</strong>{% endif %}</p>
+    {{ c.body|linebreaks }}
+    {% for a in c.attachments.all %}<a class="btn btn-sm btn-outline-secondary me-1" href="{{ a.file.url }}" target="_blank" rel="noopener"><i class="bi bi-paperclip"></i> {{ a.original_name }}</a>{% endfor %}
+  </section>
+  {% endfor %}
+  <section class="panel"><h2 class="h5">Reply</h2><form method="post" enctype="multipart/form-data">{% csrf_token %}{% include "partials/form.html" %}
+  <button class="btn btn-primary"><i class="bi bi-reply"></i> Send reply</button></form></section>
+</div>
+<div class="col-lg-4">
+  <section class="panel"><h2 class="h6">Details</h2><dl class="small mb-0">
+  <dt>Assigned to</dt><dd>{{ t.assignee|default:"Nobody yet" }}</dd>
+  <dt>Target time</dt><dd>{{ t.sla_due|date:"d M Y H:i" }}</dd>
+  <dt>Opened</dt><dd>{{ t.created_at|date:"d M Y H:i" }}</dd>
+  {% if t.resolved_at %}<dt>Resolved</dt><dd>{{ t.resolved_at|date:"d M Y H:i" }}</dd>{% endif %}</dl></section>
+  {% if manage %}
+  <section class="panel"><h2 class="h6">Change status</h2>
+  <form method="post" action="{% url 'helpdesk:ticket_move' t.pk %}" class="d-flex gap-2">{% csrf_token %}
+  <label class="visually-hidden" for="status">New status</label>
+  <select class="form-select form-select-sm" id="status" name="status">{% for s, label in moves %}<option value="{{ s }}">{{ label }}</option>{% endfor %}</select>
+  <button class="btn btn-sm btn-primary">Move</button></form></section>
+  <section class="panel"><h2 class="h6">Assign</h2>
+  <form method="post" action="{% url 'helpdesk:ticket_assign' t.pk %}" class="d-flex gap-2">{% csrf_token %}
+  <label class="visually-hidden" for="assignee">Assign to</label>
+  <select class="form-select form-select-sm" id="assignee" name="assignee">{% for s in staff %}<option value="{{ s.pk }}" {% if s.pk == t.assignee_id %}selected{% endif %}>{{ s }} ({{ s.role_obj.label }})</option>{% endfor %}</select>
+  <button class="btn btn-sm btn-primary">Assign</button></form></section>
+  <section class="panel"><h2 class="h6">History</h2><ul class="small list-unstyled mb-0">
+  {% for h in history %}<li>{{ h.created_at|date:"d M H:i" }} – {{ h.user|default:"system" }}: {{ h.field }} {{ h.old_value|default:"–" }} → {{ h.new_value }}</li>{% empty %}<li class="text-muted">No changes yet.</li>{% endfor %}</ul></section>
+  {% elif can_close %}
+  <section class="panel"><form method="post" action="{% url 'helpdesk:ticket_move' t.pk %}">{% csrf_token %}<input type="hidden" name="status" value="closed">
+  <button class="btn btn-outline-secondary w-100">My problem is solved – close ticket</button></form></section>
+  {% endif %}
+</div></div>
+{% endblock %}

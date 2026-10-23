@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}Announcement{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% if obj.pk %}Edit announcement{% else %}New announcement{% endif %}</h1><p>Keep it short. Students may read it, so use simple words.</p></div>
+<a class="btn btn-outline-primary" href="{% url 'announcements:list' %}">Back</a></div>
+<section class="panel" style="max-width: 720px"><form method="post">{% csrf_token %}{% include "partials/form.html" %}
+<button class="btn btn-primary">Save announcement</button></form></section>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}{% if session.is_exam %}Level exam{% else %}Practice{% endif %} question {{ number }}{% endblock %}
+{% block content %}
+<div class="quiz-card pt-2">
+  <div class="d-flex justify-content-between align-items-baseline mb-2"><h1 class="h4 mb-0">{% if session.is_exam %}Level {{ session.level.number }} exam{% else %}Practice – Level {{ session.level.number }}{% endif %}</h1><span class="text-muted">Question {{ number }} of {{ session.total_questions }}</span></div>
+  <div class="progress quiz-progress mb-3" role="progressbar" aria-label="Progress" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar" style="width: {{ progress }}%"></div></div>
+  {% if halfway %}<div class="alert alert-info">{{ halfway }}</div>{% endif %}
+  {% if session.is_exam %}<p class="small text-muted"><i class="bi bi-info-circle"></i> Exam mode: your score and feedback appear at the end. 5 marks per question.</p>{% endif %}
+  <section class="panel">
+    <p class="mb-1"><span class="pill pill-info">{{ question.category_name }}</span>{% if question.is_teacher_question %} <span class="pill pill-warn">Teacher question</span>{% endif %}{% if question.allows_many %} <span class="pill pill-mute">Choose all that apply</span>{% endif %}</p>
+    {% if question.scenario_text %}<div class="scenario mt-3"><i class="bi bi-chat-square-text"></i> {{ question.scenario_text }}</div>{% endif %}
+    <p class="question-text" id="qtext">{{ question.text }}</p>
+    <form method="post" action="{% url 'quizzes:answer' session.pk %}">{% csrf_token %}
+      <fieldset aria-labelledby="qtext">{% for o in question.options %}
+        <label class="answer-option" for="opt{{ o.label }}"><input type="{% if question.allows_many %}checkbox{% else %}radio{% endif %}" name="answer" value="{{ o.label }}" id="opt{{ o.label }}" {% if not question.allows_many %}required{% endif %}><span class="letter">{{ o.label }}</span><span>{{ o.text }}</span></label>
+      {% endfor %}</fieldset>
+      <button class="btn btn-primary btn-lg mt-2" type="submit">{% if not session.is_exam %}Check my answer{% elif number == session.total_questions %}Finish exam{% else %}Next question{% endif %}</button>
+    </form>
+  </section>
+  {% safe_url 'helpdesk:report_question' question.pk as report_url %}{% if not session.is_exam and report_url %}<p class="small"><a href="{{ report_url }}"><i class="bi bi-flag"></i> Report this question</a></p>{% endif %}
+</div>
+{% endblock %}

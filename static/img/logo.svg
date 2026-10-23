@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CyberQuest logo">
+  <!-- CyberQuest logo: a shield (protection) with a mountain trail (levels) and a summit flag. Original design. -->
+  <path d="M32 3 L56 12 V30 C56 45 46 56 32 61 C18 56 8 45 8 30 V12 Z" fill="#16606B" stroke="#F2B705" stroke-width="3"/>
+  <path d="M14 44 L26 26 L33 35 L38 29 L50 44 Z" fill="#E3EEF0"/>
+  <path d="M38 29 L38 16" stroke="#F2B705" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M38 16 L46 19 L38 22 Z" fill="#F2B705"/>
+  <circle cx="20" cy="40" r="2" fill="#0E3B43"/><circle cx="27" cy="34" r="2" fill="#0E3B43"/><circle cx="33" cy="38" r="2" fill="#0E3B43"/>
+</svg>

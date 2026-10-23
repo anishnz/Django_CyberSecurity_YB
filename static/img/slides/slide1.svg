@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320" role="img" aria-label="A shield protecting a laptop, with a path of six level stations">
+  <rect width="480" height="320" rx="24" fill="#16606B"/>
+  <path d="M40 270 C120 220 170 250 240 210 S380 160 440 120" fill="none" stroke="#E3EEF0" stroke-width="6" stroke-dasharray="2 14" stroke-linecap="round"/>
+  <g fill="#E3EEF0"><circle cx="40" cy="270" r="12"/><circle cx="110" cy="240" r="12"/><circle cx="180" cy="236" r="12"/><circle cx="250" cy="206" r="12"/><circle cx="330" cy="178" r="12"/></g>
+  <circle cx="440" cy="120" r="16" fill="#F2B705"/>
+  <rect x="150" y="70" width="180" height="112" rx="10" fill="#0E3B43" stroke="#E3EEF0" stroke-width="4"/>
+  <rect x="130" y="182" width="220" height="14" rx="7" fill="#E3EEF0"/>
+  <path d="M240 82 L276 96 V122 C276 146 260 160 240 168 C220 160 204 146 204 122 V96 Z" fill="#F2B705"/>
+  <path d="M226 124 L237 135 L256 111" fill="none" stroke="#0E3B43" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#F2B705" opacity=".9"><path d="M70 60 l5 12 12 5 -12 5 -5 12 -5 -12 -12 -5 12 -5z"/><path d="M400 250 l4 9 9 4 -9 4 -4 9 -4 -9 -9 -4 9 -4z"/></g>
+</svg>

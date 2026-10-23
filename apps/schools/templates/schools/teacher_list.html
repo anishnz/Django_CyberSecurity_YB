@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}Teachers{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Teachers ({% L 'teacher' %})</h1></div></div>
+<div class="row g-3"><div class="col-lg-7"><section class="panel panel-flush"><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Status</th><th></th></tr></thead><tbody>
+{% for t in teachers %}<tr><td>{{ t.get_full_name }}</td><td><code>{{ t.username }}</code></td><td>{{ t.email }}</td><td>{% if t.is_active %}<span class="pill pill-ok">On</span>{% else %}<span class="pill pill-bad">Off</span>{% endif %}</td>
+<td><form method="post" action="{% url 'schools:person_toggle' t.pk %}">{% csrf_token %}<button class="btn btn-sm btn-outline-secondary"><i class="bi bi-power"></i></button></form></td></tr>
+{% empty %}<tr><td colspan="5" class="text-muted">No teachers yet.</td></tr>{% endfor %}</tbody></table></div></section></div>
+<div class="col-lg-5"><section class="panel"><h2>Add a teacher</h2><form method="post">{% csrf_token %}{% include "partials/form.html" %}<button class="btn btn-primary">Add teacher</button></form></section></div></div>
+{% endblock %}

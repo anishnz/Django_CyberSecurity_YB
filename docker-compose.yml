@@ -1,0 +1,22 @@
+# CyberQuest (Django) - docker compose. Started by run.bat (Windows) or run.sh.
+# HOST_PORT is chosen by run.bat (first free port from 8000).
+services:
+  web:
+    build: .
+    image: cyberquest-django:1.0
+    container_name: cyberquest
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: cyberquest.settings.prod
+      DJANGO_CSRF_TRUSTED_ORIGINS: "http://localhost:${HOST_PORT:-8000},http://127.0.0.1:${HOST_PORT:-8000}"
+      SITE_URL: "http://127.0.0.1:${HOST_PORT:-8000}"
+    ports:
+      - "127.0.0.1:${HOST_PORT:-8000}:8000"
+    volumes:
+      - cyberquest_data:/data
+      - cyberquest_backups:/app/backups
+    restart: unless-stopped
+
+volumes:
+  cyberquest_data:
+  cyberquest_backups:

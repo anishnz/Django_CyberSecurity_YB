@@ -1,0 +1,9 @@
+# Extra tools for developers and QA (Jihe Qi)
+-r requirements.txt
+pytest>=8.0
+pytest-django>=4.8
+factory-boy>=3.3
+coverage>=7.4
+pylint>=3.0
+pylint-django>=2.5
+black>=24.0

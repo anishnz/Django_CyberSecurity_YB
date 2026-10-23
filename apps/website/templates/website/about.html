@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}{% L 'about' %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% L 'about' %}</h1><p>{{ project.company }} · {{ project.company_address }}</p></div></div>
+<section class="panel mb-3"><h2>Our story</h2>
+<p>CyberQuest started as an offline prototype for schools in Northland (Te Tai Tokerau). Teachers asked for safe, simple cyber-safety lessons that tamariki enjoy. The team rebuilt it in Django to add help desk tickets, email to whānau, certificates, business reports and integrations – while keeping the same kind, bilingual learning design.</p>
+<p class="small text-muted mb-0">This is a student project: {{ project.course }}, {{ project.college }}. Lecturer: {{ project.lecturer }}. Project code {{ project.code }}. The company, client, schools and students are simulated; all names in the demo data are made up.</p></section>
+<h2>Our team</h2>
+<div class="row g-3 mb-3">{% for name, sid, role in project.team %}
+  <div class="col-md-6 col-lg-3"><div class="team-card"><div class="avatar mb-2" aria-hidden="true">{{ name|slice:":1" }}</div><h3 class="mb-1">{{ name }}</h3><p class="small text-muted mb-1">Student ID {{ sid }}</p><p class="mb-0">{{ role }}</p></div></div>
+{% endfor %}</div>
+<h2>Community advisers (simulated)</h2>
+<div class="row g-3">
+  <div class="col-md-4"><div class="team-card"><h3 class="mb-1">Kiri Rāwiri</h3><p class="sim">Simulated role</p><p class="mb-0">Māori Community Liaison – te reo Māori labels and Kiwi examples.</p></div></div>
+  <div class="col-md-4"><div class="team-card"><h3 class="mb-1">Hēmi Te Awa</h3><p class="sim">Simulated role</p><p class="mb-0">Māori Community Liaison – kura and whānau links, community testing.</p></div></div>
+  <div class="col-md-4"><div class="team-card"><h3 class="mb-1">Mrs Mere Paora</h3><p class="sim">Simulated role</p><p class="mb-0">Cultural Guide (Kaiārahi) – approves Māori content, AI drafts and media.</p></div></div>
+</div>
+{% endblock %}

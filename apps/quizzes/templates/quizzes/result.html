@@ -1,0 +1,30 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}Results{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ message }}</h1><p>{% if session.is_exam %}Level {{ session.level.number }} exam{% else %}Practice quiz – Level {{ session.level.number }}{% endif %}{% if user != session.student %} · {{ session.student.get_full_name }}{% endif %}, finished {{ session.finished_at|date:"d M Y H:i" }}.</p></div>
+{% if user.is_student %}<a class="btn btn-outline-primary" href="{% url 'quizzes:student_dashboard' %}">My levels</a>{% endif %}</div>
+<div class="row g-3">
+  <div class="col-lg-4">
+    <section class="panel text-center">
+      <div class="score-ring" style="--pct: {{ session.percentage }}; --ring-colour: {% if session.percentage >= 75 %}var(--fern){% elif session.percentage >= 50 %}var(--harbour-2){% else %}#c99400{% endif %}"><div><div><strong>{{ session.percentage|floatformat:0 }}%</strong><span>{{ session.score }} / {{ session.max_score }} marks</span></div></div></div>
+      <p class="mt-3 mb-1">Awareness level</p><p><span class="pill pill-{% if colour == 'success' %}ok{% elif colour == 'warning' %}warn{% else %}info{% endif %} fs-6">{{ session.awareness_level }}</span></p>
+      {% if session.is_exam %}
+        {% if session.passed %}
+          {% for name, icon in outcome.badges %}<p><span class="badge-medal"><i class="bi bi-{{ icon }}"></i>{{ name }}</span></p>{% endfor %}
+          {% if outcome.unlocked_level %}<div class="alert alert-success text-start"><i class="bi bi-unlock"></i> Level {{ outcome.unlocked_level }} is open for you!</div>{% if user.is_student %}<a class="btn btn-kowhai" href="{% url 'quizzes:level' outcome.unlocked_level %}">Go to Level {{ outcome.unlocked_level }}</a>{% endif %}
+          {% elif outcome.next_level_needs_pack %}<div class="alert alert-info text-start">Great work! Ask your teacher about Level {{ outcome.next_level }}.</div>
+          {% elif session.level.number == 6 %}<div class="alert alert-success text-start">You reached the summit: Cyber Pro! 🏔️</div>{% endif %}
+          {% safe_url 'certificates:my_certificates' as cert_url %}{% if user.is_student and cert_url %}<p class="mt-2"><a href="{{ cert_url }}"><i class="bi bi-award"></i> My certificates</a></p>{% endif %}
+        {% else %}<p class="text-muted">You need {{ pass_mark }}% to pass. Review the topics below and try again – kia kaha!</p>{% endif %}
+      {% endif %}
+    </section>
+    {% if breakdown %}<section class="panel"><h2>By category</h2>{% for c in breakdown %}<div class="mb-2"><div class="d-flex justify-content-between small"><span>{{ c.name }}</span><span>{{ c.correct }}/{{ c.total }}</span></div><div class="bar{% if c.pct < 50 %} low{% endif %}"><span style="width: {{ c.pct }}%"></span></div></div>{% endfor %}</section>{% endif %}
+    {% if topics %}<section class="panel panel-tide"><h2>Topics to review</h2><ul class="mb-0">{% for t in topics %}<li>{% if user.is_student %}<a href="{% url 'quizzes:topic' t.code %}">{{ t.title }}</a>{% else %}{{ t.title }}{% endif %}</li>{% endfor %}</ul></section>{% endif %}
+  </div>
+  <div class="col-lg-8"><section class="panel"><h2>Answers and feedback</h2>
+    {% for r in review %}<div class="review-item"><p class="mb-1"><strong>{{ forloop.counter }}.</strong> {% if r.is_correct %}<span class="pill pill-ok"><i class="bi bi-check-lg"></i> Correct, 5 marks</span>{% else %}<span class="pill pill-warn">Good try, 0 marks</span>{% endif %} <span class="pill pill-mute">{{ r.question.category_name }}</span></p>
+      {% if r.question.scenario_text %}<p class="small text-muted mb-1">{{ r.question.scenario_text }}</p>{% endif %}<p class="fw-bold mb-1">{{ r.question.text }}</p>
+      {% if not r.is_correct %}<p class="mb-1 small">You chose: {{ r.answer }}</p>{% endif %}<p class="mb-1 small">Safe answer: <strong>{{ r.question.correct_text }}</strong></p><p class="mb-0 small text-muted">{{ r.question.feedback }}</p></div>{% endfor %}
+  </section><p class="small text-muted"><i class="bi bi-heart"></i> {{ safety }}</p></div>
+</div>
+{% endblock %}

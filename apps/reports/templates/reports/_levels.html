@@ -1,0 +1,4 @@
+<section class="panel"><h2 class="h5">Level exams</h2><div class="table-responsive"><table class="table table-sm">
+<thead><tr><th>Level</th><th>Exams</th><th>Average %</th><th>Pass rate %</th></tr></thead><tbody>
+{% for l in levels %}<tr><td>Level {{ l.level }}</td><td>{{ l.exams }}</td><td>{{ l.average }}</td><td><span class="pill pill-{% if l.pass_rate >= 75 %}good{% elif l.pass_rate >= 50 %}warn{% else %}bad{% endif %}">{{ l.pass_rate }}</span></td></tr>
+{% empty %}<tr><td colspan="4" class="text-muted">No exams yet.</td></tr>{% endfor %}</tbody></table></div></section>

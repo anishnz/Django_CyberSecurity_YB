@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% load static %}
+{% block title %}Reports – {{ school.name }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Reports (Pūrongo) – {{ school.name }}</h1><p>Learning results for your school. Names are first names only.</p></div>
+<a class="btn btn-outline-primary" href="{% url 'reports:class_report_pick' %}"><i class="bi bi-people"></i> Class reports</a></div>
+{% include "reports/_kpis.html" %}
+<section class="panel"><h2 class="h5">Exams per month</h2><div class="chart-box"><canvas data-chart="chart-activity" data-kind="activity" aria-label="Exams per month"></canvas></div>
+{{ charts.activity|json_script:"chart-activity" }}</section>
+<section class="panel panel-flush"><h2 class="h5 px-3 pt-3">Sections</h2><div class="table-responsive"><table class="table table-hover">
+<thead><tr><th>Section</th><th>Students</th><th>Exams</th><th>Average %</th><th>Pass rate %</th><th></th></tr></thead><tbody>
+{% for r in sections %}<tr><td>{{ r.section.label }}</td><td>{{ r.students }}</td><td>{{ r.exams }}</td><td>{{ r.average }}</td><td>{{ r.pass_rate }}</td>
+<td><a class="btn btn-sm btn-outline-primary" href="{% url 'reports:class_report' r.section.pk %}">Class report</a></td></tr>
+{% empty %}<tr><td colspan="6" class="text-muted">No sections yet.</td></tr>{% endfor %}</tbody></table></div></section>
+<div class="row g-3"><div class="col-lg-6">{% include "reports/_categories.html" %}</div><div class="col-lg-6">{% include "reports/_levels.html" %}</div></div>
+{% endblock %}
+{% block scripts %}<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script><script src="{% static 'js/charts.js' %}"></script>{% endblock %}

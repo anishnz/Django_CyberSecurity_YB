@@ -1,0 +1,26 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}Tickets (Tautoko){% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Tickets (Tautoko)</h1><p>Ask for help or report a problem. Each ticket gets a number like CQ-0042 so everyone can follow it.</p></div>
+<a class="btn btn-primary" href="{% url 'helpdesk:ticket_new' %}"><i class="bi bi-plus-lg"></i> New ticket</a></div>
+<nav class="d-flex flex-wrap gap-2 mb-3" aria-label="Ticket status">
+  <a class="btn btn-sm {% if status == 'open' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?status=open">Still open</a>
+  {% for s, label in statuses %}<a class="btn btn-sm {% if status == s %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?status={{ s }}">{{ label }} ({{ counts|get_item:s }})</a>{% endfor %}
+  <a class="btn btn-sm {% if status == '' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?status=">All</a>
+</nav>
+<form class="panel d-flex flex-wrap gap-2 align-items-end mb-3"><input type="hidden" name="status" value="{{ status }}">
+  <div><label class="form-label" for="q">Search</label><input class="form-control" id="q" name="q" value="{{ q }}" placeholder="Number, title or name"></div>
+  {% if user.role != 'student' %}<div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="mine" name="mine" value="1" {% if mine %}checked{% endif %}><label class="form-check-label" for="mine">Assigned to me</label></div>{% endif %}
+  <button class="btn btn-outline-primary">Search</button></form>
+<section class="panel panel-flush"><div class="table-responsive"><table class="table table-hover">
+<thead><tr><th>Number</th><th>Title</th><th>From</th><th>Category</th><th>Priority</th><th>Status</th><th>Assigned to</th><th>Updated</th></tr></thead><tbody>
+{% for t in page %}<tr>
+<td><a href="{% url 'helpdesk:ticket_detail' t.pk %}">{{ t.number }}</a></td><td>{{ t.title }}</td><td class="small">{{ t.who }}</td>
+<td>{{ t.get_category_display }}</td>
+<td><span class="pill pill-{% if t.priority == 'urgent' %}bad{% elif t.priority == 'high' %}warn{% else %}info{% endif %}">{{ t.get_priority_display }}</span></td>
+<td>{{ t.get_status_display }}{% if t.overdue %} <span class="pill pill-bad">overdue</span>{% endif %}</td>
+<td>{{ t.assignee|default:"–" }}</td><td class="nowrap">{{ t.updated_at|date:"d M H:i" }}</td></tr>
+{% empty %}<tr><td colspan="8" class="text-muted">No tickets here. Use "New ticket" if you need help.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% include "partials/pager.html" %}
+{% endblock %}

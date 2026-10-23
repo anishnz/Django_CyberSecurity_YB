@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}{% L 'teacher' %} {% L 'dashboard' %}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% L 'hello' %}, {{ user.display_name }}</h1><p>{% L 'teacher' %} · {{ user.school }}</p></div>
+<div class="d-flex gap-2 flex-wrap"><a class="btn btn-primary" href="{% url 'quizzes:assignment_list' %}"><i class="bi bi-calendar-plus"></i> Assign an exam</a>{% load cq %}{% safe_url 'reports:class_report_pick' as rep %}{% if rep %}<a class="btn btn-outline-primary" href="{{ rep }}"><i class="bi bi-bar-chart"></i> Class reports</a>{% endif %}</div></div>
+{% load panui %}{% announcements_panel %}
+<div class="stat-row mb-3"><div class="stat"><strong>{{ sections|length }}</strong><span>Sections</span></div><div class="stat"><strong>{{ stats.n }}</strong><span>Exams finished</span></div><div class="stat"><strong>{{ stats.avg|floatformat:0|default:"–" }}%</strong><span>Average score</span></div><div class="stat"><strong>{{ no_consent }}</strong><span>Waiting for family consent</span></div></div>
+<div class="row g-3"><div class="col-lg-8">
+  <section class="panel"><h2>Latest exam results</h2><div class="table-responsive"><table class="table"><thead><tr><th>Student</th><th>Level</th><th>Score</th><th>Awareness</th><th></th></tr></thead><tbody>
+  {% for r in recent %}<tr><td>{{ r.student.get_full_name }}</td><td>{{ r.level.number }}</td><td><strong>{{ r.percentage|floatformat:0 }}%</strong></td><td><span class="pill pill-{% if r.passed %}ok{% else %}mute{% endif %}">{{ r.awareness_level }}</span></td><td><a href="{% url 'quizzes:result' r.pk %}">Open</a></td></tr>{% empty %}<tr><td colspan="5" class="text-muted">No results yet.</td></tr>{% endfor %}
+  </tbody></table></div></section>
+  <section class="panel"><h2>Assigned exams</h2><div class="d-flex flex-wrap gap-2">{% for a in assignments %}<span class="pill pill-info">Level {{ a.level.number }} → {{ a.section.name }}{% if a.due_date %} · {{ a.due_date|date:"d M" }}{% endif %}</span>{% empty %}<span class="text-muted">None yet.</span>{% endfor %}</div></section>
+</div><div class="col-lg-4">{% include "partials/notices.html" %}</div></div>
+{% endblock %}
