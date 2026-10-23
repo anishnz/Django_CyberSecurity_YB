@@ -30,7 +30,7 @@ from apps.learning.importer import ContentImporter
 from apps.learning.models import AnswerOption, Level, Question
 from apps.licensing.keys import LicenseKeyValidator
 from apps.licensing.models import License, LevelPack
-from apps.schools.models import School, SchoolClass, Section, StudentProfile
+from apps.schools.models import School, SchoolClass, Section
 
 User = get_user_model()
 
@@ -128,9 +128,11 @@ class Command(BaseCommand):
         for first, last in names:
             username = f"{first}.{last}".lower().replace(" ", "").replace("'", "")
             user = self._user(school, "student", username, first, last, pkey, reuse=reuse)
-            StudentProfile.objects.filter(user=user).update(
-                section=section, family_consent=first not in missing, parent_name=f"{last} whānau",
-                parent_email=f"parent.{username}@demo.cyberquest.local", parent_opt_in=True)
+            profile = user.student_profile          # created by the accounts post_save signal
+            profile.section, profile.family_consent = section, first not in missing
+            profile.parent_name, profile.parent_opt_in = f"{last} whānau", True
+            profile.parent_email = f"parent.{username}@demo.cyberquest.local"
+            profile.save()
             made[first] = user
         return made
 

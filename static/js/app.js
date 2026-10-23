@@ -6,7 +6,7 @@
 document.addEventListener("DOMContentLoaded", function () {
   var form = document.getElementById("question-form");
   if (form) {
-    var levelSelect = form.querySelector("[name=level_number]");
+    var levelSelect = form.querySelector("[name=level]");
     var categorySelect = form.querySelector("[name=category]");
     var typeSelect = form.querySelector("[name=q_type]");
     var all = JSON.parse(form.dataset.categories || "{}");
@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
         var types = el.dataset.for.split(" ");
         el.hidden = types.indexOf(type) === -1;
         el.querySelectorAll("input, textarea").forEach(function (input) { input.disabled = el.hidden; });
+        if (type === "true_false") { form.querySelectorAll("[name=correct]").forEach(function (c) { c.closest("span").hidden = (c.value === "C" || c.value === "D"); }); }
       });
     }
     levelSelect.addEventListener("change", function () { chosen = ""; fillCategories(); });
