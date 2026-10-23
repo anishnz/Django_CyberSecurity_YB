@@ -35,7 +35,8 @@ class UserForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "username", "email", "phone", "role", "school", "is_active"]
+        fields = ["first_name", "last_name", "username", "email", "phone", "role", "school", "is_active",
+                  "is_cultural_guide"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -80,3 +81,27 @@ class LoginAsForm(forms.Form):
 
     reason = forms.CharField(max_length=200, min_length=5, widget=forms.TextInput(
         attrs={"placeholder": "e.g. Test ticket TCK-0042 for the teacher"}))
+
+
+class ForgotPasswordForm(forms.Form):
+    """Step 1 of 'Forgot password?'."""
+
+    identifier = forms.CharField(label="Username or email", max_length=150)
+    channel = forms.ChoiceField(label="Send the link by", widget=forms.RadioSelect, initial="email")
+
+    def __init__(self, *args, channels=(), **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["channel"].choices = list(channels) or [("email", "Email")]
+
+
+class SetNewPasswordForm(forms.Form):
+    """Step 2: choose a new password (checked by Django's password validators)."""
+
+    new_password = forms.CharField(widget=forms.PasswordInput, help_text="At least 8 characters with a letter and a number.")
+    confirm = forms.CharField(widget=forms.PasswordInput, label="Type it again")
+
+    def clean(self):
+        data = super().clean()
+        if data.get("new_password") and data.get("new_password") != data.get("confirm"):
+            raise forms.ValidationError("The two passwords are not the same.")
+        return data
