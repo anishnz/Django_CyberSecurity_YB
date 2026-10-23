@@ -65,6 +65,7 @@ class Command(BaseCommand):
             FeatureSwitch.objects.get_or_create(key=key, defaults={"label": label, "description": desc,
                                                                    "enabled": key not in ("leaderboard",)})
         content = ContentImporter().import_all()
+        self._reference_extras()
         self._super_admin()
         if opts["no_demo"]:
             self.stdout.write(self.style.SUCCESS(f"Reference data ready: {content}"))
@@ -79,6 +80,15 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"Demo data loaded: {content} {summary}"))
 
     # ----------------------------------------------------------- helpers
+    @staticmethod
+    def _reference_extras():
+        """Default email templates (Sprint 3 onward)."""
+        try:
+            from apps.emails.services import EmailService  # pylint: disable=import-outside-toplevel
+        except ImportError:
+            return
+        EmailService.ensure_defaults()
+
     def _super_admin(self):
         username, password, first, last = SUPER_ADMIN
         if not User.objects.filter(username=username).exists():
@@ -190,7 +200,18 @@ class Command(BaseCommand):
         people = {"sione": sione, "jane": jane, "sita": sita, "s7a": s7a, "s8a": s8a, "everest": everest,
                   "y7": y7, "y8": y8, "c7": c7}
         exams = self._activity(people)
-        return {"demo_schools": 4, "users": User.objects.filter(is_demo=True).count(), "demo_exams": exams}
+        tickets = self._tickets(people)
+        return {"demo_schools": 4, "users": User.objects.filter(is_demo=True).count(), "demo_exams": exams,
+                "demo_tickets": tickets}
+
+    @staticmethod
+    def _tickets(people) -> int:
+        """Demo help desk tickets (Sprint 3 onward)."""
+        try:
+            from apps.helpdesk.demo import load_demo_tickets  # pylint: disable=import-outside-toplevel
+        except ImportError:
+            return 0
+        return load_demo_tickets(people)
 
     @staticmethod
     def _activity(people) -> int:
