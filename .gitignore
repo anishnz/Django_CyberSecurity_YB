@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+# CyberQuest runtime data (never commit real data or secrets)
+.env
+instance/
+media/
+backups/
+logs/
+staticfiles/
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
