@@ -1,0 +1,15 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}My certificates{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>My certificates (Tohu)</h1><p>You get a certificate each time you pass a level exam. If you do better later, it shows your best score.</p></div></div>
+<div class="row g-3">{% for c in certs %}
+<div class="col-md-6 col-lg-4"><section class="panel h-100 text-center"><i class="bi bi-award display-5 text-warning" aria-hidden="true"></i>
+<h2 class="h5 mt-2">Level {{ c.level.number }}: {{ c.level.name }}</h2><p class="mb-1">{{ c.percentage|floatformat:0 }}% · {{ c.awareness_level }}</p>
+<p class="small text-muted">Issued {{ c.issued_at|date:"d M Y" }} · code {{ c.code }}</p>
+<a class="btn btn-primary" href="{% url 'certificates:download' c.code %}"><i class="bi bi-filetype-pdf"></i> Download PDF</a>
+{% with share=shares|get_item:c.code %}<div class="d-flex justify-content-center gap-2 mt-2"><span class="small text-muted align-self-center">Share with whānau:</span>
+<a class="btn btn-sm btn-outline-success" href="{{ share.whatsapp }}" target="_blank" rel="noopener" aria-label="Share on WhatsApp"><i class="bi bi-whatsapp"></i></a>
+<a class="btn btn-sm btn-outline-primary" href="{{ share.facebook }}" target="_blank" rel="noopener" aria-label="Share on Facebook"><i class="bi bi-facebook"></i></a>
+<a class="btn btn-sm btn-outline-secondary" href="{{ share.viber }}" aria-label="Share on Viber"><i class="bi bi-chat-dots"></i></a></div>{% endwith %}</section></div>
+{% empty %}<div class="col-12"><section class="panel"><p class="mb-0">No certificates yet. Pass a level exam to get your first one. Kia kaha!</p></section></div>{% endfor %}</div>
+{% endblock %}

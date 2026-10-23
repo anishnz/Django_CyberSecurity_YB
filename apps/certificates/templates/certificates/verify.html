@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Check a certificate{% endblock %}
+{% block content %}
+<section class="panel mx-auto text-center" style="max-width: 560px">
+{% if cert and not cert.is_revoked %}<i class="bi bi-patch-check-fill display-4 text-success" aria-hidden="true"></i>
+<h1 class="h3 mt-2">This certificate is real</h1>
+<p>{{ first_name }} passed CyberQuest Level {{ cert.level.number }} ({{ cert.level.name }}) with {{ cert.percentage|floatformat:0 }}% on {{ cert.issued_at|date:"d M Y" }}.</p>
+<p class="small text-muted mb-0">Code {{ cert.code }}{% if cert.school_name %} · {{ cert.school_name }}{% endif %}</p>
+{% else %}<i class="bi bi-x-octagon display-4 text-danger" aria-hidden="true"></i>
+<h1 class="h3 mt-2">We could not find this certificate</h1><p class="mb-0">Please check the code <code>{{ code }}</code>. It has 10 letters and numbers.</p>{% endif %}
+</section>
+{% endblock %}
