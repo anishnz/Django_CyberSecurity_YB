@@ -3,6 +3,7 @@
 {% block content %}
 <div class="page-head"><div><h1>{% L 'hello' %}, {{ user.display_name }}</h1><p>{% L 'teacher' %} · {{ user.school }}</p></div>
 <div class="d-flex gap-2 flex-wrap"><a class="btn btn-primary" href="{% url 'quizzes:assignment_list' %}"><i class="bi bi-calendar-plus"></i> Assign an exam</a>{% load cq %}{% safe_url 'reports:class_report_pick' as rep %}{% if rep %}<a class="btn btn-outline-primary" href="{{ rep }}"><i class="bi bi-bar-chart"></i> Class reports</a>{% endif %}</div></div>
+{% load panui %}{% announcements_panel %}
 <div class="stat-row mb-3"><div class="stat"><strong>{{ sections|length }}</strong><span>Sections</span></div><div class="stat"><strong>{{ stats.n }}</strong><span>Exams finished</span></div><div class="stat"><strong>{{ stats.avg|floatformat:0|default:"–" }}%</strong><span>Average score</span></div><div class="stat"><strong>{{ no_consent }}</strong><span>Waiting for family consent</span></div></div>
 <div class="row g-3"><div class="col-lg-8">
   <section class="panel"><h2>Latest exam results</h2><div class="table-responsive"><table class="table"><thead><tr><th>Student</th><th>Level</th><th>Score</th><th>Awareness</th><th></th></tr></thead><tbody>

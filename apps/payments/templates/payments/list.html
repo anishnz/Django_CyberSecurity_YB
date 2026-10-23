@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Payments{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Payments</h1><p>{% if user.is_super_admin %}Check each payslip against the bank statement, then approve or reject.{% else %}Payments your school has sent.{% endif %}</p></div>
+{% if user.role == 'school_admin' %}<a class="btn btn-primary" href="{% url 'payments:upload' %}"><i class="bi bi-cash-coin"></i> Pay by bank transfer</a>{% endif %}</div>
+<nav class="d-flex flex-wrap gap-2 mb-3" aria-label="Payment status">
+{% for v, l in statuses %}<a class="btn btn-sm {% if status == v %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?status={{ v }}">{{ l }}</a>{% endfor %}
+<a class="btn btn-sm {% if not status %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?status=">All</a></nav>
+<section class="panel panel-flush"><div class="table-responsive"><table class="table table-hover">
+<thead><tr><th>Number</th><th>School</th><th>Item</th><th class="text-end">Total NZD</th><th>Paid on</th><th>Status</th><th></th></tr></thead><tbody>
+{% for p in rows %}<tr><td>{{ p.number }}</td><td>{{ p.school.name }}</td><td>{{ p.item }}</td><td class="text-end">{{ p.total }}</td><td>{{ p.paid_on|date:"d M Y" }}</td>
+<td><span class="pill pill-{% if p.status == 'approved' %}ok{% elif p.status == 'rejected' %}bad{% else %}warn{% endif %}">{{ p.get_status_display }}</span></td>
+<td><a class="btn btn-sm btn-outline-primary" href="{% url 'payments:payment_detail' p.pk %}">Open</a></td></tr>
+{% empty %}<tr><td colspan="7" class="text-muted">No payments here.</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

@@ -3,6 +3,7 @@
 {% block content %}
 <div class="page-head"><div><h1>{{ school.name }}</h1><p>School Admin {% L 'dashboard' %}</p></div>
 <div class="d-flex gap-2"><a class="btn btn-primary" href="{% url 'schools:student_new' %}"><i class="bi bi-person-plus"></i> Add student</a><a class="btn btn-outline-primary" href="{% url 'schools:student_import' %}"><i class="bi bi-filetype-csv"></i> Import CSV</a></div></div>
+{% load panui %}{% announcements_panel %}
 <div class="stat-row mb-3">
   <div class="stat"><strong>{{ students }}</strong><span>Students ({% L 'student' %})</span></div>
   <div class="stat"><strong>{{ teachers }}</strong><span>Teachers</span></div>

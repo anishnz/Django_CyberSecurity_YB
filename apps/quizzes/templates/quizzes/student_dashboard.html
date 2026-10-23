@@ -3,6 +3,7 @@
 {% block content %}
 <div class="page-head"><div><h1>{% L 'hello' %}, {{ user.first_name }}! 👋</h1><p>{{ user.student_profile.section|default:"" }} · {{ user.school }}. Ready for today's mission?</p></div>
 {% if current %}<a class="btn btn-kowhai btn-lg" href="{% url 'quizzes:level' current.level.number %}"><i class="bi bi-play-fill"></i> Continue Level {{ current.level.number }}</a>{% endif %}</div>
+{% load panui %}{% announcements_panel %}
 <section class="panel mb-3" aria-labelledby="trail-title"><h2 id="trail-title" class="mb-3">Your trail to the summit</h2>{% include "quizzes/_trail.html" with link=True %}</section>
 <div class="row g-3">
   <div class="col-lg-8">
