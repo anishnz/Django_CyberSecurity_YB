@@ -32,7 +32,7 @@ ARTICLES = {
         "Start with the first open level. Read each topic, then press **Practise**.\n\n"
         "- Practice never counts against you – try as often as you like.\n"
         "- The **exam** button appears when your teacher assigns the exam.\n"
-        "- Pass mark is 60 % (your school can change it). Pass to unlock the next level.",
+        "- Pass mark is 70 % (the Super Admin can change it). Pass, and have the Level Pack, to unlock the next level.",
         10,
     ),
     "practice-and-exams": (
