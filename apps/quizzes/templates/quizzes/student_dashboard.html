@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}My levels{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{% L 'hello' %}, {{ user.first_name }}! 👋</h1><p>{{ user.student_profile.section|default:"" }} · {{ user.school }}. Ready for today's mission?</p></div>
+{% if current %}<a class="btn btn-kowhai btn-lg" href="{% url 'quizzes:level' current.level.number %}"><i class="bi bi-play-fill"></i> Continue Level {{ current.level.number }}</a>{% endif %}</div>
+<section class="panel mb-3" aria-labelledby="trail-title"><h2 id="trail-title" class="mb-3">Your trail to the summit</h2>{% include "quizzes/_trail.html" with link=True %}</section>
+<div class="row g-3">
+  <div class="col-lg-8">
+    {% if assignments %}<section class="panel"><h2><i class="bi bi-calendar-check"></i> Exams from your teacher</h2><ul class="list-unstyled mb-0">{% for a in assignments %}<li class="border-bottom py-2">Level {{ a.level.number }} – {{ a.level.name }}{% if a.due_date %} · due {{ a.due_date|date:"d M" }}{% endif %}</li>{% endfor %}</ul></section>{% endif %}
+    <section class="panel"><h2>Recent quizzes</h2>
+    {% if recent %}<div class="table-responsive"><table class="table"><thead><tr><th>Quiz</th><th>Score</th><th>Level</th><th></th></tr></thead><tbody>
+      {% for r in recent %}<tr><td class="nowrap">{{ r.get_mode_display }}, Level {{ r.level.number }}</td><td><strong>{{ r.percentage|floatformat:0 }}%</strong> <span class="text-muted small">({{ r.score }}/{{ r.max_score }})</span></td><td><span class="pill pill-mute">{{ r.awareness_level }}</span></td><td class="text-end"><a href="{% url 'quizzes:result' r.pk %}">Review</a></td></tr>{% endfor %}
+    </tbody></table></div>{% else %}<p class="text-muted mb-0">No quizzes yet. Start with a study topic, then try a practice quiz.</p>{% endif %}</section>
+  </div>
+  <div class="col-lg-4">
+    <section class="panel"><h2>My badges</h2>{% if badges %}<div class="d-flex flex-wrap gap-2">{% for b in badges %}<span class="badge-medal"><i class="bi bi-{{ b.icon }}"></i>{{ b.name }}</span>{% endfor %}</div>{% else %}<p class="text-muted mb-0">Pass a level exam to earn your first badge.</p>{% endif %}</section>
+    <section class="panel panel-tide"><h2><i class="bi bi-lightbulb"></i> Cyber tip</h2><p class="mb-2">{{ tip }}</p><p class="small mb-0">{{ safety }}</p></section>
+    {% include "partials/notices.html" %}
+  </div>
+</div>
+{% endblock %}

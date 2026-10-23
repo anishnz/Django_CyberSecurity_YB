@@ -2,6 +2,6 @@
 {% block title %}Demo tour{% endblock %}
 {% block content %}
 <div class="page-head"><div><h1>Welcome, Demo Guest</h1><p>Look around freely – this account is read-only and nothing is saved.</p></div>
-{% if quiz_url %}<a class="btn btn-kowhai" href="{{ quiz_url }}">Try 5 questions</a>{% endif %}</div>
+<a class="btn btn-kowhai" href="{% url 'quizzes:guest_try' %}">Try 5 questions</a></div>
 <div class="row g-3">{% for lvl in levels %}<div class="col-md-6 col-lg-4"><section class="panel h-100"><h2><i class="bi bi-{{ lvl.icon }}"></i> {{ lvl.title }}</h2><p class="small text-muted">{{ lvl.audience }}</p><p>{{ lvl.description }}</p></section></div>{% endfor %}</div>
 {% endblock %}

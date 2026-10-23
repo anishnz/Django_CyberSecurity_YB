@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Feedback{% endblock %}
+{% block content %}
+<div class="quiz-card pt-2">
+  <div class="d-flex justify-content-between mb-2"><h1 class="h4 mb-0">Practice – Level {{ session.level.number }}</h1><span class="text-muted">{{ session.answered_count }} of {{ session.total_questions }} answered</span></div>
+  <section class="feedback-box {% if fb.is_correct %}feedback-good{% else %}feedback-try{% endif %} mb-3" aria-live="polite">
+    <h2>{{ fb.headline }}</h2><p class="fw-bold mb-2">{{ fb.text }}</p>
+    {% if not fb.is_correct %}<p class="mb-1">You chose: {{ fb.your_answer }}</p>{% endif %}
+    <p class="mb-2">Safe answer: <strong>{{ fb.correct_answer }}</strong></p><p class="mb-0">{{ fb.explanation }}</p>
+  </section>
+  {% if done %}<a class="btn btn-primary btn-lg" href="{% url 'quizzes:result' session.pk %}">See my results</a>{% else %}<a class="btn btn-primary btn-lg" href="{% url 'quizzes:question' session.pk %}">Next question</a>{% endif %}
+</div>
+{% endblock %}

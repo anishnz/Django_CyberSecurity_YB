@@ -1,0 +1,3 @@
+{% load cq %}<section class="panel"><h2><i class="bi bi-bell"></i> {% L 'notices' %}</h2>
+<ul class="notice-list">{% for n in notices %}<li class="kind-{{ n.kind }}{% if not n.is_read %} unread{% endif %}"><i class="bi bi-{{ n.icon }}"></i><div><p class="mb-0">{{ n.message }}</p><small>{{ n.created_at|date:"d M H:i" }}</small></div></li>{% empty %}<li class="text-muted">No notices yet.</li>{% endfor %}</ul>
+<a class="small" href="{% url 'notifications:list' %}">All notices →</a></section>
