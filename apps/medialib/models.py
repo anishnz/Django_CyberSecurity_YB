@@ -40,6 +40,9 @@ class MediaFile(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     school = models.ForeignKey("schools.School", null=True, blank=True, on_delete=models.CASCADE)
     is_published = models.BooleanField(default=True)
+    needs_cultural_check = models.BooleanField(
+        default=False, verbose_name="Has Māori language, images or tikanga",
+        help_text="Students only see it after the Cultural Guide (Kaiārahi) checks it.")
     cultural_check = models.BooleanField(default=False, help_text="Checked by the Kaiārahi (culturally safe).")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -48,6 +51,10 @@ class MediaFile(models.Model):
 
     def __str__(self) -> str:
         return f"{self.get_kind_display()}: {self.title}"
+
+    @property
+    def visible_to_students(self) -> bool:
+        return self.is_published and (self.cultural_check or not self.needs_cultural_check)
 
 
 class VideoEmbed(models.Model):
@@ -59,6 +66,8 @@ class VideoEmbed(models.Model):
     url = models.URLField()
     video_id = models.CharField(max_length=11)
     added_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    school = models.ForeignKey("schools.School", null=True, blank=True, on_delete=models.CASCADE,
+                               help_text="Empty = every school (Super Admin).")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
