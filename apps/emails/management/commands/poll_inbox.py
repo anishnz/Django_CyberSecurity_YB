@@ -12,6 +12,7 @@ Run it every few minutes (Windows Task Scheduler or cron):
   "ticket_opened" auto-reply with the ticket number.
 * Replies from our own address and "no-reply" senders are skipped (no loops).
 """
+
 from __future__ import annotations
 
 import email
@@ -43,14 +44,22 @@ def plain_body(msg) -> str:
 
 def should_skip(sender: str, own_address: str, msg) -> bool:
     low = sender.lower()
-    return (not low or low == own_address.lower() or "no-reply" in low or "noreply" in low or "mailer-daemon" in low
-            or (msg.get("Auto-Submitted", "no").lower() != "no"))
+    return (
+        not low
+        or low == own_address.lower()
+        or "no-reply" in low
+        or "noreply" in low
+        or "mailer-daemon" in low
+        or (msg.get("Auto-Submitted", "no").lower() != "no")
+    )
 
 
 class Command(BaseCommand):
+    """manage.py poll_inbox – read unread Gmail messages and open tickets."""
+
     help = "Turn unread support emails into tickets and send an automatic reply."
 
-    def handle(self, *args, **opts):
+    def handle(self, *_args, **_options):
         service = IntegrationService()
         if not (service.enabled("gmail") and FeatureSwitch.is_on("email_auto_reply")):
             self.stdout.write("Gmail or Email auto-reply is switched off – nothing to do.")

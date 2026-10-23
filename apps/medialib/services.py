@@ -10,6 +10,7 @@ Owner: Jihe Qi (task J-12)
   until a Cultural Guide (Kaiārahi) ticks the cultural check.
 * School media is only seen by that school. Super Admin media is for everyone.
 """
+
 from __future__ import annotations
 
 from django.db.models import Q
@@ -40,14 +41,23 @@ class MediaService:
     def for_topic(cls, topic, user):
         """What a student sees on a topic page."""
         media = [m for m in cls.visible_to(user).filter(topic=topic, is_published=True) if m.visible_to_students]
-        videos = cls.videos_for(user).filter(topic=topic) if FeatureSwitch.is_on("youtube") else VideoEmbed.objects.none()
+        videos = (
+            cls.videos_for(user).filter(topic=topic) if FeatureSwitch.is_on("youtube") else VideoEmbed.objects.none()
+        )
         return media, videos
 
     @staticmethod
     def upload(user, form_data: dict, uploaded, request=None) -> MediaFile:
+        """Check and save an uploaded file; a Cultural Guide's own upload is checked at once."""
         mime = check_upload(uploaded, form_data["kind"], request, user)
-        obj = MediaFile(**form_data, file=uploaded, mime_type=mime, size_bytes=uploaded.size, owner=user,
-                        school=None if user.is_super_admin else user.school)
+        obj = MediaFile(
+            **form_data,
+            file=uploaded,
+            mime_type=mime,
+            size_bytes=uploaded.size,
+            owner=user,
+            school=None if user.is_super_admin else user.school,
+        )
         obj.cultural_check = bool(obj.needs_cultural_check and getattr(user, "is_cultural_guide", False))
         obj.save()
         AuditService.log(user, "media_uploaded", obj.title, new=f"{obj.kind} {obj.size_bytes} bytes")
@@ -56,8 +66,14 @@ class MediaService:
     @staticmethod
     def add_video(user, title: str, url: str, topic=None) -> VideoEmbed:
         vid = video_id(url)
-        return VideoEmbed.objects.create(title=title.strip()[:120], url=url.strip(), video_id=vid, topic=topic,
-                                         added_by=user, school=None if user.is_super_admin else user.school)
+        return VideoEmbed.objects.create(
+            title=title.strip()[:120],
+            url=url.strip(),
+            video_id=vid,
+            topic=topic,
+            added_by=user,
+            school=None if user.is_super_admin else user.school,
+        )
 
     @staticmethod
     def can_change(user, obj) -> bool:
@@ -66,6 +82,7 @@ class MediaService:
 
     @staticmethod
     def cultural_approve(user, media: MediaFile) -> None:
+        """The Kaiārahi gives the cultural check so students can see the file."""
         if not getattr(user, "is_cultural_guide", False):
             raise AccessDeniedError("Only a Cultural Guide (Kaiārahi) can give the cultural check.")
         media.cultural_check = True

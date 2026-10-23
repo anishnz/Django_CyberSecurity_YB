@@ -39,8 +39,16 @@ class AccountStatusMiddleware:
                 messages.error(request, problem)
                 return redirect("accounts:login")
             if user.role_obj.read_only and request.method == "POST" and not request.path.startswith(GUEST_POST_ALLOWED):
-                return render(request, "core/error.html", {"status": 403, "title": "Read-only",
-                              "message": "Demo Guest is read-only. Nothing can be changed."}, status=403)
+                return render(
+                    request,
+                    "core/error.html",
+                    {
+                        "status": 403,
+                        "title": "Read-only",
+                        "message": "Demo Guest is read-only. Nothing can be changed.",
+                    },
+                    status=403,
+                )
         return self.get_response(request)
 
 
@@ -52,8 +60,12 @@ class MFARequiredMiddleware:
 
     def __call__(self, request):
         user = getattr(request, "user", None)
-        if (user is not None and user.is_authenticated and not request.session.get(IMPERSONATOR_KEY)
-                and not request.path.startswith(MFA_SETUP_ALLOWED)):
+        if (
+            user is not None
+            and user.is_authenticated
+            and not request.session.get(IMPERSONATOR_KEY)
+            and not request.path.startswith(MFA_SETUP_ALLOWED)
+        ):
             try:
                 needed = MFAService.required_for(user)
             except Exception:  # pylint: disable=broad-except  # settings table missing during first migrate

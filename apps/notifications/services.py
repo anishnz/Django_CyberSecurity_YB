@@ -13,6 +13,7 @@ Concepts:
       the others.
     * Singleton-style access: ``center()`` returns the one shared NotificationCenter.
 """
+
 from __future__ import annotations
 
 import logging
@@ -63,13 +64,12 @@ class NotificationCenter:
 
 
 def _ids(role: str, school_id) -> list[int]:
-    User = get_user_model()
-    return list(User.objects.filter(role=role, school_id=school_id, is_active=True).values_list("pk", flat=True))
+    users = get_user_model().objects.filter(role=role, school_id=school_id, is_active=True)
+    return list(users.values_list("pk", flat=True))
 
 
 def _super_ids() -> list[int]:
-    User = get_user_model()
-    return list(User.objects.filter(role="super_admin", is_active=True).values_list("pk", flat=True))
+    return list(get_user_model().objects.filter(role="super_admin", is_active=True).values_list("pk", flat=True))
 
 
 class DashboardNotifier(Observer):
@@ -77,11 +77,14 @@ class DashboardNotifier(Observer):
 
     @staticmethod
     def send(user_ids, message, kind="info", icon="bell", link="", once_per_day=False) -> int:
+        """Save a dashboard notice for each user. Returns how many were made."""
         made = 0
         start = timezone.localtime().replace(hour=0, minute=0, second=0, microsecond=0)
         for uid in set(user_ids):
-            if once_per_day and Notification.objects.filter(recipient_id=uid, message=message,
-                                                            created_at__gte=start).exists():
+            if (
+                once_per_day
+                and Notification.objects.filter(recipient_id=uid, message=message, created_at__gte=start).exists()
+            ):
                 continue
             Notification.objects.create(recipient_id=uid, message=message[:300], kind=kind, icon=icon, link=link)
             made += 1
@@ -94,46 +97,83 @@ class DashboardNotifier(Observer):
 
     def _on_exam_completed(self, d):
         pct = d["percentage"]
-        msg = (f"Level {d['level']} exam: {pct:.0f}%. Ka pai! (Well done!)" if d["passed"] else
-               f"Level {d['level']} exam: {pct:.0f}%. Review the topics and try again – kia kaha! (keep going!)")
-        self.send([d["student_id"]], msg, "success" if d["passed"] else "info", "trophy" if d["passed"] else "journal-check")
-        self.send(d.get("teacher_ids", []), f"{d['student_name']} finished the Level {d['level']} exam with {pct:.0f}%.",
-                  "info", "clipboard-check")
+        msg = (
+            f"Level {d['level']} exam: {pct:.0f}%. Ka pai! (Well done!)"
+            if d["passed"]
+            else f"Level {d['level']} exam: {pct:.0f}%. Review the topics and try again – kia kaha! (keep going!)"
+        )
+        self.send(
+            [d["student_id"]], msg, "success" if d["passed"] else "info", "trophy" if d["passed"] else "journal-check"
+        )
+        self.send(
+            d.get("teacher_ids", []),
+            f"{d['student_name']} finished the Level {d['level']} exam with {pct:.0f}%.",
+            "info",
+            "clipboard-check",
+        )
 
     def _on_level_unlocked(self, d):
         self.send([d["student_id"]], f"Level {d['level']} – {d['level_name']} is open for you!", "success", "unlock")
 
     def _on_level_pack_added(self, d):
-        self.send(_ids("school_admin", d["school_id"]) + _ids("teacher", d["school_id"]),
-                  f"Level Pack {d['level']} is now available for your school.", "success", "box-seam")
+        self.send(
+            _ids("school_admin", d["school_id"]) + _ids("teacher", d["school_id"]),
+            f"Level Pack {d['level']} is now available for your school.",
+            "success",
+            "box-seam",
+        )
 
     def _on_license_updated(self, d):
-        self.send(_ids("school_admin", d["school_id"]), f"Licence updated: {d['plan']} plan, until {d['expiry']}.",
-                  "success", "patch-check")
+        self.send(
+            _ids("school_admin", d["school_id"]),
+            f"Licence updated: {d['plan']} plan, until {d['expiry']}.",
+            "success",
+            "patch-check",
+        )
 
     def _on_license_expiring(self, d):
-        self.send(_ids("school_admin", d["school_id"]),
-                  f"Licence ends in {d['days']} days ({d['expiry']}). Please arrange a renewal.",
-                  "warning", "exclamation-triangle", once_per_day=True)
+        self.send(
+            _ids("school_admin", d["school_id"]),
+            f"Licence ends in {d['days']} days ({d['expiry']}). Please arrange a renewal.",
+            "warning",
+            "exclamation-triangle",
+            once_per_day=True,
+        )
 
     def _on_section_full(self, d):
-        self.send(_ids("school_admin", d["school_id"]), f"Section {d['section']} is full ({d['label']}).",
-                  "warning", "people")
+        self.send(
+            _ids("school_admin", d["school_id"]), f"Section {d['section']} is full ({d['label']}).", "warning", "people"
+        )
 
     def _on_settings_changed(self, d):
-        self.send(_super_ids(), f"Setting '{d['key']}' changed from {d['old']} to {d['new']} by {d['by']}.", "info", "gear")
+        self.send(
+            _super_ids(), f"Setting '{d['key']}' changed from {d['old']} to {d['new']} by {d['by']}.", "info", "gear"
+        )
 
     def _on_exam_assigned(self, d):
-        self.send(d.get("student_ids", []), f"New exam: Level {d['level']}"
-                  + (f", due {d['due']}" if d.get("due") else "") + ".", "info", "calendar-check")
+        self.send(
+            d.get("student_ids", []),
+            f"New exam: Level {d['level']}" + (f", due {d['due']}" if d.get("due") else "") + ".",
+            "info",
+            "calendar-check",
+        )
 
     def _on_payment_submitted(self, d):
-        self.send(_super_ids(), f"New payslip from {d['school']} ({d['item']}, ${d['amount']}). Please review.",
-                  "info", "cash-coin", link="/payments/")
+        self.send(
+            _super_ids(),
+            f"New payslip from {d['school']} ({d['item']}, ${d['amount']}). Please review.",
+            "info",
+            "cash-coin",
+            link="/payments/",
+        )
 
     def _on_payment_reviewed(self, d):
-        self.send(_ids("school_admin", d["school_id"]), f"Payment {d['status']}: {d['item']}.",
-                  "success" if d["status"] == "approved" else "danger", "cash-coin")
+        self.send(
+            _ids("school_admin", d["school_id"]),
+            f"Payment {d['status']}: {d['item']}.",
+            "success" if d["status"] == "approved" else "danger",
+            "cash-coin",
+        )
 
     def _on_ticket_event(self, d):
         self.send(d.get("user_ids", []), d["message"], "info", "life-preserver", link=d.get("link", ""))

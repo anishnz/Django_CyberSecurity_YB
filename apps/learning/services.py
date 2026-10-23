@@ -4,6 +4,7 @@ services.py - Save questions written by teachers, the Super Admin or approved AI
 
 Owner: Anish Shrestha (task A-12)
 """
+
 from __future__ import annotations
 
 from django.db import transaction
@@ -20,6 +21,7 @@ class QuestionService:
 
     @transaction.atomic
     def save(self, data: dict, q_type: str, user, instance: Question | None = None) -> Question:
+        """Check the question with QuestionFactory and save it with its answers."""
         domain = QuestionFactory.create(q_type, data)  # raises ValidationError on bad data
         is_teacher = user.is_teacher
         if instance is not None and is_teacher and instance.created_by_id != user.pk:
@@ -32,13 +34,15 @@ class QuestionService:
             row.created_by, row.school = user, user.school
         row.save()
         row.options.all().delete()
-        AnswerOption.objects.bulk_create([AnswerOption(question=row, label=o.label, text=o.text, is_correct=o.is_correct)
-                                          for o in domain.options])
+        AnswerOption.objects.bulk_create(
+            [AnswerOption(question=row, label=o.label, text=o.text, is_correct=o.is_correct) for o in domain.options]
+        )
         AuditService.log(user, "question_saved", row.code or f"Q{row.pk}")
         return row
 
     @staticmethod
     def archive(question: Question, user) -> None:
+        """Hide a question (it stays in old results)."""
         if user.is_teacher and question.created_by_id != user.pk:
             raise AccessDeniedError("You can only remove your own questions.")
         question.is_archived = True

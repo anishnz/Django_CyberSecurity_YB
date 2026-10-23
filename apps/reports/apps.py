@@ -1,4 +1,5 @@
 """apps.py - Django app config for Reports and business intelligence. Owner: Dinesh Upreti."""
+
 from django.apps import AppConfig
 
 

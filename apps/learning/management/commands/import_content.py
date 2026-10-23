@@ -1,4 +1,5 @@
 """import_content - load the 6 levels, 24 topics and 126 questions. Owner: Jihe Qi (task J-13)."""
+
 from django.core.management.base import BaseCommand
 
 from apps.learning.importer import ContentImporter

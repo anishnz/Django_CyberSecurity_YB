@@ -6,10 +6,15 @@ Owner: Anish Shrestha (task A-15)
 Awareness bands: Excellent ≥ 90, Good ≥ 75, Developing ≥ 50, otherwise
 "Needs more practice" – the app never shows "Fail".
 """
+
 from __future__ import annotations
 
-AWARENESS_BANDS = [(90, "Excellent", "success"), (75, "Good", "success"), (50, "Developing", "warning"),
-                   (0, "Needs more practice", "info")]
+AWARENESS_BANDS = [
+    (90, "Excellent", "success"),
+    (75, "Good", "success"),
+    (50, "Developing", "warning"),
+    (0, "Needs more practice", "info"),
+]
 
 
 class ScoringService:

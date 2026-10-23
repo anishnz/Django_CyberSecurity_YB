@@ -63,9 +63,12 @@ class FriendlyErrorMiddleware:
             return None  # Django's normal 500 handler (templates/500.html) deals with real bugs
         logger.warning("%s at %s: %s", type(exception).__name__, request.path, exception.message)
         if exception.status in (403, 404) or request.method == "GET":
-            return render(request, "core/error.html",
-                          {"status": exception.status, "message": exception.message,
-                           "title": _title_for(exception)}, status=exception.status)
+            return render(
+                request,
+                "core/error.html",
+                {"status": exception.status, "message": exception.message, "title": _title_for(exception)},
+                status=exception.status,
+            )
         messages.error(request, exception.message)
         back = request.META.get("HTTP_REFERER", "")
         if back and url_has_allowed_host_and_scheme(back, allowed_hosts={request.get_host()}):
@@ -76,19 +79,24 @@ class FriendlyErrorMiddleware:
 def _title_for(exception: CyberQuestError) -> str:
     """Page heading for an error page."""
     name = type(exception).__name__
-    return {"LevelLockedError": "Level locked", "NotFoundError": "Not found",
-            "LicenseExpiredError": "Licence ended", "ReadOnlyError": "Read-only"}.get(
-        name, "No access" if exception.status == 403 else "Please check and try again")
+    return {
+        "LevelLockedError": "Level locked",
+        "NotFoundError": "Not found",
+        "LicenseExpiredError": "Licence ended",
+        "ReadOnlyError": "Read-only",
+    }.get(name, "No access" if exception.status == 403 else "Please check and try again")
 
 
 class SecurityHeadersMiddleware:
     """Extra browser security headers (Content Security Policy etc.)."""
 
-    CSP = ("default-src 'self'; img-src 'self' data: https://i.ytimg.com https://maps.gstatic.com "
-           "https://maps.googleapis.com; media-src 'self'; style-src 'self' 'unsafe-inline'; "
-           "script-src 'self'; font-src 'self'; "
-           "frame-src https://www.youtube-nocookie.com https://www.google.com; "
-           "connect-src 'self'; frame-ancestors 'none'; form-action 'self'")
+    CSP = (
+        "default-src 'self'; img-src 'self' data: https://i.ytimg.com https://maps.gstatic.com "
+        "https://maps.googleapis.com; media-src 'self'; style-src 'self' 'unsafe-inline'; "
+        "script-src 'self'; font-src 'self'; "
+        "frame-src https://www.youtube-nocookie.com https://www.google.com; "
+        "connect-src 'self'; frame-ancestors 'none'; form-action 'self'"
+    )
 
     def __init__(self, get_response):
         self.get_response = get_response

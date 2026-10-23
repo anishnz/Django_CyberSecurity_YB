@@ -9,6 +9,7 @@ Owner: Jihe Qi (task J-12). Used by the media library, ticket attachments and pa
 * The size must be under the limit set by the Super Admin (SystemSettings).
 * Rejected uploads are written to the security log.
 """
+
 from __future__ import annotations
 
 import filetype
@@ -40,12 +41,19 @@ def check_upload(uploaded, kind: str, request=None, user=None) -> str:
     mime = guess.mime if guess else ""
     if mime not in ALLOWED[kind]:
         _log(request, user, f"{uploaded.name}: type '{mime or 'unknown'}' not allowed for {kind}")
-        nice = {"image": "JPG, PNG, WebP or GIF", "audio": "MP3, OGG, WAV or M4A", "video": "MP4 or WebM",
-                "document": "PDF", "payslip": "PDF, JPG or PNG", "attachment": "PDF, JPG or PNG"}[kind]
+        nice = {
+            "image": "JPG, PNG, WebP or GIF",
+            "audio": "MP3, OGG, WAV or M4A",
+            "video": "MP4 or WebM",
+            "document": "PDF",
+            "payslip": "PDF, JPG or PNG",
+            "attachment": "PDF, JPG or PNG",
+        }[kind]
         raise UploadRejectedError(f"This file type is not allowed. Please upload {nice}.")
     return mime
 
 
 def _log(request, user, details: str) -> None:
     from apps.security.services import SecurityLog  # pylint: disable=import-outside-toplevel
+
     SecurityLog.record("upload_rejected", request, user or getattr(request, "user", None), details=details)

@@ -4,6 +4,7 @@ cq.py - Template tags: {% L 'dashboard' %}, {% safe_url 'name' %}, |simple_forma
 
 Owner: Dinesh Upreti (tasks D-02, D-03)
 """
+
 from __future__ import annotations
 
 import re

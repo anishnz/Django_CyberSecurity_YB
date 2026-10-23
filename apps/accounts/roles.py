@@ -22,7 +22,7 @@ class Role(ABC):
     """What every role must provide."""
 
     code = ""
-    label = ""            # English (Māori)
+    label = ""  # English (Māori)
     icon = "person"
     can_manage_users = False
     can_manage_school = False
@@ -54,15 +54,17 @@ class SuperAdminRole(Role):
         return "core:super_dashboard"
 
     def menu(self):
-        return [("Dashboard (Papatohu)", "core:super_dashboard", "speedometer2"),
-                ("Schools (Kura)", "schools:school_list", "building"),
-                ("Users", "accounts:user_list", "people"),
-                ("Licences", "licensing:licence_list", "patch-check"),
-                ("Payments", "payments:payment_list", "cash-coin"),
-                ("Content (Ako)", "learning:level_list", "journal-text"),
-                ("Tickets", "helpdesk:ticket_list", "life-preserver"),
-                ("BI", "reports:bi_dashboard", "graph-up"),
-                ("System", "core:system", "gear")]
+        return [
+            ("Dashboard (Papatohu)", "core:super_dashboard", "speedometer2"),
+            ("Schools (Kura)", "schools:school_list", "building"),
+            ("Users", "accounts:user_list", "people"),
+            ("Licences", "licensing:licence_list", "patch-check"),
+            ("Payments", "payments:payment_list", "cash-coin"),
+            ("Content (Ako)", "learning:level_list", "journal-text"),
+            ("Tickets", "helpdesk:ticket_list", "life-preserver"),
+            ("BI", "reports:bi_dashboard", "graph-up"),
+            ("System", "core:system", "gear"),
+        ]
 
 
 class SchoolAdminRole(Role):
@@ -76,14 +78,16 @@ class SchoolAdminRole(Role):
         return "schools:admin_dashboard"
 
     def menu(self):
-        return [("Dashboard (Papatohu)", "schools:admin_dashboard", "speedometer2"),
-                ("Classes (Akomanga)", "schools:class_list", "diagram-3"),
-                ("Students (Ākonga)", "schools:student_list", "mortarboard"),
-                ("Teachers (Kaiako)", "schools:teacher_list", "person-badge"),
-                ("Licence", "licensing:my_licence", "patch-check"),
-                ("Reports (Pūrongo)", "reports:school_bi", "graph-up"),
-                ("Bulk email", "emails:bulk", "send"),
-                ("Tickets", "helpdesk:ticket_list", "life-preserver")]
+        return [
+            ("Dashboard (Papatohu)", "schools:admin_dashboard", "speedometer2"),
+            ("Classes (Akomanga)", "schools:class_list", "diagram-3"),
+            ("Students (Ākonga)", "schools:student_list", "mortarboard"),
+            ("Teachers (Kaiako)", "schools:teacher_list", "person-badge"),
+            ("Licence", "licensing:my_licence", "patch-check"),
+            ("Reports (Pūrongo)", "reports:school_bi", "graph-up"),
+            ("Bulk email", "emails:bulk", "send"),
+            ("Tickets", "helpdesk:ticket_list", "life-preserver"),
+        ]
 
 
 class TeacherRole(Role):
@@ -97,13 +101,15 @@ class TeacherRole(Role):
         return "quizzes:teacher_dashboard"
 
     def menu(self):
-        return [("Dashboard (Papatohu)", "quizzes:teacher_dashboard", "speedometer2"),
-                ("Assignments", "quizzes:assignment_list", "calendar-check"),
-                ("My questions", "learning:my_questions", "patch-question"),
-                ("AI drafts", "ai_assistant:draft_list", "stars"),
-                ("Media", "medialib:media_list", "collection-play"),
-                ("Reports (Pūrongo)", "reports:class_report_pick", "bar-chart"),
-                ("Tickets", "helpdesk:ticket_list", "life-preserver")]
+        return [
+            ("Dashboard (Papatohu)", "quizzes:teacher_dashboard", "speedometer2"),
+            ("Assignments", "quizzes:assignment_list", "calendar-check"),
+            ("My questions", "learning:my_questions", "patch-question"),
+            ("AI drafts", "ai_assistant:draft_list", "stars"),
+            ("Media", "medialib:media_list", "collection-play"),
+            ("Reports (Pūrongo)", "reports:class_report_pick", "bar-chart"),
+            ("Tickets", "helpdesk:ticket_list", "life-preserver"),
+        ]
 
 
 class StudentRole(Role):
@@ -117,10 +123,12 @@ class StudentRole(Role):
         return "quizzes:student_dashboard"
 
     def menu(self):
-        return [("My levels", "quizzes:student_dashboard", "signpost-split"),
-                ("My results", "quizzes:my_results", "bar-chart"),
-                ("Certificates", "certificates:my_certificates", "award"),
-                ("Help (Āwhina)", "helpdesk:ticket_list", "life-preserver")]
+        return [
+            ("My levels", "quizzes:student_dashboard", "signpost-split"),
+            ("My results", "quizzes:my_results", "bar-chart"),
+            ("Certificates", "certificates:my_certificates", "award"),
+            ("Help (Āwhina)", "helpdesk:ticket_list", "life-preserver"),
+        ]
 
 
 class GuestRole(Role):
@@ -134,8 +142,7 @@ class GuestRole(Role):
         return "website:guest_tour"
 
     def menu(self):
-        return [("Demo tour", "website:guest_tour", "compass"),
-                ("Try a quiz", "quizzes:guest_try", "controller")]
+        return [("Demo tour", "website:guest_tour", "compass"), ("Try a quiz", "quizzes:guest_try", "controller")]
 
 
 ROLE_CLASSES = {cls.code: cls for cls in (SuperAdminRole, SchoolAdminRole, TeacherRole, StudentRole, GuestRole)}

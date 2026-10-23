@@ -1,4 +1,5 @@
 """apps.py - Django app config for Announcements (Pānui). Owner: Dinesh Upreti."""
+
 from django.apps import AppConfig
 
 

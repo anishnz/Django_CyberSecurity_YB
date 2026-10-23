@@ -7,6 +7,7 @@ Owner: Rajneesh Kumar (task R-05)
 The database row stores plan code and dates; ``License.plan_obj`` turns it into
 the right Plan class (plans.py) so the rules live in Python classes.
 """
+
 from __future__ import annotations
 
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -24,7 +25,9 @@ class License(models.Model):
     expiry_date = models.DateField()
     community_discount = models.BooleanField(default=False, help_text="50% discount for kura and small rural schools.")
     product_key = models.CharField(max_length=60, blank=True)
-    last_warning_sent = models.DateField(null=True, blank=True, help_text="Stops the expiry warning being sent more than once a day.")
+    last_warning_sent = models.DateField(
+        null=True, blank=True, help_text="Stops the expiry warning being sent more than once a day."
+    )
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:

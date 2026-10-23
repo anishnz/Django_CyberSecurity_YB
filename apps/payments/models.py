@@ -9,6 +9,7 @@ bank details → pays at the bank → uploads the payslip → Super Admin approv
 (licence or pack is added automatically, PDF receipt) or rejects with a reason.
 No card details are ever stored (no online card payment).
 """
+
 from __future__ import annotations
 
 import uuid
@@ -48,8 +49,9 @@ class Payment(models.Model):
     payslip = models.FileField(upload_to=payslip_path)
     status = models.CharField(max_length=10, choices=STATUSES, default=PENDING, db_index=True)
     review_note = models.CharField(max_length=300, blank=True)
-    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
-                                    related_name="+")
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
+    )
     reviewed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

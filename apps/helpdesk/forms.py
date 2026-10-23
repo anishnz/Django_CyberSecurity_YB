@@ -1,4 +1,5 @@
 """forms.py - Ticket forms. Owner: Dinesh Upreti (task D-14)."""
+
 from django import forms
 
 from .models import Ticket
@@ -17,13 +18,15 @@ class MultiFileField(forms.FileField):
         files = data if isinstance(data, (list, tuple)) else ([data] if data else [])
         if len(files) > 3:
             raise forms.ValidationError("You can attach up to 3 files.")
-        return [super(MultiFileField, self).clean(f, initial) for f in files]
+        return [super().clean(f, initial) for f in files]
 
 
 ATTACH_HELP = "Optional. Up to 3 screenshots or PDFs (JPG, PNG, PDF). Please hide passwords and personal details."
 
 
 class TicketForm(forms.ModelForm):
+    """New ticket: title, category, priority, description and up to 3 files."""
+
     files = MultiFileField(required=False, label="Screenshots or files", help_text=ATTACH_HELP)
 
     class Meta:
@@ -46,5 +49,9 @@ class CommentForm(forms.Form):
 
 
 class ReportQuestionForm(forms.Form):
-    note = forms.CharField(label="What looks wrong?", widget=forms.Textarea(attrs={"rows": 4}), max_length=1000,
-                           help_text="For example: 'Two answers look right' or 'There is a spelling mistake'.")
+    note = forms.CharField(
+        label="What looks wrong?",
+        widget=forms.Textarea(attrs={"rows": 4}),
+        max_length=1000,
+        help_text="For example: 'Two answers look right' or 'There is a spelling mistake'.",
+    )

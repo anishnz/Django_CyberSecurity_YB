@@ -1,4 +1,5 @@
 """WSGI entry point used by waitress (Docker and run_local.bat)."""
+
 import os
 
 from django.core.wsgi import get_wsgi_application

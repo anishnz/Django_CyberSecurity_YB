@@ -15,6 +15,7 @@ WhatsApp, Viber …). Each adapter gives CyberQuest the SAME small interface:
 The app works fully without any of them (offline fallback).
 Endpoints and model names are settings, so they can be changed without code.
 """
+
 from __future__ import annotations
 
 import imaplib
@@ -35,10 +36,10 @@ class Adapter(ABC):
 
     provider = ""
     label = ""
-    kind = ""            # ai / email / maps / message / share
+    kind = ""  # ai / email / maps / message / share
     needs_secret = True
     secret_label = "API key"
-    extra_fields: list[tuple[str, str, str]] = []   # (key, label, default)
+    extra_fields: list[tuple[str, str, str]] = []  # (key, label, default)
     help_text = ""
 
     def __init__(self, secret: str = "", extra: dict | None = None):
@@ -93,18 +94,27 @@ class OfflineTemplateProvider(AIProvider):
         return True, "Offline helper is always ready."
 
     def generate(self, prompt: str, max_tokens: int = 400) -> str:
-        topic = prompt.split("TOPIC:", 1)[-1].strip().splitlines()[0][:120] if "TOPIC:" in prompt else "staying safe online"
+        topic = (
+            prompt.split("TOPIC:", 1)[-1].strip().splitlines()[0][:120] if "TOPIC:" in prompt else "staying safe online"
+        )
         if "QUESTION" in prompt.upper():
-            return (f"Question: What is the SAFEST thing to do about {topic}?\n"
-                    "A: Ignore it and hope for the best\nB: Stop, think and ask a trusted adult\n"
-                    "C: Share it with friends straight away\nD: Click the link to find out more\n"
-                    "Answer: B\nFeedback: When something online feels wrong, stop and talk to a trusted adult first.")
-        return textwrap.shorten(f"{topic.capitalize()}: stop and think before you click, keep personal "
-                                "information private, use strong passphrases, and talk to a trusted adult "
-                                "(a teacher or your whānau) if something feels wrong.", width=max(80, max_tokens * 4))
+            return (
+                f"Question: What is the SAFEST thing to do about {topic}?\n"
+                "A: Ignore it and hope for the best\nB: Stop, think and ask a trusted adult\n"
+                "C: Share it with friends straight away\nD: Click the link to find out more\n"
+                "Answer: B\nFeedback: When something online feels wrong, stop and talk to a trusted adult first."
+            )
+        return textwrap.shorten(
+            f"{topic.capitalize()}: stop and think before you click, keep personal "
+            "information private, use strong passphrases, and talk to a trusted adult "
+            "(a teacher or your whānau) if something feels wrong.",
+            width=max(80, max_tokens * 4),
+        )
 
 
 class OpenAIProvider(AIProvider):
+    """OpenAI chat completions."""
+
     provider, label = "openai", "OpenAI"
     extra_fields = [("model", "Model", "gpt-4o-mini"), ("base_url", "API address", "https://api.openai.com/v1")]
     help_text = "Create a key at platform.openai.com → API keys. Usage is charged by OpenAI."
@@ -116,20 +126,32 @@ class OpenAIProvider(AIProvider):
         def run():
             r = self._get(f"{self.extra['base_url']}/models", headers=self._headers())
             return (True, "Connected to OpenAI.") if r.ok else (False, f"OpenAI said {r.status_code}.")
+
         return self._safe_test(run)
 
     def generate(self, prompt, max_tokens=400):
-        r = self._post(f"{self.extra['base_url']}/chat/completions", headers=self._headers(), json={
-            "model": self.extra["model"], "max_tokens": max_tokens,
-            "messages": [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}]})
+        r = self._post(
+            f"{self.extra['base_url']}/chat/completions",
+            headers=self._headers(),
+            json={
+                "model": self.extra["model"],
+                "max_tokens": max_tokens,
+                "messages": [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}],
+            },
+        )
         if not r.ok:
             raise IntegrationError(f"OpenAI said {r.status_code}.")
         return r.json()["choices"][0]["message"]["content"].strip()
 
 
 class ClaudeProvider(AIProvider):
+    """Anthropic Claude messages API."""
+
     provider, label = "claude", "Claude (Anthropic)"
-    extra_fields = [("model", "Model", "claude-haiku-4-5-20251001"), ("base_url", "API address", "https://api.anthropic.com/v1")]
+    extra_fields = [
+        ("model", "Model", "claude-haiku-4-5-20251001"),
+        ("base_url", "API address", "https://api.anthropic.com/v1"),
+    ]
     help_text = "Create a key at console.anthropic.com → API keys. Usage is charged by Anthropic."
 
     def _headers(self):
@@ -139,44 +161,63 @@ class ClaudeProvider(AIProvider):
         def run():
             r = self._get(f"{self.extra['base_url']}/models", headers=self._headers())
             return (True, "Connected to Claude.") if r.ok else (False, f"Anthropic said {r.status_code}.")
+
         return self._safe_test(run)
 
     def generate(self, prompt, max_tokens=400):
-        r = self._post(f"{self.extra['base_url']}/messages", headers=self._headers(), json={
-            "model": self.extra["model"], "max_tokens": max_tokens, "system": SYSTEM_PROMPT,
-            "messages": [{"role": "user", "content": prompt}]})
+        r = self._post(
+            f"{self.extra['base_url']}/messages",
+            headers=self._headers(),
+            json={
+                "model": self.extra["model"],
+                "max_tokens": max_tokens,
+                "system": SYSTEM_PROMPT,
+                "messages": [{"role": "user", "content": prompt}],
+            },
+        )
         if not r.ok:
             raise IntegrationError(f"Anthropic said {r.status_code}.")
         return "".join(part.get("text", "") for part in r.json().get("content", [])).strip()
 
 
 class GeminiProvider(AIProvider):
+    """Google Gemini generateContent API."""
+
     provider, label = "gemini", "Google Gemini"
-    extra_fields = [("model", "Model", "gemini-2.5-flash"),
-                    ("base_url", "API address", "https://generativelanguage.googleapis.com/v1beta")]
+    extra_fields = [
+        ("model", "Model", "gemini-2.5-flash"),
+        ("base_url", "API address", "https://generativelanguage.googleapis.com/v1beta"),
+    ]
     help_text = "Create a key at aistudio.google.com → Get API key."
 
     def test_connection(self):
         def run():
             r = self._get(f"{self.extra['base_url']}/models", params={"key": self.secret})
             return (True, "Connected to Gemini.") if r.ok else (False, f"Google said {r.status_code}.")
+
         return self._safe_test(run)
 
     def generate(self, prompt, max_tokens=400):
-        r = self._post(f"{self.extra['base_url']}/models/{self.extra['model']}:generateContent",
-                       params={"key": self.secret}, json={
-                           "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]},
-                           "contents": [{"parts": [{"text": prompt}]}],
-                           "generationConfig": {"maxOutputTokens": max_tokens}})
+        r = self._post(
+            f"{self.extra['base_url']}/models/{self.extra['model']}:generateContent",
+            params={"key": self.secret},
+            json={
+                "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"maxOutputTokens": max_tokens},
+            },
+        )
         if not r.ok:
             raise IntegrationError(f"Google said {r.status_code}.")
         parts = r.json()["candidates"][0]["content"]["parts"]
         return "".join(p.get("text", "") for p in parts).strip()
 
 
-SYSTEM_PROMPT = ("You help New Zealand school teachers write short, kind, accurate cyber-safety learning text for "
-                 "children. Use simple English. Never include real people's names or personal details. "
-                 "Do not invent te reo Māori words; leave Māori wording for the Cultural Guide to add.")
+SYSTEM_PROMPT = (
+    "You help New Zealand school teachers write short, kind, accurate cyber-safety learning text for "
+    "children. Use simple English. Never include real people's names or personal details. "
+    "Do not invent te reo Māori words; leave Māori wording for the Cultural Guide to add."
+)
 
 
 # --------------------------------------------------------------------- email
@@ -185,11 +226,17 @@ class GmailAdapter(Adapter):
 
     provider, label, kind = "gmail", "Gmail (SMTP + IMAP)", "email"
     secret_label = "App Password (16 characters)"
-    extra_fields = [("address", "Gmail address", ""), ("sender_name", "Sender name", "CyberQuest"),
-                    ("smtp_host", "SMTP server", "smtp.gmail.com"), ("smtp_port", "SMTP port", "587"),
-                    ("imap_host", "IMAP server", "imap.gmail.com")]
-    help_text = ("Turn on 2-Step Verification in your Google Account, then create an App Password "
-                 "(Google Account → Security → App passwords). Normal Gmail sends about 500 emails a day.")
+    extra_fields = [
+        ("address", "Gmail address", ""),
+        ("sender_name", "Sender name", "CyberQuest"),
+        ("smtp_host", "SMTP server", "smtp.gmail.com"),
+        ("smtp_port", "SMTP port", "587"),
+        ("imap_host", "IMAP server", "imap.gmail.com"),
+    ]
+    help_text = (
+        "Turn on 2-Step Verification in your Google Account, then create an App Password "
+        "(Google Account → Security → App passwords). Normal Gmail sends about 500 emails a day."
+    )
 
     def test_connection(self):
         def run():
@@ -197,6 +244,7 @@ class GmailAdapter(Adapter):
                 s.starttls()
                 s.login(self.extra["address"], self.secret)
             return True, "Signed in to Gmail SMTP."
+
         return self._safe_test(run)
 
     def imap(self) -> imaplib.IMAP4_SSL:
@@ -207,13 +255,20 @@ class GmailAdapter(Adapter):
 
 # ---------------------------------------------------------------------- maps
 class GoogleMapsAdapter(Adapter):
+    """Google Maps Embed API (the key is used in the browser iframe)."""
+
     provider, label, kind = "google_maps", "Google Maps", "maps"
     help_text = "Create a key in Google Cloud Console and enable the 'Maps Embed API'. Restrict it to your website."
 
     def test_connection(self):
         def run():
             ok = len(self.secret) >= 30 and self.secret.startswith("AIza")
-            return (True, "Key saved. The map loads in the browser.") if ok else (False, "This does not look like a Google API key.")
+            return (
+                (True, "Key saved. The map loads in the browser.")
+                if ok
+                else (False, "This does not look like a Google API key.")
+            )
+
         return self._safe_test(run)
 
     def embed_url(self, query: str) -> str:
@@ -234,11 +289,15 @@ class MessageAdapter(Adapter):
 
 
 class WhatsAppAdapter(MessageAdapter):
+    """WhatsApp Business Cloud API (Meta Graph API)."""
+
     provider, label = "whatsapp", "WhatsApp Business (Cloud API)"
     secret_label = "Access token"
     extra_fields = [("phone_number_id", "Phone number ID", ""), ("api_version", "Graph API version", "v20.0")]
-    help_text = ("Needs a Meta business account and WhatsApp Business Platform. Business-started messages need "
-                 "approved templates and are charged per message. Parents must opt in.")
+    help_text = (
+        "Needs a Meta business account and WhatsApp Business Platform. Business-started messages need "
+        "approved templates and are charged per message. Parents must opt in."
+    )
 
     def _url(self, path=""):
         return f"https://graph.facebook.com/{self.extra['api_version']}/{self.extra['phone_number_id']}{path}"
@@ -247,17 +306,23 @@ class WhatsAppAdapter(MessageAdapter):
         def run():
             r = self._get(self._url(), headers={"Authorization": f"Bearer {self.secret}"})
             return (True, "Connected to WhatsApp.") if r.ok else (False, f"Meta said {r.status_code}.")
+
         return self._safe_test(run)
 
     def send(self, to, text):
-        r = self._post(self._url("/messages"), headers={"Authorization": f"Bearer {self.secret}"}, json={
-            "messaging_product": "whatsapp", "to": to, "type": "text", "text": {"body": text[:4000]}})
+        r = self._post(
+            self._url("/messages"),
+            headers={"Authorization": f"Bearer {self.secret}"},
+            json={"messaging_product": "whatsapp", "to": to, "type": "text", "text": {"body": text[:4000]}},
+        )
         if not r.ok:
             raise IntegrationError(f"WhatsApp said {r.status_code}.")
         return r.json().get("messages", [{}])[0].get("id", "")
 
 
 class ViberAdapter(MessageAdapter):
+    """Viber bot API (only reaches users who subscribed to the bot)."""
+
     provider, label = "viber", "Viber (bot)"
     secret_label = "Bot token"
     extra_fields = [("sender_name", "Sender name", "CyberQuest")]
@@ -268,11 +333,15 @@ class ViberAdapter(MessageAdapter):
             r = self._post("https://chatapi.viber.com/pa/get_account_info", headers={"X-Viber-Auth-Token": self.secret})
             ok = r.ok and r.json().get("status") == 0
             return (True, "Connected to Viber.") if ok else (False, "Viber did not accept the token.")
+
         return self._safe_test(run)
 
     def send(self, to, text):
-        r = self._post("https://chatapi.viber.com/pa/send_message", headers={"X-Viber-Auth-Token": self.secret},
-                       json={"receiver": to, "type": "text", "sender": {"name": self.extra["sender_name"]}, "text": text[:7000]})
+        r = self._post(
+            "https://chatapi.viber.com/pa/send_message",
+            headers={"X-Viber-Auth-Token": self.secret},
+            json={"receiver": to, "type": "text", "sender": {"name": self.extra["sender_name"]}, "text": text[:7000]},
+        )
         if not r.ok or r.json().get("status") != 0:
             raise IntegrationError("Viber could not send the message.")
         return str(r.json().get("message_token", ""))
@@ -284,7 +353,9 @@ class ShareLinks(Adapter):
 
     provider, label, kind, needs_secret = "share", "Share links (free)", "share", False
     extra_fields = [("facebook_page", "School / company Facebook page link", "")]
-    help_text = "Free buttons that open WhatsApp, Viber or Facebook with a ready message. Nothing is sent automatically."
+    help_text = (
+        "Free buttons that open WhatsApp, Viber or Facebook with a ready message. Nothing is sent automatically."
+    )
 
     def test_connection(self):
         return True, "Share links work without a key."
@@ -302,7 +373,18 @@ class ShareLinks(Adapter):
         return f"https://www.facebook.com/sharer/sharer.php?u={quote(url, safe='')}"
 
 
-ADAPTERS: dict[str, type[Adapter]] = {cls.provider: cls for cls in (
-    OfflineTemplateProvider, ClaudeProvider, OpenAIProvider, GeminiProvider, GmailAdapter, GoogleMapsAdapter,
-    WhatsAppAdapter, ViberAdapter, ShareLinks)}
+ADAPTERS: dict[str, type[Adapter]] = {
+    cls.provider: cls
+    for cls in (
+        OfflineTemplateProvider,
+        ClaudeProvider,
+        OpenAIProvider,
+        GeminiProvider,
+        GmailAdapter,
+        GoogleMapsAdapter,
+        WhatsAppAdapter,
+        ViberAdapter,
+        ShareLinks,
+    )
+}
 AI_ORDER = ["claude", "openai", "gemini"]

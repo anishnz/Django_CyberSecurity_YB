@@ -5,6 +5,7 @@ clock.py - One place to ask "what day is it?"
 Owner: Anish Shrestha. Tests can fix the date with settings.CYBERQUEST["FIXED_TODAY"]
 so licence and expiry tests give the same result every day.
 """
+
 from __future__ import annotations
 
 from datetime import date

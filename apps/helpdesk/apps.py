@@ -1,4 +1,5 @@
 """apps.py - Django app config for Help desk tickets. Owner: Rajneesh Kumar (backend), Dinesh Upreti (screens)."""
+
 from django.apps import AppConfig
 
 

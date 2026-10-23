@@ -5,6 +5,7 @@ models.py - Announcements (Pānui) shown on dashboards
 Owner: Rajneesh Kumar (task R-18). Screens by Dinesh Upreti.
 Super Admin → all schools or one school; School Admin → own school only.
 """
+
 from __future__ import annotations
 
 from django.conf import settings
@@ -14,11 +15,18 @@ AUDIENCES = [("all", "Everyone"), ("staff", "Staff only (admins and teachers)"),
 
 
 class Announcement(models.Model):
+    """A short notice (Pānui) with an audience and the dates it shows."""
+
     title = models.CharField(max_length=120)
     body = models.TextField(max_length=2000)
     audience = models.CharField(max_length=10, choices=AUDIENCES, default="all")
-    school = models.ForeignKey("schools.School", null=True, blank=True, on_delete=models.CASCADE,
-                               help_text="Empty = every school (Super Admin only).")
+    school = models.ForeignKey(
+        "schools.School",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        help_text="Empty = every school (Super Admin only).",
+    )
     starts_on = models.DateField()
     ends_on = models.DateField(null=True, blank=True, help_text="Empty = until you remove it.")
     is_pinned = models.BooleanField(default=False)

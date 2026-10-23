@@ -15,8 +15,9 @@ class LetterAndNumberValidator:
     def validate(self, password, user=None):  # pylint: disable=unused-argument
         """Raise ValidationError if a letter or a number is missing."""
         if not re.search(r"[A-Za-z]", password or "") or not re.search(r"\d", password or ""):
-            raise ValidationError("Password must contain at least one letter and one number.",
-                                  code="password_letter_number")
+            raise ValidationError(
+                "Password must contain at least one letter and one number.", code="password_letter_number"
+            )
 
     def get_help_text(self):
         """Text shown under password fields."""

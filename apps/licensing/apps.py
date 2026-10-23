@@ -1,4 +1,5 @@
 """apps.py - Django app config for Licences and Level Packs. Owner: Rajneesh Kumar."""
+
 from django.apps import AppConfig
 
 

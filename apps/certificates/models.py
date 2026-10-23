@@ -6,6 +6,7 @@ Owner: Dinesh Upreti (task D-16). One certificate per student per level; a
 better score later updates it. Each one has a short public code so anyone can
 check it is real at /certificates/verify/<code>/ (the QR code on the PDF).
 """
+
 from __future__ import annotations
 
 import secrets
@@ -19,6 +20,8 @@ def _code() -> str:
 
 
 class Certificate(models.Model):
+    """One certificate per student per level (keeps the best score)."""
+
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="certificates")
     level = models.ForeignKey("learning.Level", on_delete=models.CASCADE)
     session = models.ForeignKey("quizzes.QuizSession", null=True, on_delete=models.SET_NULL, related_name="+")

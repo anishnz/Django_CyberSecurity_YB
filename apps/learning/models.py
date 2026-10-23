@@ -8,6 +8,7 @@ The database rows hold the data. The rules for marking live in the Question
 classes in questions.py; ``Question.as_domain()`` uses the QuestionFactory to
 turn a row into the right class (SingleChoice, TrueFalse, MultiSelect, Scenario).
 """
+
 from __future__ import annotations
 
 from django.conf import settings
@@ -17,8 +18,12 @@ from django.db import models
 from .categories import CATEGORY_CHOICES, LEVEL_CATEGORIES, category_icon, category_name
 
 MARKS_PER_QUESTION = 5
-Q_TYPES = [("single", "Single choice"), ("true_false", "True or false"),
-           ("multi_select", "Choose all that apply"), ("scenario", "Scenario")]
+Q_TYPES = [
+    ("single", "Single choice"),
+    ("true_false", "True or false"),
+    ("multi_select", "Choose all that apply"),
+    ("scenario", "Scenario"),
+]
 
 
 class Level(models.Model):
@@ -96,7 +101,11 @@ class QuestionQuerySet(models.QuerySet):
     def for_practice(self, level_number: int, school=None, category: str | None = None):
         """System questions + the school's own teacher questions."""
         qs = self.approved().filter(level__number=level_number)
-        qs = qs.filter(models.Q(created_by__isnull=True) | models.Q(school=school)) if school else qs.filter(created_by__isnull=True)
+        qs = (
+            qs.filter(models.Q(created_by__isnull=True) | models.Q(school=school))
+            if school
+            else qs.filter(created_by__isnull=True)
+        )
         return qs.filter(category=category) if category else qs
 
 
@@ -115,8 +124,9 @@ class Question(models.Model):
     nz_context = models.BooleanField(default=False)
     approved = models.BooleanField(default=True)
     is_archived = models.BooleanField(default=False)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
-                                   related_name="questions")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="questions"
+    )
     school = models.ForeignKey("schools.School", null=True, blank=True, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -140,6 +150,7 @@ class Question(models.Model):
     def as_domain(self):
         """The OOP Question object (factory picks the class from q_type)."""
         from .factory import QuestionFactory  # pylint: disable=import-outside-toplevel
+
         return QuestionFactory.from_model(self)
 
 

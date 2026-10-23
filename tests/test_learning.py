@@ -1,4 +1,5 @@
 """test_learning.py - Question classes, QuestionFactory, content import. Owners: Jihe Qi / Anish Shrestha."""
+
 import json
 
 import pytest
@@ -12,8 +13,14 @@ from apps.learning.questions import MultiSelectQuestion, ScenarioQuestion, Singl
 
 
 def _data(**extra):
-    base = {"level": 1, "category": "PWD", "text": "Is 123456 a good password?", "options": {"A": "Yes", "B": "No"},
-            "answer": "B", "feedback": "It is short and easy to guess."}
+    base = {
+        "level": 1,
+        "category": "PWD",
+        "text": "Is 123456 a good password?",
+        "options": {"A": "Yes", "B": "No"},
+        "answer": "B",
+        "feedback": "It is short and easy to guess.",
+    }
     base.update(extra)
     return base
 
@@ -32,14 +39,15 @@ def test_unknown_type_and_bad_marks_are_rejected():
     with pytest.raises(ValidationError):
         QuestionFactory.create("single", _data(marks=10))
     with pytest.raises(ValidationError):
-        QuestionFactory.create("single", _data(answer=["A", "B"]))       # single needs one answer
+        QuestionFactory.create("single", _data(answer=["A", "B"]))  # single needs one answer
     with pytest.raises(ValidationError):
         QuestionFactory.create("scenario", _data(scenario_text=""))
 
 
 def test_multi_select_is_all_or_nothing():
-    q = QuestionFactory.create("multi_select", _data(options={"A": "a", "B": "b", "C": "c", "D": "d"},
-                                                     answer=["A", "B", "D"]))
+    q = QuestionFactory.create(
+        "multi_select", _data(options={"A": "a", "B": "b", "C": "c", "D": "d"}, answer=["A", "B", "D"])
+    )
     assert q.marks_for(["A", "B", "D"]) == 5
     assert q.marks_for(["A", "B"]) == 0 and q.marks_for(["A", "B", "C", "D"]) == 0
 
@@ -64,15 +72,31 @@ def test_import_twice_adds_nothing():
 @pytest.mark.django_db
 def test_import_rejects_category_from_another_level(tmp_path):
     bad = tmp_path / "level9.json"
-    bad.write_text(json.dumps({"level": 1, "questions": [{"id": "X1", "category": "LAW", "q_type": "single",
-                   "text": "Wrong level question", "options": {"A": "a", "B": "b"}, "answer": "A",
-                   "feedback": "Because."}]}))
+    bad.write_text(
+        json.dumps(
+            {
+                "level": 1,
+                "questions": [
+                    {
+                        "id": "X1",
+                        "category": "LAW",
+                        "q_type": "single",
+                        "text": "Wrong level question",
+                        "options": {"A": "a", "B": "b"},
+                        "answer": "A",
+                        "feedback": "Because.",
+                    }
+                ],
+            }
+        )
+    )
     with pytest.raises(ValidationError):
         ContentImporter().validate_file(bad)
 
 
 def test_correct_answers_spread_over_a_b_c_d(settings):
     from pathlib import Path
+
     counts = {"A": 0, "B": 0, "C": 0, "D": 0}
     for path in sorted((Path(settings.BASE_DIR) / "data" / "question_bank").glob("level*.json")):
         for q in json.loads(path.read_text(encoding="utf-8"))["questions"]:

@@ -4,6 +4,7 @@ test_accounts.py - Login, roles, lockout, MFA, Login as, demo accounts
 
 Owner: Jihe Qi (QA) with Anish Shrestha (owner of accounts). TC numbers match the report.
 """
+
 import pyotp
 import pytest
 from django.test import Client
@@ -15,11 +16,16 @@ from apps.security.models import SecurityEvent
 pytestmark = pytest.mark.django_db
 
 
-@pytest.mark.parametrize("username, dashboard", [
-    ("superadmin", "/admin-panel/"), ("admin.brightstar", "/schools/my/"),
-])
+@pytest.mark.parametrize(
+    "username, dashboard",
+    [
+        ("superadmin", "/admin-panel/"),
+        ("admin.brightstar", "/schools/my/"),
+    ],
+)
 def test_tc01_login_goes_to_role_dashboard(username, dashboard):
     from tests.conftest import PASSWORDS
+
     r = Client().post("/accounts/login/", {"username": username, "password": PASSWORDS[username]})
     assert r.status_code == 302 and r["Location"] == dashboard
 
@@ -57,7 +63,7 @@ def test_role_classes_are_polymorphic():
     assert role_for("unknown").code == "guest"
 
 
-def test_mfa_enable_and_login_needs_code(user, login):
+def test_mfa_enable_and_login_needs_code(user):
     admin = user("admin.brightstar")
     service = MFAService()
     secret = service.new_secret()
@@ -89,10 +95,10 @@ def test_login_as_needs_reason_and_is_logged(user, login):
     assert r.status_code == 200  # reason too short -> form shown again
     r = c.post(f"/accounts/users/{target.pk}/login-as/", {"reason": "Check school admin dashboard"})
     assert r.status_code == 302 and r["Location"] == "/schools/my/"
-    assert c.get("/schools/").status_code == 403          # now acting as a School Admin
+    assert c.get("/schools/").status_code == 403  # now acting as a School Admin
     assert b"Viewing as" in c.get("/schools/my/").content
     c.post("/accounts/login-as/stop/")
-    assert c.get("/schools/").status_code == 200          # back to Super Admin
+    assert c.get("/schools/").status_code == 200  # back to Super Admin
     events = set(SecurityEvent.objects.values_list("event", flat=True))
     assert {"login_as_start", "login_as_stop"} <= events
 
@@ -113,6 +119,7 @@ def test_temporary_account_expires(login):
     from django.contrib.auth import get_user_model
     from django.utils import timezone
     from apps.accounts.services import AccountCheck
+
     c = login("superadmin")
     c.post("/accounts/users/temporary/", {"role": "teacher", "school": "", "minutes": 5})
     temp = get_user_model().objects.filter(is_temporary=True).latest("pk")

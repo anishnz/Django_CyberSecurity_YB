@@ -1,4 +1,5 @@
 """views.py - Notices (Pānui) page and 'mark all as read'. Owner: Rajneesh Kumar."""
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST

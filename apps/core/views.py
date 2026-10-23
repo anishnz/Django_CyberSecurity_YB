@@ -4,6 +4,7 @@ views.py - Super Admin dashboard, settings (overwrite warning), system, audit lo
 
 Owners: Anish Shrestha (dashboard, settings); Rajneesh Kumar (system, audit, health)
 """
+
 from __future__ import annotations
 
 from django.contrib import messages
@@ -37,12 +38,20 @@ def super_dashboard(request):
     """Super Admin home: totals, licences ending soon, recent security events."""
     from apps.reports.services import BIService  # pylint: disable=import-outside-toplevel
     from apps.security.models import SecurityEvent  # pylint: disable=import-outside-toplevel
+
     bi = BIService()
-    return render(request, "core/super_dashboard.html", {
-        "kpis": bi.platform_kpis(), "expiring": bi.licences_ending(30),
-        "security": SecurityEvent.objects.all()[:8], "audit": AuditLog.objects.all()[:8],
-        "pending_payments": bi.pending_payments(), "open_tickets": bi.open_tickets(),
-    })
+    return render(
+        request,
+        "core/super_dashboard.html",
+        {
+            "kpis": bi.platform_kpis(),
+            "expiring": bi.licences_ending(30),
+            "security": SecurityEvent.objects.all()[:8],
+            "audit": AuditLog.objects.all()[:8],
+            "pending_payments": bi.pending_payments(),
+            "open_tickets": bi.open_tickets(),
+        },
+    )
 
 
 @super_admin_required
@@ -59,10 +68,17 @@ def settings_review(request, key):
     value = request.POST.get("value", "")
     if request.POST.get("confirmed") != "yes":
         old, new = service.preview_change(key, value)
-        return render(request, "core/confirm.html", {
-            "title": "Change system setting", "warning": "You are about to overwrite a system setting. "
-            "It affects every school.", "changes": [(key, old, new)], "hidden": {"value": value, "confirmed": "yes"},
-            "cancel_url": "core:settings"})
+        return render(
+            request,
+            "core/confirm.html",
+            {
+                "title": "Change system setting",
+                "warning": "You are about to overwrite a system setting. " "It affects every school.",
+                "changes": [(key, old, new)],
+                "hidden": {"value": value, "confirmed": "yes"},
+                "cancel_url": "core:settings",
+            },
+        )
     old, new = service.apply_change(key, value, request.user)
     messages.success(request, f"Setting '{key}' changed from {old} to {new}.")
     return redirect("core:settings")
@@ -71,9 +87,17 @@ def settings_review(request, key):
 @super_admin_required
 def system(request):
     """System page: status, backups, feature switches, reset demo."""
-    return render(request, "core/system.html", {
-        "health": health.run_all(), "backups": BackupRecord.objects.all()[:10], "switches": FeatureSwitch.objects.all(),
-        "restore_word": RESTORE_WORD, "reset_word": RESET_DEMO_WORD})
+    return render(
+        request,
+        "core/system.html",
+        {
+            "health": health.run_all(),
+            "backups": BackupRecord.objects.all()[:10],
+            "switches": FeatureSwitch.objects.all(),
+            "restore_word": RESTORE_WORD,
+            "reset_word": RESET_DEMO_WORD,
+        },
+    )
 
 
 @super_admin_required
@@ -128,5 +152,12 @@ def audit_log(request):
     if action:
         rows = rows.filter(action=action)
     actions = AuditLog.objects.order_by().values_list("action", flat=True).distinct()
-    return render(request, "core/audit_log.html", {
-        "page": Paginator(rows, 40).get_page(request.GET.get("page")), "action": action, "actions": sorted(set(actions))})
+    return render(
+        request,
+        "core/audit_log.html",
+        {
+            "page": Paginator(rows, 40).get_page(request.GET.get("page")),
+            "action": action,
+            "actions": sorted(set(actions)),
+        },
+    )

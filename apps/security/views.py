@@ -1,4 +1,5 @@
 """views.py - Security log page with filter and CSV export. Owner: Anish Shrestha (task A-17)."""
+
 import csv
 
 from django.core.paginator import Paginator
@@ -25,8 +26,11 @@ def security_log(request):
     """Security events: logins, failures, lockouts, Login as, MFA, uploads, API keys."""
     rows, event, user = _filtered(request)
     events = sorted(set(SecurityEvent.objects.order_by().values_list("event", flat=True)))
-    return render(request, "security/log.html", {
-        "page": Paginator(rows, 40).get_page(request.GET.get("page")), "event": event, "user": user, "events": events})
+    return render(
+        request,
+        "security/log.html",
+        {"page": Paginator(rows, 40).get_page(request.GET.get("page")), "event": event, "user": user, "events": events},
+    )
 
 
 @super_admin_required
@@ -38,5 +42,7 @@ def security_log_csv(request):
     writer = csv.writer(response)
     writer.writerow(["time", "user", "event", "ip", "path", "details"])
     for r in rows[:5000]:
-        writer.writerow([r.created_at.isoformat(timespec="seconds"), r.username, r.event, r.ip_address, r.path, r.details])
+        writer.writerow(
+            [r.created_at.isoformat(timespec="seconds"), r.username, r.event, r.ip_address, r.path, r.details]
+        )
     return response

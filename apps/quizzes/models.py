@@ -9,6 +9,7 @@ Owner: Anish Shrestha (task A-14)
   saved so an unfinished exam can be resumed.
 * Response stores each answer once (unique session + question).
 """
+
 from __future__ import annotations
 
 import random
@@ -40,13 +41,15 @@ class ExamRules:
             ids = list(pool.get(code, []))
             rng.shuffle(ids)
             chosen += ids[: self.per_category]
-            leftovers += ids[self.per_category:]
+            leftovers += ids[self.per_category :]
         rng.shuffle(leftovers)
         while len(chosen) < self.question_count and leftovers:
             chosen.append(leftovers.pop())
         if len(chosen) < self.question_count:
-            raise ValidationError(f"Level {self.level_number} needs {self.question_count} approved questions "
-                                  f"but only {len(chosen)} are available.")
+            raise ValidationError(
+                f"Level {self.level_number} needs {self.question_count} approved questions "
+                f"but only {len(chosen)} are available."
+            )
         chosen = chosen[: self.question_count]
         rng.shuffle(chosen)
         return chosen
@@ -80,8 +83,9 @@ class QuizSession(models.Model):
     mode = models.CharField(max_length=10, choices=[(PRACTICE, "Practice"), (EXAM, "Exam")])
     category = models.CharField(max_length=10, blank=True)
     question_ids = models.JSONField(default=list)
-    status = models.CharField(max_length=12, default=IN_PROGRESS,
-                              choices=[(IN_PROGRESS, "In progress"), (FINISHED, "Finished")])
+    status = models.CharField(
+        max_length=12, default=IN_PROGRESS, choices=[(IN_PROGRESS, "In progress"), (FINISHED, "Finished")]
+    )
     score = models.PositiveSmallIntegerField(default=0)
     max_score = models.PositiveSmallIntegerField(default=0)
     percentage = models.FloatField(default=0)

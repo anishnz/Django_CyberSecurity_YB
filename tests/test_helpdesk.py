@@ -1,4 +1,8 @@
-"""test_helpdesk.py - Tickets: routing, visibility, state machine, attachments, report a question. Owner: Jihe Qi (QA)."""
+"""test_helpdesk.py - Tickets: routing, visibility, state machine, attachments, report a question.
+
+Owner: Jihe Qi (QA).
+"""
+
 import pytest
 from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -22,8 +26,13 @@ def test_ticket_number_and_routing_student_to_teachers(user):
 
 def test_website_ticket_goes_to_super_admin_and_auto_replies():
     mail.outbox = []
-    t = TicketService().create(title="Pricing question", description="Do kura get a discount?", category="contact",
-                               email="visitor@example.org", name="Visitor")
+    t = TicketService().create(
+        title="Pricing question",
+        description="Do kura get a discount?",
+        category="contact",
+        email="visitor@example.org",
+        name="Visitor",
+    )
     assert t.requester is None and mail.outbox and "CQ-" in mail.outbox[0].subject
     assert TicketService.handlers_for(None)
 
@@ -40,10 +49,12 @@ def test_visibility_between_schools(user):
 
 
 def test_state_machine_blocks_bad_moves(user):
-    t = TicketService().create(title="Timer issue", description="Timer stops on question 3.", requester=user("tama.ngata"))
+    t = TicketService().create(
+        title="Timer issue", description="Timer stops on question 3.", requester=user("tama.ngata")
+    )
     sione = user("sione.faleolo")
     with pytest.raises(ValidationError):
-        TicketService().move(t, Ticket.WAITING, sione)          # open -> waiting is not allowed
+        TicketService().move(t, Ticket.WAITING, sione)  # open -> waiting is not allowed
     TicketService().move(t, Ticket.IN_PROGRESS, sione)
     TicketService().move(t, Ticket.RESOLVED, sione)
     assert t.resolved_at is not None and t.history.count() == 2
@@ -56,7 +67,7 @@ def test_student_cannot_add_internal_note_or_move(user):
         TicketService().comment(t, tama, "secret note", internal=True)
     with pytest.raises(AccessDeniedError):
         TicketService().move(t, Ticket.RESOLVED, tama)
-    TicketService().move(t, Ticket.CLOSED, tama)                # the requester may close their own ticket
+    TicketService().move(t, Ticket.CLOSED, tama)  # the requester may close their own ticket
 
 
 def test_requester_reply_reopens_waiting_ticket(user):
@@ -74,7 +85,7 @@ def test_attachment_rules(user):
     ok = SimpleUploadedFile("shot.png", PNG, content_type="image/png")
     t = TicketService().create(title="Screen shot", description="See the attached picture.", requester=tama, files=[ok])
     assert t.comments.first().attachments.count() == 1
-    bad = SimpleUploadedFile("photo.jpg", b"MZ\x90\x00" + b"\x00" * 64, content_type="image/jpeg")   # a renamed .exe
+    bad = SimpleUploadedFile("photo.jpg", b"MZ\x90\x00" + b"\x00" * 64, content_type="image/jpeg")  # a renamed .exe
     with pytest.raises(UploadRejectedError):
         TicketService().create(title="Bad file", description="This file is not a picture.", requester=tama, files=[bad])
 
@@ -93,8 +104,10 @@ def test_ticket_pages_for_each_role(login):
         assert client.get("/tickets/").status_code == 200
         assert client.get("/tickets/new/").status_code == 200
     client = login("tama.ngata")
-    r = client.post("/tickets/new/", {"title": "Need help", "category": "quiz", "priority": "normal",
-                                      "description": "My quiz will not start."})
+    r = client.post(
+        "/tickets/new/",
+        {"title": "Need help", "category": "quiz", "priority": "normal", "description": "My quiz will not start."},
+    )
     assert r.status_code == 302
     assert client.get(r["Location"]).status_code == 200
 

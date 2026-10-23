@@ -1,4 +1,5 @@
 """forms.py - School, class, section, student and teacher forms. Owner: Rajneesh Kumar."""
+
 from __future__ import annotations
 
 from django import forms
@@ -33,7 +34,9 @@ class StudentForm(forms.Form):
     first_name = forms.CharField(max_length=60)
     last_name = forms.CharField(max_length=60)
     section = forms.ModelChoiceField(queryset=Section.objects.none())
-    password = forms.CharField(widget=forms.PasswordInput, help_text="At least 8 characters with a letter and a number.")
+    password = forms.CharField(
+        widget=forms.PasswordInput, help_text="At least 8 characters with a letter and a number."
+    )
     family_consent = forms.BooleanField(required=False, label="Family (whānau) consent form received")
     parent_name = forms.CharField(max_length=120, required=False)
     parent_email = forms.EmailField(required=False)
@@ -41,7 +44,9 @@ class StudentForm(forms.Form):
 
     def __init__(self, *args, school=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["section"].queryset = Section.objects.filter(school_class__school=school).select_related("school_class")
+        self.fields["section"].queryset = Section.objects.filter(school_class__school=school).select_related(
+            "school_class"
+        )
 
 
 class StudentEditForm(forms.Form):
@@ -56,20 +61,27 @@ class StudentEditForm(forms.Form):
 
     def __init__(self, *args, school=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["section"].queryset = Section.objects.filter(school_class__school=school).select_related("school_class")
+        self.fields["section"].queryset = Section.objects.filter(school_class__school=school).select_related(
+            "school_class"
+        )
 
 
 class TeacherForm(forms.Form):
     first_name = forms.CharField(max_length=60)
     last_name = forms.CharField(max_length=60)
     email = forms.EmailField()
-    password = forms.CharField(widget=forms.PasswordInput, help_text="At least 8 characters with a letter and a number.")
+    password = forms.CharField(
+        widget=forms.PasswordInput, help_text="At least 8 characters with a letter and a number."
+    )
 
 
 class CsvImportForm(forms.Form):
+    """Upload a CSV file of students (preview first)."""
+
     file = forms.FileField(label="Students CSV file", help_text="Maximum 2 MB. Use the template below.")
 
     def clean_file(self):
+        """Only small .csv files are accepted."""
         f = self.cleaned_data["file"]
         if f.size > 2 * 1024 * 1024:
             raise forms.ValidationError("The CSV file is bigger than 2 MB.")

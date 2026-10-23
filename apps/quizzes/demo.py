@@ -5,6 +5,7 @@ demo.py - Demo assignments, exams and practice for seed_demo
 Owner: Anish Shrestha. Exams run through the real QuizService so scores,
 badges, levels, certificates and notifications are all real.
 """
+
 from __future__ import annotations
 
 from datetime import timedelta
@@ -17,8 +18,11 @@ from .services import QuizService
 
 
 def _assign(section, level_number, teacher, days=21):
-    Assignment.objects.get_or_create(level=Level.objects.get(number=level_number), section=section,
-                                     defaults={"teacher": teacher, "due_date": today() + timedelta(days=days)})
+    Assignment.objects.get_or_create(
+        level=Level.objects.get(number=level_number),
+        section=section,
+        defaults={"teacher": teacher, "due_date": today() + timedelta(days=days)},
+    )
 
 
 def _sit_exam(quiz, student, level, percentage, rng):
@@ -51,11 +55,22 @@ def load_demo_activity(p: dict, rng) -> int:
     _assign(p["c7"]["Everest"], 2, p["sita"])
     quiz = QuizService(rng=rng)
     s7a, s8a, ev = p["s7a"], p["s8a"], p["everest"]
-    plan = [(s7a["Tama"], [(1, 85), (2, 75)]), (s7a["Aria"], [(1, 95)]), (s7a["Wiremu"], [(1, 45)]),
-            (s7a["Losa"], [(1, 70)]), (s7a["Aashish"], [(1, 60)]), (s7a["Jack"], [(1, 80)]),
-            (s7a["Manaia"], [(1, 90), (2, 60)]), (s8a["Ella"], [(1, 100), (2, 85), (3, 75)]), (s8a["Ravi"], [(1, 72)]),
-            (s8a["Moana"], [(1, 55)]), (ev["Bikash"], [(1, 90), (2, 80)]), (ev["Pooja"], [(1, 75)]),
-            (ev["Suman"], [(1, 40)]), (ev["Anjali"], [(1, 85)])]
+    plan = [
+        (s7a["Tama"], [(1, 85), (2, 75)]),
+        (s7a["Aria"], [(1, 95)]),
+        (s7a["Wiremu"], [(1, 45)]),
+        (s7a["Losa"], [(1, 70)]),
+        (s7a["Aashish"], [(1, 60)]),
+        (s7a["Jack"], [(1, 80)]),
+        (s7a["Manaia"], [(1, 90), (2, 60)]),
+        (s8a["Ella"], [(1, 100), (2, 85), (3, 75)]),
+        (s8a["Ravi"], [(1, 72)]),
+        (s8a["Moana"], [(1, 55)]),
+        (ev["Bikash"], [(1, 90), (2, 80)]),
+        (ev["Pooja"], [(1, 75)]),
+        (ev["Suman"], [(1, 40)]),
+        (ev["Anjali"], [(1, 85)]),
+    ]
     exams = 0
     for student, attempts in plan:
         for level, pct in attempts:

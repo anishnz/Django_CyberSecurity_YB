@@ -1,4 +1,5 @@
 """apps.py - Django app config for Payments (payslip approval). Owner: Rajneesh Kumar."""
+
 from django.apps import AppConfig
 
 

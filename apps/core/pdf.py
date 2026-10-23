@@ -6,6 +6,7 @@ Owner: Dinesh Upreti. The built-in PDF fonts cannot print Māori macrons (ā, ē
 so names like "Hēmi" would break. Atkinson Hyperlegible (SIL Open Font License,
 see fonts/OFL.txt) has them and is easy to read.
 """
+
 from __future__ import annotations
 
 from functools import lru_cache
@@ -22,6 +23,7 @@ def register_fonts() -> tuple[str, str]:
     from reportlab.lib.fonts import addMapping
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
+
     pdfmetrics.registerFont(TTFont(REGULAR, str(FONT_DIR / "AtkinsonHyperlegible-Regular.ttf")))
     pdfmetrics.registerFont(TTFont(BOLD, str(FONT_DIR / "AtkinsonHyperlegible-Bold.ttf")))
     addMapping(REGULAR, 0, 0, REGULAR)
@@ -34,6 +36,7 @@ def register_fonts() -> tuple[str, str]:
 def styles():
     """reportlab sample styles switched to the Atkinson font."""
     from reportlab.lib.styles import getSampleStyleSheet  # pylint: disable=import-outside-toplevel
+
     regular, bold = register_fonts()
     sheet = getSampleStyleSheet()
     for name in ("Normal", "Italic", "BodyText"):

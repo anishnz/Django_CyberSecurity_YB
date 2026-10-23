@@ -1,0 +1,32 @@
+# Pylint settings for CyberQuest (Django). Owner: Jihe Qi (QA Lead, task J-05).
+[MAIN]
+load-plugins=pylint_django
+django-settings-module=cyberquest.settings.test
+ignore=migrations,staticfiles,media,instance
+jobs=0
+
+[FORMAT]
+# The team agreed on 120 characters (wide screens, long Bootstrap class lists in Python strings).
+max-line-length=120
+
+[DESIGN]
+# Service methods take keyword-only data from forms; dataclass-like models have many fields.
+max-args=12
+max-positional-arguments=8
+max-locals=25
+max-attributes=12
+max-returns=8
+max-branches=15
+min-public-methods=0
+
+[MESSAGES CONTROL]
+disable=
+    import-outside-toplevel,   # used on purpose to avoid circular imports between Django apps
+    too-few-public-methods,
+    duplicate-code,            # Django migrations and similar view boilerplate
+
+[BASIC]
+good-names=i,j,k,q,s,r,d,t,p,c,m,v,x,y,f,e,ok,id,pk,qs,tz,L,ai,bi,cfg,lic,row,msg,exc,box,buf,doc,url,obj
+# Short functions explain themselves; private helpers and pytest tests are named clearly.
+no-docstring-rgx=^_|^test_|^Meta$
+docstring-min-length=6

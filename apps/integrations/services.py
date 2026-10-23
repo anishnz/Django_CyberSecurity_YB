@@ -4,6 +4,7 @@ services.py - Save, test and use integrations (Factory + Adapter)
 
 Owner: Jihe Qi (tasks J-09, J-10)
 """
+
 from __future__ import annotations
 
 from django.utils import timezone
@@ -33,6 +34,7 @@ class IntegrationService:
         return ADAPTERS[provider](row.get_secret(), row.extra)
 
     def save(self, provider: str, *, secret: str | None, extra: dict, enabled: bool, user=None, request=None):
+        """Save settings; a new key is encrypted and written to the security log."""
         row = self.row(provider)
         cls = ADAPTERS[provider]
         clean_extra = {k: (extra.get(k) or default).strip() for k, _, default in cls.extra_fields}
@@ -55,9 +57,14 @@ class IntegrationService:
         SecurityLog.record("api_key_changed", request, user, details=f"{provider} key removed")
 
     def test(self, provider: str) -> tuple[bool, str]:
+        """Run the adapter's connection test and save the result on the card."""
         row = self.row(provider)
         ok, msg = self.adapter(provider).test_connection()
-        row.status, row.last_error, row.last_checked = ("connected" if ok else "error"), ("" if ok else msg[:300]), timezone.now()
+        row.status, row.last_error, row.last_checked = (
+            ("connected" if ok else "error"),
+            ("" if ok else msg[:300]),
+            timezone.now(),
+        )
         row.save(update_fields=["status", "last_error", "last_checked"])
         return ok, msg
 
@@ -75,21 +82,36 @@ class IntegrationService:
 
     def status_summary(self) -> dict[str, str]:
         rows = {r.provider: r for r in IntegrationSetting.objects.all()}
-        return {name: (rows[name].status if name in rows else "not_set") + ("" if name not in rows or rows[name].enabled else " (off)")
-                for name in ADAPTERS if name not in ("offline", "share")}
+        return {
+            name: (rows[name].status if name in rows else "not_set")
+            + ("" if name not in rows or rows[name].enabled else " (off)")
+            for name in ADAPTERS
+            if name not in ("offline", "share")
+        }
 
     def cards(self) -> list[dict]:
+        """One card per integration for the Integrations page."""
         out = []
         for name, cls in ADAPTERS.items():
             row = IntegrationSetting.objects.filter(provider=name).first()
-            out.append({"provider": name, "cls": cls, "row": row, "extra": [
-                (k, label, (row.extra.get(k) if row and row.extra.get(k) else default)) for k, label, default in cls.extra_fields]})
+            out.append(
+                {
+                    "provider": name,
+                    "cls": cls,
+                    "row": row,
+                    "extra": [
+                        (k, label, (row.extra.get(k) if row and row.extra.get(k) else default))
+                        for k, label, default in cls.extra_fields
+                    ],
+                }
+            )
         return out
 
 
 def map_for(query: str = "", lat=None, lng=None) -> dict:
     """Google Maps for a place: an embedded map when a key is saved, otherwise a free 'Open in Google Maps' link."""
     from urllib.parse import quote_plus  # pylint: disable=import-outside-toplevel
+
     where = f"{lat},{lng}" if lat is not None and lng is not None else (query or "")
     if not where or not FeatureSwitch.is_on("maps"):
         return {}

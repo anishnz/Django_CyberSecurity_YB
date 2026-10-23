@@ -1,4 +1,5 @@
 """apps.py - Django app config for Core (settings, health, audit, backups). Owner: Anish Shrestha / Rajneesh Kumar."""
+
 from django.apps import AppConfig
 
 

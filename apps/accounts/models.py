@@ -47,10 +47,11 @@ class User(AbstractUser):
     SUPER_ADMIN, SCHOOL_ADMIN, TEACHER, STUDENT, GUEST = "super_admin", "school_admin", "teacher", "student", "guest"
 
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=STUDENT, db_index=True)
-    school = models.ForeignKey("schools.School", null=True, blank=True, on_delete=models.SET_NULL,
-                               related_name="users")
+    school = models.ForeignKey("schools.School", null=True, blank=True, on_delete=models.SET_NULL, related_name="users")
     phone = models.CharField(max_length=30, blank=True)
-    expires_at = models.DateTimeField(null=True, blank=True, help_text="Temporary accounts stop working after this time.")
+    expires_at = models.DateTimeField(
+        null=True, blank=True, help_text="Temporary accounts stop working after this time."
+    )
     is_temporary = models.BooleanField(default=False)
     must_change_password = models.BooleanField(default=False)
     mfa_enabled = models.BooleanField(default=False)
@@ -60,10 +61,13 @@ class User(AbstractUser):
     tour_finished = models.BooleanField(default=False)
     is_demo = models.BooleanField(default=False, help_text="Created by the demo data loader.")
     is_cultural_guide = models.BooleanField(
-        default=False, verbose_name="Cultural Guide (Kaiārahi)",
-        help_text="Can give the cultural approval for AI drafts and media with Māori content.")
-    demo_password = models.CharField(max_length=40, blank=True,
-                                     help_text="Known password of a DEMO account only (shown on the demo page).")
+        default=False,
+        verbose_name="Cultural Guide (Kaiārahi)",
+        help_text="Can give the cultural approval for AI drafts and media with Māori content.",
+    )
+    demo_password = models.CharField(
+        max_length=40, blank=True, help_text="Known password of a DEMO account only (shown on the demo page)."
+    )
 
     objects = CyberQuestUserManager()
 

@@ -1,4 +1,5 @@
 """test_licensing.py - Plans, grace period, product keys and Level Pack keys. Owners: Jihe Qi / Rajneesh Kumar."""
+
 from datetime import date
 
 import pytest
@@ -14,7 +15,7 @@ TODAY = date(2026, 10, 6)
 
 def test_basic_plan_grace_period_and_section_limit():
     plan = BasicPlan(date(2025, 10, 1), date(2026, 10, 1))
-    assert plan.is_active(TODAY) and plan.in_grace_period(TODAY)       # 5 days after expiry
+    assert plan.is_active(TODAY) and plan.in_grace_period(TODAY)  # 5 days after expiry
     assert not plan.is_active(date(2026, 10, 9))
     assert plan.can_add_section(4) and not plan.can_add_section(5)
 
@@ -29,7 +30,7 @@ def test_key_round_trip_and_tampering():
     key = v.generate("BRIGHTSTAR", "STANDARD", date(2027, 12, 31))
     assert v.parse(key).plan == "STANDARD"
     with pytest.raises(InvalidLicenseKeyError):
-        v.parse(key.replace("20271231", "20291231"))                    # edited date
+        v.parse(key.replace("20271231", "20291231"))  # edited date
     with pytest.raises(InvalidLicenseKeyError):
         LicenseKeyValidator("other-secret").parse(key)
 
@@ -55,7 +56,7 @@ def test_tc27_level_pack_key():
     key = LicenseKeyValidator().generate("KTMVALLEY", "L3", date(2027, 12, 31))
     LevelPackService().apply_pack_key(ktm, key)
     assert LevelPackService().has_pack(ktm, 3)
-    with pytest.raises(InvalidLicenseKeyError):                          # product key in pack box
+    with pytest.raises(InvalidLicenseKeyError):  # product key in pack box
         LevelPackService().apply_pack_key(ktm, LicenseKeyValidator().generate("KTMVALLEY", "BASIC", date(2027, 1, 1)))
 
 
@@ -64,7 +65,7 @@ def test_expiry_warning_sent_once_a_day():
     service = LicenseService()
     first = service.expiry_warnings()
     second = service.expiry_warnings()
-    assert first >= 1 and second == 0                                  # Bright Star ends in 10 days
+    assert first >= 1 and second == 0  # Bright Star ends in 10 days
 
 
 @pytest.mark.django_db

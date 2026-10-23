@@ -1,4 +1,5 @@
 """apps.py - Django app config for Learning content. Owner: Anish Shrestha."""
+
 from django.apps import AppConfig
 
 

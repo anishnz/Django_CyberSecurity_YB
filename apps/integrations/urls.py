@@ -1,4 +1,5 @@
 """urls.py - /integrations/ URLs (Super Admin)."""
+
 from django.urls import path
 
 from . import views

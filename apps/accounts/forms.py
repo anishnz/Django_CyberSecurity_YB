@@ -16,27 +16,42 @@ User = get_user_model()
 class LoginForm(forms.Form):
     """Username and password."""
 
-    username = forms.CharField(max_length=150, widget=forms.TextInput(attrs={"autofocus": True, "autocomplete": "username"}))
+    username = forms.CharField(
+        max_length=150, widget=forms.TextInput(attrs={"autofocus": True, "autocomplete": "username"})
+    )
     password = forms.CharField(widget=forms.PasswordInput(attrs={"autocomplete": "current-password"}))
 
 
 class MFACodeForm(forms.Form):
     """6-digit code from the authenticator app, or a backup code."""
 
-    code = forms.CharField(max_length=12, label="Code", widget=forms.TextInput(
-        attrs={"autocomplete": "one-time-code", "inputmode": "numeric", "autofocus": True}))
+    code = forms.CharField(
+        max_length=12,
+        label="Code",
+        widget=forms.TextInput(attrs={"autocomplete": "one-time-code", "inputmode": "numeric", "autofocus": True}),
+    )
 
 
 class UserForm(forms.ModelForm):
     """Create or edit a user (Super Admin)."""
 
-    password = forms.CharField(required=False, widget=forms.PasswordInput,
-                               help_text="Leave empty to keep the current password.")
+    password = forms.CharField(
+        required=False, widget=forms.PasswordInput, help_text="Leave empty to keep the current password."
+    )
 
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "username", "email", "phone", "role", "school", "is_active",
-                  "is_cultural_guide"]
+        fields = [
+            "first_name",
+            "last_name",
+            "username",
+            "email",
+            "phone",
+            "role",
+            "school",
+            "is_active",
+            "is_cultural_guide",
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -73,14 +88,19 @@ class TemporaryUserForm(forms.Form):
 class ResetPasswordForm(forms.Form):
     """Admin sets a new password for a user."""
 
-    new_password = forms.CharField(widget=forms.PasswordInput, help_text="At least 8 characters with a letter and a number.")
+    new_password = forms.CharField(
+        widget=forms.PasswordInput, help_text="At least 8 characters with a letter and a number."
+    )
 
 
 class LoginAsForm(forms.Form):
     """Reason for using Login as (saved in the security log)."""
 
-    reason = forms.CharField(max_length=200, min_length=5, widget=forms.TextInput(
-        attrs={"placeholder": "e.g. Test ticket TCK-0042 for the teacher"}))
+    reason = forms.CharField(
+        max_length=200,
+        min_length=5,
+        widget=forms.TextInput(attrs={"placeholder": "e.g. Test ticket TCK-0042 for the teacher"}),
+    )
 
 
 class ForgotPasswordForm(forms.Form):
@@ -97,7 +117,9 @@ class ForgotPasswordForm(forms.Form):
 class SetNewPasswordForm(forms.Form):
     """Step 2: choose a new password (checked by Django's password validators)."""
 
-    new_password = forms.CharField(widget=forms.PasswordInput, help_text="At least 8 characters with a letter and a number.")
+    new_password = forms.CharField(
+        widget=forms.PasswordInput, help_text="At least 8 characters with a letter and a number."
+    )
     confirm = forms.CharField(widget=forms.PasswordInput, label="Type it again")
 
     def clean(self):

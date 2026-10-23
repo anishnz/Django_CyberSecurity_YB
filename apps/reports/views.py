@@ -4,6 +4,7 @@ views.py - BI dashboards, school reports, class and student reports, CSV/PDF exp
 
 Owners: Dinesh Upreti (screens and charts, task D-15), Rajneesh Kumar (queries)
 """
+
 from __future__ import annotations
 
 from django.contrib.auth import get_user_model
@@ -34,10 +35,20 @@ def bi_dashboard(request):
     if request.GET.get("export") == "csv":
         return _download(bi.to_csv(rows, SCHOOL_COLUMNS), "cyberquest_schools.csv", "text/csv")
     mix = bi.plan_mix()
-    return render(request, "reports/bi_dashboard.html", {
-        "kpis": bi.platform_kpis(), "rows": rows, "tickets": bi.ticket_stats(), "categories": bi.category_strength(),
-        "levels": bi.level_pass_rates(), "expiring": bi.licences_ending(30), "pending_payments": bi.pending_payments(),
-        "charts": {"activity": bi.monthly_activity(), "plans": {"labels": list(mix), "values": list(mix.values())}}})
+    return render(
+        request,
+        "reports/bi_dashboard.html",
+        {
+            "kpis": bi.platform_kpis(),
+            "rows": rows,
+            "tickets": bi.ticket_stats(),
+            "categories": bi.category_strength(),
+            "levels": bi.level_pass_rates(),
+            "expiring": bi.licences_ending(30),
+            "pending_payments": bi.pending_payments(),
+            "charts": {"activity": bi.monthly_activity(), "plans": {"labels": list(mix), "values": list(mix.values())}},
+        },
+    )
 
 
 def _school_for(request) -> School:
@@ -53,14 +64,24 @@ def school_bi(request):
         return render(request, "reports/school_pick.html", {"schools": School.objects.order_by("name")})
     school = _school_for(request)
     bi = BIService()
-    return render(request, "reports/school_bi.html", {
-        "school": school, "kpis": bi.school_kpis(school), "sections": bi.section_summary(school),
-        "categories": bi.category_strength(school), "levels": bi.level_pass_rates(school),
-        "charts": {"activity": bi.monthly_activity(school)}})
+    return render(
+        request,
+        "reports/school_bi.html",
+        {
+            "school": school,
+            "kpis": bi.school_kpis(school),
+            "sections": bi.section_summary(school),
+            "categories": bi.category_strength(school),
+            "levels": bi.level_pass_rates(school),
+            "charts": {"activity": bi.monthly_activity(school)},
+        },
+    )
 
 
 def _sections_for(user):
-    qs = Section.objects.select_related("school_class", "school_class__school").order_by("school_class__year_level", "name")
+    qs = Section.objects.select_related("school_class", "school_class__school").order_by(
+        "school_class__year_level", "name"
+    )
     return qs if user.is_super_admin else qs.filter(school_class__school=user.school)
 
 
@@ -71,6 +92,7 @@ def class_report_pick(request):
 
 @role_required("super_admin", "school_admin", "teacher")
 def class_report(request, pk):
+    """Class report for one section, with CSV and PDF download."""
     section = get_object_or_404(_sections_for(request.user), pk=pk)
     bi = BIService()
     rows = bi.class_report(section)
@@ -80,10 +102,15 @@ def class_report(request, pk):
     if fmt == "csv":
         return _download(bi.to_csv(rows, CLASS_COLUMNS), f"class_report_{section.pk}.csv", "text/csv")
     if fmt == "pdf":
-        return _download(bi.to_pdf(title, subtitle, rows, CLASS_COLUMNS), f"class_report_{section.pk}.pdf", "application/pdf")
+        return _download(
+            bi.to_pdf(title, subtitle, rows, CLASS_COLUMNS), f"class_report_{section.pk}.pdf", "application/pdf"
+        )
     students = User.objects.filter(student_profile__section=section)
-    return render(request, "reports/class_report.html", {"section": section, "rows": rows, "title": title,
-                                                         "categories": bi.category_strength(students=students)})
+    return render(
+        request,
+        "reports/class_report.html",
+        {"section": section, "rows": rows, "title": title, "categories": bi.category_strength(students=students)},
+    )
 
 
 @role_required("super_admin", "school_admin", "teacher")

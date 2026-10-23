@@ -1,4 +1,5 @@
 """views.py - Announcement list and editor. Owner: Dinesh Upreti."""
+
 from __future__ import annotations
 
 from django.contrib import messages
@@ -17,16 +18,25 @@ from .services import AnnouncementService
 
 @role_required("super_admin", "school_admin", "teacher", "student")
 def announcement_list(request):
+    """Current announcements for this user, and the ones an admin can manage."""
     service = AnnouncementService()
     can_manage = request.user.role in ("super_admin", "school_admin")
     rows = service.manageable_by(request.user) if can_manage else service.visible_to(request.user)
-    items = [{"a": a, "whatsapp": ShareLinks.whatsapp(f"{a.title}: {a.body[:300]}")} for a in rows.select_related("school")[:100]]
+    items = [
+        {"a": a, "whatsapp": ShareLinks.whatsapp(f"{a.title}: {a.body[:300]}")}
+        for a in rows.select_related("school")[:100]
+    ]
     return render(request, "announcements/list.html", {"items": items, "can_manage": can_manage})
 
 
 @role_required("super_admin", "school_admin")
 def announcement_edit(request, pk=None):
-    obj = get_object_or_404(AnnouncementService.manageable_by(request.user), pk=pk) if pk else Announcement(starts_on=today())
+    """Create or edit an announcement (admins only)."""
+    obj = (
+        get_object_or_404(AnnouncementService.manageable_by(request.user), pk=pk)
+        if pk
+        else Announcement(starts_on=today())
+    )
     form = AnnouncementForm(request.POST or None, instance=obj, user=request.user)
     if request.method == "POST" and form.is_valid():
         try:

@@ -27,10 +27,15 @@ CODE_RE = re.compile(r"^[A-Z0-9]{3,20}$")
 class School(models.Model):
     """A school (kura) that uses CyberQuest."""
 
-    REGIONS = [("northland", "Northland (Te Tai Tokerau)"), ("auckland", "Auckland (Tāmaki Makaurau)"),
-               ("waikato", "Waikato"), ("bay_of_plenty", "Bay of Plenty (Te Moana-a-Toi)"),
-               ("wellington", "Wellington (Te Whanganui-a-Tara)"), ("canterbury", "Canterbury (Waitaha)"),
-               ("other", "Other")]
+    REGIONS = [
+        ("northland", "Northland (Te Tai Tokerau)"),
+        ("auckland", "Auckland (Tāmaki Makaurau)"),
+        ("waikato", "Waikato"),
+        ("bay_of_plenty", "Bay of Plenty (Te Moana-a-Toi)"),
+        ("wellington", "Wellington (Te Whanganui-a-Tara)"),
+        ("canterbury", "Canterbury (Waitaha)"),
+        ("other", "Other"),
+    ]
 
     code = models.CharField(max_length=20, unique=True, help_text="Capital letters and numbers, e.g. BRIGHTSTAR")
     name = models.CharField(max_length=120)
@@ -93,8 +98,9 @@ class Section(models.Model):
         ordering = ["school_class__year_level", "name"]
         constraints = [
             models.UniqueConstraint(fields=["school_class", "name"], name="unique_section_name_per_class"),
-            models.CheckConstraint(condition=models.Q(capacity__gte=1) & models.Q(capacity__lte=60),
-                                   name="section_capacity_1_to_60"),
+            models.CheckConstraint(
+                condition=models.Q(capacity__gte=1) & models.Q(capacity__lte=60), name="section_capacity_1_to_60"
+            ),
         ]
 
     def __str__(self) -> str:
@@ -122,7 +128,8 @@ class Section(models.Model):
         if self.student_count + extra > self.capacity:
             raise SectionFullError(
                 f"Section {self.name} is full ({self.student_count}/{self.capacity}). "
-                "Ask the Super Admin to raise the limit.")
+                "Ask the Super Admin to raise the limit."
+            )
 
     def add_student(self, profile: "StudentProfile") -> "StudentProfile":
         """Put a student in this section (only if there is room)."""

@@ -33,8 +33,14 @@ class AuditService:
         """Save an audit entry and copy it to the log file."""
         username = getattr(user, "username", "") or "system"
         entry = AuditLog.objects.create(
-            user=user if getattr(user, "pk", None) else None, username=username, action=action,
-            target=str(target)[:200], old_value=str(old), new_value=str(new), details=details)
+            user=user if getattr(user, "pk", None) else None,
+            username=username,
+            action=action,
+            target=str(target)[:200],
+            old_value=str(old),
+            new_value=str(new),
+            details=details,
+        )
         logger.info("AUDIT %s by %s: %s %s -> %s %s", action, username, target, old, new, details)
         return entry
 
@@ -50,12 +56,21 @@ class SettingsService:
         result = []
         for name in SystemSettings.EDITABLE:
             field = SystemSettings._meta.get_field(name)
-            result.append({
-                "key": name, "label": field.verbose_name.capitalize(), "help": field.help_text,
-                "value": getattr(self.settings, name), "is_bool": isinstance(field, models.BooleanField),
-                "min": next((v.limit_value for v in field.validators if v.__class__.__name__ == "MinValueValidator"), None),
-                "max": next((v.limit_value for v in field.validators if v.__class__.__name__ == "MaxValueValidator"), None),
-            })
+            result.append(
+                {
+                    "key": name,
+                    "label": field.verbose_name.capitalize(),
+                    "help": field.help_text,
+                    "value": getattr(self.settings, name),
+                    "is_bool": isinstance(field, models.BooleanField),
+                    "min": next(
+                        (v.limit_value for v in field.validators if v.__class__.__name__ == "MinValueValidator"), None
+                    ),
+                    "max": next(
+                        (v.limit_value for v in field.validators if v.__class__.__name__ == "MaxValueValidator"), None
+                    ),
+                }
+            )
         return result
 
     def _convert(self, key: str, raw: str):
@@ -92,5 +107,6 @@ class SettingsService:
         self.settings.save()
         AuditService.log(user, "settings_change", key, old, new)
         from apps.notifications.services import notify  # pylint: disable=import-outside-toplevel
+
         notify("settings_changed", {"key": key, "old": old, "new": new, "by": getattr(user, "username", "")})
         return old, new

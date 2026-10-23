@@ -7,6 +7,7 @@ Owner: Rajneesh Kumar (task R-15)
 Each check returns (ok, detail). /health/ answers HTTP 200 when the important
 checks pass, otherwise 503, so Docker can restart the app.
 """
+
 from __future__ import annotations
 
 import shutil
@@ -19,6 +20,7 @@ from django.utils import timezone
 
 
 def check_database() -> tuple[bool, str]:
+    """Can we read from the database?"""
     try:
         with connection.cursor() as cur:
             cur.execute("SELECT 1")
@@ -29,11 +31,12 @@ def check_database() -> tuple[bool, str]:
 
 def check_disk() -> tuple[bool, str]:
     usage = shutil.disk_usage(settings.BASE_DIR)
-    free_gb = usage.free / 1024 ** 3
+    free_gb = usage.free / 1024**3
     return free_gb > 0.5, f"{free_gb:.1f} GB free"
 
 
 def check_media() -> tuple[bool, str]:
+    """Can we write to the media folder?"""
     folder = Path(settings.MEDIA_ROOT)
     try:
         folder.mkdir(parents=True, exist_ok=True)
@@ -48,6 +51,7 @@ def check_integrations() -> dict[str, str]:
     """Status of outside services (never fails the health check - they are optional)."""
     try:
         from apps.integrations.services import IntegrationService  # pylint: disable=import-outside-toplevel
+
         return IntegrationService().status_summary()
     except Exception:  # pylint: disable=broad-except
         return {}

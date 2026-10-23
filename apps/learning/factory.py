@@ -9,12 +9,21 @@ One place decides WHICH question class to build from a type name such as
 (Open/Closed principle). ``validate()`` checks the rules every question must
 follow (used by the JSON importer, the teacher form and AI drafts).
 """
+
 from __future__ import annotations
 
 from apps.core.exceptions import ValidationError
 
-from .questions import (MARKS_PER_QUESTION, VALID_LABELS, MultiSelectQuestion, Option, QuestionBase,
-                        ScenarioQuestion, SingleChoiceQuestion, TrueFalseQuestion)
+from .questions import (
+    MARKS_PER_QUESTION,
+    VALID_LABELS,
+    MultiSelectQuestion,
+    Option,
+    QuestionBase,
+    ScenarioQuestion,
+    SingleChoiceQuestion,
+    TrueFalseQuestion,
+)
 
 
 class QuestionFactory:
@@ -47,11 +56,20 @@ class QuestionFactory:
         answer = data.get("answer")
         correct = {answer.upper()} if isinstance(answer, str) else {a.upper() for a in (answer or [])}
         options = [Option(label, text, label in correct) for label, text in sorted((data.get("options") or {}).items())]
-        question = klass(code=data.get("id"), level_number=data.get("level"), category=data.get("category", ""),
-                         text=data.get("text", ""), options=options, feedback=data.get("feedback", ""),
-                         marks=data.get("marks", MARKS_PER_QUESTION), topic_code=data.get("topic", ""),
-                         scenario_text=data.get("scenario_text", ""), nz_context=bool(data.get("nz_context")),
-                         created_by=data.get("created_by"), school_id=data.get("school_id"))
+        question = klass(
+            code=data.get("id"),
+            level_number=data.get("level"),
+            category=data.get("category", ""),
+            text=data.get("text", ""),
+            options=options,
+            feedback=data.get("feedback", ""),
+            marks=data.get("marks", MARKS_PER_QUESTION),
+            topic_code=data.get("topic", ""),
+            scenario_text=data.get("scenario_text", ""),
+            nz_context=bool(data.get("nz_context")),
+            created_by=data.get("created_by"),
+            school_id=data.get("school_id"),
+        )
         cls.validate(question)
         return question
 
@@ -60,10 +78,21 @@ class QuestionFactory:
         """Build from a Django Question row and its options."""
         klass = cls.klass_for(row.q_type)
         options = [Option(o.label, o.text, o.is_correct) for o in row.options.all()]
-        return klass(pk=row.pk, code=row.code, level_number=row.level.number, category=row.category, text=row.text,
-                     options=options, feedback=row.feedback, marks=row.marks, topic_code=row.topic_code,
-                     scenario_text=row.scenario_text, nz_context=row.nz_context, created_by=row.created_by_id,
-                     school_id=row.school_id)
+        return klass(
+            pk=row.pk,
+            code=row.code,
+            level_number=row.level.number,
+            category=row.category,
+            text=row.text,
+            options=options,
+            feedback=row.feedback,
+            marks=row.marks,
+            topic_code=row.topic_code,
+            scenario_text=row.scenario_text,
+            nz_context=row.nz_context,
+            created_by=row.created_by_id,
+            school_id=row.school_id,
+        )
 
     @staticmethod
     def validate(q: QuestionBase) -> None:

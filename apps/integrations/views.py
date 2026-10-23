@@ -7,6 +7,7 @@ Owner: Jihe Qi (tasks J-09, J-10, J-11). Super Admin only.
 Keys are typed into a password box, saved encrypted, and only ever shown masked
 (for example ``sk-a…9Xz``). Every key change is written to the security log.
 """
+
 from __future__ import annotations
 
 from django.contrib import messages
@@ -31,12 +32,19 @@ def integration_list(request):
 @super_admin_required
 @require_POST
 def integration_save(request, provider):
+    """Save one integration card (key, settings, on/off)."""
     cls = ADAPTERS.get(provider)
     if cls is None:
         return redirect("integrations:list")
     extra = {k: request.POST.get(k, "") for k, _, _ in cls.extra_fields}
-    IntegrationService().save(provider, secret=request.POST.get("secret", ""), extra=extra,
-                              enabled=request.POST.get("enabled") == "on", user=request.user, request=request)
+    IntegrationService().save(
+        provider,
+        secret=request.POST.get("secret", ""),
+        extra=extra,
+        enabled=request.POST.get("enabled") == "on",
+        user=request.user,
+        request=request,
+    )
     messages.success(request, f"{cls.label} settings saved.")
     return redirect(f"/integrations/#{provider}")
 
@@ -61,15 +69,19 @@ def integration_clear(request, provider):
 def ai_test(request):
     """Try a prompt against one AI provider (or the offline helper) and see the answer."""
     service = IntegrationService()
-    choices = [("auto", "Automatic (first one switched on)"), ("offline", OfflineTemplateProvider.label)] + \
-              [(name, ADAPTERS[name].label) for name in AI_ORDER]
+    choices = [("auto", "Automatic (first one switched on)"), ("offline", OfflineTemplateProvider.label)] + [
+        (name, ADAPTERS[name].label) for name in AI_ORDER
+    ]
     ctx = {"choices": choices, "prompt": "", "provider": "auto", "answer": "", "error": "", "used": ""}
     if request.method == "POST":
         prompt = request.POST.get("prompt", "").strip()[:MAX_PROMPT]
         provider = request.POST.get("provider", "auto")
         ctx.update(prompt=prompt, provider=provider)
-        ai = service.ai() if provider == "auto" else (OfflineTemplateProvider() if provider == "offline"
-                                                        else service.adapter(provider))
+        ai = (
+            service.ai()
+            if provider == "auto"
+            else (OfflineTemplateProvider() if provider == "offline" else service.adapter(provider))
+        )
         ctx["used"] = ai.label
         if not prompt:
             ctx["error"] = "Please type a prompt."

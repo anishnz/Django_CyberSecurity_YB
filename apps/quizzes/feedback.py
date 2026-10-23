@@ -4,6 +4,7 @@ feedback.py - Kind messages for answers and results (never "Fail")
 
 Owner: Anish Shrestha (task A-15). Words checked by the Māori liaison team (simulated).
 """
+
 from __future__ import annotations
 
 import random
@@ -22,8 +23,10 @@ WRONG = [
 ]
 
 HALFWAY = "Keep going, you're doing great! (Kia kaha!) 💪"
-SAFETY_REMINDER = ("If something online feels wrong, talk to a trusted adult – a teacher or family "
-                   "member (whānau). 🤝 Netsafe can help too.")
+SAFETY_REMINDER = (
+    "If something online feels wrong, talk to a trusted adult – a teacher or family "
+    "member (whānau). 🤝 Netsafe can help too."
+)
 TIPS = [
     "Use a long passphrase like Kiwi-Tui-Rain-42! instead of a short password.",
     "Stop and think before you click a link in a message.",

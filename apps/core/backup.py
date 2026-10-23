@@ -8,6 +8,7 @@ Owner: Rajneesh Kumar (task R-16)
 * Restore needs the word RESTORE and first makes a safety copy.
 * File names are checked so nobody can restore a file outside the backup folder.
 """
+
 from __future__ import annotations
 
 import re
@@ -54,8 +55,12 @@ class BackupService:
             connection.connection.backup(dest)
         finally:
             dest.close()
-        record = BackupRecord.objects.create(file_name=target.name, size_bytes=target.stat().st_size, reason=reason,
-                                             created_by=getattr(user, "username", "system"))
+        record = BackupRecord.objects.create(
+            file_name=target.name,
+            size_bytes=target.stat().st_size,
+            reason=reason,
+            created_by=getattr(user, "username", "system"),
+        )
         AuditService.log(user, "backup_created", target.name)
         self._prune()
         return record
