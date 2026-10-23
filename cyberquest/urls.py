@@ -35,6 +35,7 @@ APP_URLS = [
     ("integrations/", "integrations"),
     ("ai/", "ai_assistant"),
     ("media-library/", "medialib"),
+    ("api/", "api"),
 ]
 
 urlpatterns = [
