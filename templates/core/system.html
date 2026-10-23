@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 {% block title %}System{% endblock %}
 {% block content %}
-<div class="page-head"><div><h1>System</h1><p>Health, backups, feature switches and demo data.</p></div>
-  <a class="btn btn-outline-primary" href="{% url 'health' %}" target="_blank" rel="noopener"><i class="bi bi-heart-pulse"></i> /health/ JSON</a></div>
+{% load cq %}<div class="page-head"><div><h1>System</h1><p>Health, backups, feature switches and demo data.</p></div>
+  <div class="d-flex flex-wrap gap-2">
+  {% safe_url 'integrations:list' as u %}{% if u %}<a class="btn btn-outline-primary" href="{{ u }}"><i class="bi bi-plug"></i> Integrations</a>{% endif %}
+  {% safe_url 'emails:template_list' as u %}{% if u %}<a class="btn btn-outline-primary" href="{{ u }}"><i class="bi bi-envelope"></i> Emails</a>{% endif %}
+  <a class="btn btn-outline-primary" href="{% url 'security:log' %}"><i class="bi bi-shield-lock"></i> Security log</a>
+  <a class="btn btn-outline-primary" href="{% url 'health' %}" target="_blank" rel="noopener"><i class="bi bi-heart-pulse"></i> /health/ JSON</a></div></div>
 <div class="row g-3">
   <div class="col-lg-6"><section class="panel h-100">
     <h2><i class="bi bi-heart-pulse"></i> Health check</h2>

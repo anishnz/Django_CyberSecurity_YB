@@ -1,0 +1,29 @@
+{% extends "base.html" %}{% load static %}
+{% block title %}Business intelligence{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Business intelligence</h1><p>How CyberQuest is doing across all schools: learning results, licence income, tickets and payments.</p></div>
+<a class="btn btn-outline-primary" href="?export=csv"><i class="bi bi-filetype-csv"></i> Schools CSV</a></div>
+{% include "reports/_kpis.html" %}
+<div class="row g-3">
+  <div class="col-lg-8"><section class="panel"><h2 class="h5">Exams per month</h2><div class="chart-box"><canvas data-chart="chart-activity" data-kind="activity" aria-label="Exams per month and average score"></canvas></div>
+  {{ charts.activity|json_script:"chart-activity" }}</section></div>
+  <div class="col-lg-4"><section class="panel"><h2 class="h5">Licence plans</h2><div class="chart-box"><canvas data-chart="chart-plans" data-kind="doughnut" aria-label="Schools per licence plan"></canvas></div>
+  {{ charts.plans|json_script:"chart-plans" }}</section></div>
+</div>
+<section class="panel panel-flush mt-3"><h2 class="h5 px-3 pt-3">Business performance by school</h2><div class="table-responsive"><table class="table table-hover">
+<thead><tr><th>School</th><th>Students</th><th>Exams</th><th>Average %</th><th>Pass rate %</th><th>Plan</th><th>Licence</th><th>Monthly NZD</th><th>Open tickets</th><th></th></tr></thead><tbody>
+{% for r in rows %}<tr><td>{{ r.school.name }}</td><td>{{ r.students }}</td><td>{{ r.exams }}</td><td>{{ r.average }}</td><td>{{ r.pass_rate }}</td><td>{{ r.plan }}</td>
+<td class="small">{{ r.status }}</td><td>{{ r.income|floatformat:2 }}</td><td>{{ r.open_tickets }}</td>
+<td><a class="btn btn-sm btn-outline-primary" href="{% url 'reports:school_bi' %}?school={{ r.school.pk }}">Open</a></td></tr>{% endfor %}
+</tbody></table></div></section>
+<div class="row g-3 mt-1">
+  <div class="col-lg-6">{% include "reports/_categories.html" %}</div>
+  <div class="col-lg-6">{% include "reports/_levels.html" %}
+    <section class="panel"><h2 class="h5">Tickets</h2><ul class="list-unstyled small mb-2">{% for label, n in tickets.by_status.items %}<li>{{ label }}: <strong>{{ n }}</strong></li>{% endfor %}</ul>
+    <p class="small mb-0">Average time to resolve: <strong>{{ tickets.average_hours_to_resolve }} hours</strong> · past target time: <strong>{{ tickets.overdue }}</strong></p></section>
+    <section class="panel"><h2 class="h5">Money to follow up</h2><p class="mb-1">Payslips waiting for review: <strong>{{ pending_payments }}</strong></p>
+    <ul class="list-unstyled small mb-0">{% for l in expiring %}<li>{{ l.school.name }} – licence ends {{ l.expiry_date|date:"d M Y" }}</li>{% empty %}<li class="text-muted">No licences end in the next 30 days.</li>{% endfor %}</ul></section>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script><script src="{% static 'js/charts.js' %}"></script>{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ title }}</h1><p>{{ section.school.name }}. First names and usernames only – no parent details.</p></div>
+<div class="d-flex gap-2"><a class="btn btn-outline-primary" href="?export=csv"><i class="bi bi-filetype-csv"></i> CSV</a>
+<a class="btn btn-outline-primary" href="?export=pdf"><i class="bi bi-filetype-pdf"></i> PDF</a></div></div>
+<section class="panel panel-flush"><div class="table-responsive"><table class="table table-hover">
+<thead><tr><th>Student</th><th>Level now</th><th>Exams</th><th>Levels passed</th><th>Best %</th><th>Average %</th><th>Last exam</th><th>Consent</th><th></th></tr></thead><tbody>
+{% for r in rows %}<tr><td>{{ r.name }} <span class="small text-muted">({{ r.username }})</span></td><td>{{ r.level }}</td><td>{{ r.exams }}</td><td>{{ r.levels_passed }}</td>
+<td>{{ r.best }}</td><td>{{ r.average }}</td><td class="nowrap">{{ r.last|date:"d M Y"|default:"–" }}</td>
+<td>{% if r.consent %}<span class="pill pill-ok">yes</span>{% else %}<span class="pill pill-bad">missing</span>{% endif %}</td>
+<td><a class="btn btn-sm btn-outline-primary" href="{% url 'reports:student_report' r.user_id %}">Student</a></td></tr>
+{% empty %}<tr><td colspan="9" class="text-muted">No students in this section yet.</td></tr>{% endfor %}</tbody></table></div></section>
+{% include "reports/_categories.html" %}
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Email templates{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Email templates</h1><p>Edit the words of automatic and bulk emails. Placeholders like {name} are filled in when the email is sent.</p></div>
+<div class="d-flex gap-2"><a class="btn btn-outline-primary" href="{% url 'emails:bulk' %}"><i class="bi bi-send"></i> Bulk email</a>
+<a class="btn btn-outline-primary" href="{% url 'emails:log' %}"><i class="bi bi-journal-text"></i> Email log</a>
+<a class="btn btn-outline-primary" href="{% url 'integrations:list' %}#gmail"><i class="bi bi-envelope-at"></i> Gmail settings</a></div></div>
+<section class="panel panel-flush"><div class="table-responsive"><table class="table table-hover">
+<thead><tr><th>Name</th><th>For</th><th>Subject</th><th>Active</th><th></th></tr></thead><tbody>
+{% for t in templates %}<tr><td>{{ t.name }}</td><td>{{ t.get_audience_display }}</td><td>{{ t.subject }}</td>
+<td>{% if t.is_active %}<span class="pill pill-ok">on</span>{% else %}<span class="pill pill-bad">off</span>{% endif %}</td>
+<td><a class="btn btn-sm btn-outline-primary" href="{% url 'emails:template_edit' t.pk %}">Edit</a></td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}
