@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Edit student{% endblock %}
+{% block content %}
+<section class="panel mx-auto" style="max-width: 720px"><h1 class="h3">{{ profile.user.get_full_name }}</h1><p class="text-muted"><code>{{ profile.user.username }}</code></p>
+<form method="post">{% csrf_token %}{% include "partials/form.html" %}<button class="btn btn-primary">Save</button> <a class="btn btn-outline-primary" href="{% url 'schools:student_list' %}">Cancel</a></form></section>
+{% endblock %}

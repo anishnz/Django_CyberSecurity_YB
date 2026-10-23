@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Import students{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Import students from CSV</h1><p>Step 1: check the file (preview). Step 2: import. Rows with problems are skipped and listed.</p></div><a class="btn btn-outline-primary" href="{% url 'schools:csv_template' %}"><i class="bi bi-download"></i> Download template</a></div>
+<section class="panel" style="max-width: 760px"><form method="post" enctype="multipart/form-data">{% csrf_token %}{% include "partials/form.html" %}
+<button class="btn btn-outline-primary" name="step" value="preview">Check file</button> <button class="btn btn-primary" name="step" value="import">Import</button></form></section>
+{% if result %}<section class="panel mt-3" style="max-width: 760px"><h2>{% if preview %}Preview{% else %}Result{% endif %}</h2>
+<p><span class="pill pill-ok">{{ result.added|length }} {% if preview %}ready{% else %}added{% endif %}</span> <span class="pill {% if result.errors %}pill-bad{% else %}pill-mute{% endif %}">{{ result.errors|length }} problems</span></p>
+{% if result.errors %}<ul>{% for row, msg in result.errors %}<li>Row {{ row }}: {{ msg }}</li>{% endfor %}</ul>{% endif %}
+{% if preview and result.added %}<p class="small text-muted">Choose the same file again and press <strong>Import</strong>.</p>{% endif %}</section>{% endif %}
+{% endblock %}

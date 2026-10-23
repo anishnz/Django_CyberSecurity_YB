@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}Classes{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Classes ({% L 'class' %}) and sections</h1><p>New sections use the default capacity (set by the Super Admin) and must fit your plan.</p></div></div>
+<div class="row g-3">
+  <div class="col-lg-4"><section class="panel"><h2>Add a class</h2><form method="post">{% csrf_token %}<input type="hidden" name="kind" value="class">{% with form=class_form %}{% include "partials/form.html" %}{% endwith %}<button class="btn btn-primary">Add class</button></form></section></div>
+  <div class="col-lg-8">{% for c in classes %}<section class="panel"><h2>{{ c.name }} <span class="small text-muted">Year {{ c.year_level }}</span></h2>
+    <div class="d-flex flex-wrap gap-2 mb-3">{% for s in c.sections.all %}<span class="pill {% if s.is_full %}pill-warn{% else %}pill-info{% endif %}">{{ s.name }} · {{ s.label }}{% if s.is_full %} · Full{% endif %}</span>{% empty %}<span class="text-muted">No sections yet.</span>{% endfor %}</div>
+    <form method="post" class="d-flex gap-2">{% csrf_token %}<input type="hidden" name="kind" value="section"><input type="hidden" name="class_id" value="{{ c.pk }}"><label class="visually-hidden" for="sec{{ c.pk }}">Section name</label><input class="form-control" id="sec{{ c.pk }}" name="name" placeholder="New section, e.g. 7D" required><button class="btn btn-outline-primary">Add section</button></form>
+  </section>{% empty %}<section class="panel text-muted">No classes yet. Add your first class.</section>{% endfor %}</div>
+</div>
+{% endblock %}
