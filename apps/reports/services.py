@@ -222,16 +222,17 @@ class BIService:
         # pylint: disable=import-outside-toplevel
         from reportlab.lib import colors
         from reportlab.lib.pagesizes import A4, landscape
-        from reportlab.lib.styles import getSampleStyleSheet
+        from apps.core.pdf import register_fonts, styles as pdf_styles
         from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
         buf = io.BytesIO()
         doc = SimpleDocTemplate(buf, pagesize=landscape(A4), title=title, leftMargin=30, rightMargin=30)
-        styles = getSampleStyleSheet()
+        styles = pdf_styles()
+        regular, bold = register_fonts()
         data = [[label for _, label in columns]] + [[_cell(r.get(k)) for k, _ in columns] for r in rows]
         table = Table(data, repeatRows=1)
         table.setStyle(TableStyle([
             ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0b3d5c")), ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-            ("FONTSIZE", (0, 0), (-1, -1), 9), ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#c9d3dd")),
+            ("FONTNAME", (0, 0), (-1, -1), regular), ("FONTNAME", (0, 0), (-1, 0), bold), ("FONTSIZE", (0, 0), (-1, -1), 9), ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#c9d3dd")),
             ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f2f6f9")])]))
         doc.build([Paragraph(title, styles["Title"]), Paragraph(subtitle, styles["Normal"]), Spacer(1, 12), table])
         return buf.getvalue()
