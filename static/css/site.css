@@ -180,7 +180,7 @@ html.cq-large { font-size: 118.75%; }
 .empty-photos .bi { font-size: 2rem; color: var(--muted); }
 
 /* API check page (Jihe) */
-.api-table code { white-space: nowrap; font-size: .83rem; }
+.api-table code { white-space: nowrap; font-size: .82rem; }
 .api-result { min-width: 15rem; }
 .code-block { background: #0E3B43; color: #E3EEF0; border-radius: 12px; padding: 1rem 1.2rem; font-size: .85rem; overflow-x: auto; }
 
