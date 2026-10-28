@@ -1,0 +1,12 @@
+{% comment %}Tabs shared by the business pages. Owner: Dinesh Upreti.{% endcomment %}
+<nav class="mb-4" aria-label="Business pages">
+  <ul class="nav nav-pills biz-tabs flex-wrap gap-1">
+    {% url 'website:pricing' as u1 %}{% url 'website:discount' as u2 %}{% url 'website:business' as u3 %}{% url 'website:swot' as u4 %}{% url 'website:proposal' as u5 %}{% url 'website:contract' as u6 %}
+    <li class="nav-item"><a class="nav-link{% if request.path == u1 %} active" aria-current="page{% endif %}" href="{{ u1 }}">Pricing</a></li>
+    <li class="nav-item"><a class="nav-link{% if request.path == u2 %} active" aria-current="page{% endif %}" href="{{ u2 }}">Get a discount</a></li>
+    <li class="nav-item"><a class="nav-link{% if request.path == u3 %} active" aria-current="page{% endif %}" href="{{ u3 }}">Business case</a></li>
+    <li class="nav-item"><a class="nav-link{% if request.path == u4 %} active" aria-current="page{% endif %}" href="{{ u4 }}">SWOT</a></li>
+    <li class="nav-item"><a class="nav-link{% if request.path == u5 %} active" aria-current="page{% endif %}" href="{{ u5 }}">Proposal</a></li>
+    <li class="nav-item"><a class="nav-link{% if request.path == u6 %} active" aria-current="page{% endif %}" href="{{ u6 }}">Contract sample</a></li>
+  </ul>
+</nav>

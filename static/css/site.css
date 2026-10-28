@@ -166,3 +166,49 @@ html.cq-large { font-size: 118.75%; }
 .offcanvas-body { overflow-wrap: anywhere; }
 /* Keep screen-reader-only labels inside scrolling tables (they are position:absolute) */
 .table-responsive { position: relative; }
+
+/* Team photos and meetings slider (Dinesh) */
+.team-photo { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 3px solid var(--tide); }
+.team-card .team-photo[width="72"] { width: 72px; height: 72px; }
+.thumb { object-fit: cover; border-radius: 8px; }
+.meeting-carousel { border-radius: 14px; overflow: hidden; background: #0E3B43; }
+.meeting-carousel .carousel-item img { aspect-ratio: 16 / 9; object-fit: contain; background: #0E3B43; }
+.meeting-caption { position: absolute; left: 0; right: 0; bottom: 0; padding: 2.2rem 1.2rem .9rem;
+  color: #fff; background: linear-gradient(transparent, rgba(0, 0, 0, .78)); }
+.meeting-carousel .carousel-indicators { margin-bottom: .35rem; }
+.empty-photos { border: 2px dashed var(--line); border-radius: 14px; padding: 2rem 1rem; text-align: center; }
+.empty-photos .bi { font-size: 2rem; color: var(--muted); }
+
+/* API check page (Jihe) */
+.api-table code { white-space: nowrap; font-size: .82rem; }
+.api-result { min-width: 15rem; }
+.code-block { background: #0E3B43; color: #E3EEF0; border-radius: 12px; padding: 1rem 1.2rem; font-size: .85rem; overflow-x: auto; }
+
+/* Our story page (Anish) */
+.sim-banner { display: flex; gap: .8rem; align-items: flex-start; border-left: 5px solid var(--kowhai, #F2B705);
+  background: #FFF8E1; color: #3D3200; border-radius: 10px; padding: .9rem 1.1rem; }
+.sim-banner .bi { font-size: 1.3rem; }
+.timeline { list-style: none; padding: 0 0 0 1.4rem; margin: 0; border-left: 3px solid var(--tide); }
+.timeline li { position: relative; padding: 0 0 1.3rem 1rem; }
+.timeline li::before { content: ""; position: absolute; left: -1.95rem; top: .3rem; width: 1rem; height: 1rem;
+  border-radius: 50%; background: var(--tide); border: 3px solid #fff; box-shadow: 0 0 0 2px var(--tide); }
+.timeline .when { font-size: .82rem; font-weight: 600; color: var(--muted); }
+.timeline h3 { font-size: 1.1rem; margin: .15rem 0 .2rem; }
+.timeline .where { font-size: .88rem; color: var(--muted); margin-bottom: .3rem; }
+[data-bs-theme="dark"] .sim-banner { background: #2E2A12; color: #F6EDC4; }
+
+/* Business pages (Dinesh) */
+.biz-tabs .nav-link { border: 1px solid var(--line); }
+.compare th.us, .compare td.us { background: rgba(10, 110, 120, .08); font-weight: 600; }
+.compare td { text-align: center; }
+.swot { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.swot-box { border-radius: 14px; padding: 1.1rem 1.3rem; border: 1px solid var(--line); }
+.swot-box h2 { font-size: 1.2rem; }
+.swot-1 { background: #E8F5EC; } .swot-2 { background: #FFF4E5; } .swot-3 { background: #E7F1FB; } .swot-4 { background: #FCEBEC; }
+[data-bs-theme="dark"] .swot-box { background: #142326; }
+.contract h3 { font-size: 1.05rem; margin-top: 1rem; }
+.contract .clauses > li::marker { font-weight: 700; }
+.contract .clauses ol { list-style: lower-alpha; }
+.sign-line { border-top: 1px solid #555; padding-top: .25rem; margin-top: 2rem; font-size: .85rem; color: var(--muted); }
+@media (max-width: 767.98px) { .swot { grid-template-columns: 1fr; } }
+@media print { .biz-tabs { display: none !important; } .contract { border: 0; } }

@@ -1,0 +1,64 @@
+{% extends "base.html" %}{% load static %}
+{% block title %}API check{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>API check</h1>
+  <p>Test each connection on its own. A green result means the connection works. Nothing here shows or sends a saved key.</p></div>
+  <div class="d-flex gap-2 flex-wrap"><a class="btn btn-outline-secondary" href="{% url 'integrations:list' %}"><i class="bi bi-plug"></i> Integrations (keys)</a></div></div>
+<form id="api-csrf" hidden>{% csrf_token %}</form>
+
+<section class="panel mb-4" aria-labelledby="pub-h" data-api-group>
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+    <div><h2 id="pub-h" class="mb-0">Website API for React</h2>
+    <p class="small text-muted mb-0">Public, read-only JSON endpoints. Base address: <code>{{ base_url }}</code></p></div>
+    <button class="btn btn-primary" type="button" data-check-all><i class="bi bi-play-circle"></i> Check all website API</button></div>
+  <div class="table-responsive"><table class="table align-middle api-table">
+    <thead><tr><th scope="col">Test case</th><th scope="col">Request</th><th scope="col">Success looks like</th><th scope="col">Check</th><th scope="col">Result</th></tr></thead>
+    <tbody>{% for t in public %}
+      <tr data-api-row data-method="GET" data-url="{{ t.url }}">
+        <th scope="row">{{ t.name }}</th>
+        <td><code>GET {{ t.url }}</code></td>
+        <td class="small">200 OK, <code>"ok": true</code> – {{ t.about|lower }}</td>
+        <td><button class="btn btn-sm btn-outline-primary" type="button" data-check><i class="bi bi-lightning-charge"></i> Check<span class="visually-hidden"> {{ t.name }}</span></button></td>
+        <td class="api-result" aria-live="polite"><span class="text-muted small">Not checked yet</span></td>
+      </tr>{% endfor %}</tbody></table></div>
+</section>
+
+<section class="panel mb-4" aria-labelledby="ai-h" data-api-group>
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+    <div><h2 id="ai-h" class="mb-0">AI models and outside services</h2>
+    <p class="small text-muted mb-0">Each Check runs the provider's real connection test. Providers need a key saved on the Integrations page first.</p></div>
+    <button class="btn btn-primary" type="button" data-check-all><i class="bi bi-play-circle"></i> Check all services</button></div>
+  <div class="table-responsive"><table class="table align-middle api-table">
+    <thead><tr><th scope="col">Test case</th><th scope="col">Type</th><th scope="col">Request</th><th scope="col">Check</th><th scope="col">Result</th></tr></thead>
+    <tbody>{% for s in services %}
+      <tr data-api-row data-method="POST" data-url="{{ s.url }}">
+        <th scope="row">{{ s.name }}</th>
+        <td>{% if s.kind == 'ai' %}AI model{% elif s.kind == 'email' %}Email{% elif s.kind == 'maps' %}Maps{% elif s.kind == 'message' %}Messaging{% else %}Share links{% endif %}{% if not s.needs_key %} <span class="pill pill-ok">no key needed</span>{% endif %}</td>
+        <td><code>POST {{ s.url }}</code></td>
+        <td><button class="btn btn-sm btn-outline-primary" type="button" data-check><i class="bi bi-lightning-charge"></i> Check<span class="visually-hidden"> {{ s.name }}</span></button></td>
+        <td class="api-result" aria-live="polite"><span class="text-muted small">Not checked yet</span></td>
+      </tr>{% endfor %}</tbody></table></div>
+</section>
+
+<section class="panel" aria-labelledby="react-h">
+  <h2 id="react-h">Connect from React</h2>
+  <p>Every answer has the same shape: <code>{"ok": true, "data": …, "ms": 12}</code> or <code>{"ok": false, "error": "…"}</code>.
+    A React dev server may call the public endpoints from these addresses (setting <code>API_CORS_ORIGINS</code> in <code>.env</code>):
+    {% for o in cors %}<code>{{ o }}</code>{% if not forloop.last %}, {% endif %}{% empty %}none{% endfor %}.</p>
+  <pre class="code-block"><code>// src/api.js – small helper for a React app
+const BASE = "{{ base_url }}";
+
+export async function getApi(path) {
+  const res = await fetch(BASE + path);
+  const body = await res.json();
+  if (!body.ok) throw new Error(body.error);
+  return body.data;
+}
+
+// In a component:
+// const [levels, setLevels] = useState([]);
+// useEffect(() =&gt; { getApi("levels/").then(setLevels); }, []);</code></pre>
+  <p class="small text-muted mb-0">Super Admin endpoints (integrations) work only from this site with a logged-in Super Admin. They never allow other origins.</p>
+</section>
+<script src="{% static 'js/api_check.js' %}"></script>
+{% endblock %}

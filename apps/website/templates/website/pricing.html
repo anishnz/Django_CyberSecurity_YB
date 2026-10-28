@@ -1,14 +1,22 @@
-{% extends "base.html" %}
+{% extends "base.html" %}{% load cq %}
 {% block title %}Pricing{% endblock %}
 {% block content %}
 <div class="page-head"><div><h1>Pricing</h1><p>Per school, in New Zealand dollars (GST 15% added on invoices). Students never see prices.</p></div></div>
+{% include "website/_business_tabs.html" %}
 <div class="row g-3 mb-4">{% for p in plans %}
   <div class="col-md-6 col-lg-3"><div class="price-card{% if p.CODE == 'STANDARD' %} featured{% endif %}"><h2>{{ p.DISPLAY_NAME }}</h2>
     <p class="price">${{ p.MONTHLY_PRICE|floatformat:0 }}<span class="fs-6 text-muted">/month</span></p>
     <ul class="small"><li>Sections: {{ p.section_limit_label }}</li><li>{% if p.CODE == 'TRIAL' %}30 days{% elif p.CODE == 'UNLIMITED' %}Never expires{% else %}7-day grace period{% endif %}</li><li>Level 1 included</li></ul></div></div>
 {% endfor %}</div>
+<section class="panel mb-3" aria-labelledby="year-h"><h2 id="year-h">Price for one year</h2>
+  <div class="table-responsive"><table class="table align-middle">
+    <thead><tr><th scope="col">Plan</th><th scope="col">Class sections</th><th scope="col">Per month</th><th scope="col">Per year (excl. GST)</th><th scope="col">Per year (incl. GST)</th><th scope="col">Community price per year (incl. GST)</th></tr></thead>
+    <tbody>{% for r in rows %}<tr><th scope="row">{{ r.name }}</th><td>{{ r.sections }}</td><td>{{ r.monthly|nzd }}</td><td>{{ r.yearly|nzd }}</td><td>{{ r.yearly_gst|nzd }}</td><td>{% if r.code == 'TRIAL' %}Free{% else %}<strong>{{ r.community_yearly_gst|nzd }}</strong>{% endif %}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="small text-muted mb-0">The Free Trial lasts 30 days. Community price = 50% off the plan, for kura and small rural schools. <a href="{% url 'website:discount' %}">How to get the discount</a>.</p></section>
 <section class="panel"><h2>Level Packs (per school, per year)</h2>
-  <table class="table"><thead><tr><th>Level</th><th>Price (NZD)</th></tr></thead><tbody><tr><td>Level 1</td><td>Free</td></tr>
-  {% for lvl, price in packs.items %}<tr><td>Level {{ lvl }}</td><td>${{ price|floatformat:0 }}</td></tr>{% endfor %}</tbody></table>
-  <p class="small text-muted mb-0">Payment: bank transfer. Upload the payslip in the app; our team approves it and turns the plan on. 50% community discount for kura and small rural schools.</p></section>
+  <table class="table"><thead><tr><th>Level</th><th>Price (NZD, excl. GST)</th></tr></thead><tbody><tr><td>Level 1</td><td>Free</td></tr>
+  {% for lvl, price in packs.items %}<tr><td>Level {{ lvl }}</td><td>${{ price|floatformat:0 }}</td></tr>{% endfor %}
+  <tr><th scope="row">All Level Packs (Levels 2–6)</th><th>${{ pack_total|floatformat:0 }}</th></tr></tbody></table>
+  <p class="small text-muted mb-0">Payment: bank transfer. Upload the payslip in the app; our team approves it and turns the plan on.</p></section>
 {% endblock %}

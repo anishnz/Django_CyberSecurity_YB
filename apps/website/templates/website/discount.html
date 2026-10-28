@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}Get a discount{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>How to get the community discount</h1><p>50% off the monthly plan for kura (Māori-medium schools) and small rural schools.</p></div></div>
+{% include "website/_business_tabs.html" %}
+<section class="mb-4" aria-labelledby="steps-h"><h2 id="steps-h">Four simple steps</h2>
+  <ol class="steps">{% for title, text in b.DISCOUNT_STEPS %}<li><strong>{{ title }}</strong>{{ text }}</li>{% endfor %}</ol>
+  <a class="btn btn-primary mt-3" href="{% url 'website:contact' %}"><i class="bi bi-envelope"></i> Ask for the discount</a>
+</section>
+<section class="panel mb-3" aria-labelledby="save-h"><h2 id="save-h">What you save in one year (incl. GST)</h2>
+  <div class="table-responsive"><table class="table align-middle">
+    <thead><tr><th scope="col">Plan</th><th scope="col">Normal price</th><th scope="col">Community price</th><th scope="col">You save</th></tr></thead>
+    <tbody>{% for r in rows %}{% if r.code != 'TRIAL' %}<tr><th scope="row">{{ r.name }}</th><td>{{ r.yearly_gst|nzd }}</td><td><strong>{{ r.community_yearly_gst|nzd }}</strong></td><td class="text-success">{{ r.community_yearly_gst|nzd }}</td></tr>{% endif %}{% endfor %}</tbody>
+  </table></div>
+  <p class="small text-muted mb-0">You save exactly half, so the saving equals the community price.</p></section>
+<section aria-labelledby="dfaq-h"><h2 id="dfaq-h">Questions</h2>
+  <div class="row g-3">{% for q, a in b.DISCOUNT_FAQ %}<div class="col-md-6"><div class="law"><h3>{{ q }}</h3><p class="mb-0">{{ a }}</p></div></div>{% endfor %}</div>
+</section>
+{% endblock %}

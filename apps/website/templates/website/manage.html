@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Website content{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Website content</h1><p>Upload team photos and meeting photos for the public website. Files must be real JPG, PNG, WebP or GIF pictures.</p></div>
+  <a class="btn btn-outline-secondary" href="{% url 'website:about' %}"><i class="bi bi-eye"></i> View About us page</a></div>
+
+<section class="panel mb-4" aria-labelledby="team-h">
+  <h2 id="team-h">Team photos and bios</h2>
+  <p class="small text-muted">Each person should write their own bio. Use a photo the person agreed to share.</p>
+  <div class="row g-3">
+  {% for m, form in members %}
+    <div class="col-lg-6"><div class="team-card" id="team-{{ m.pk }}">
+      <div class="d-flex gap-3 align-items-center mb-2">
+        {% if m.image_url %}<img class="team-photo" src="{{ m.image_url }}" alt="Photo of {{ m.name }}" width="72" height="72">{% else %}<div class="avatar" aria-hidden="true">{{ m.initials }}</div>{% endif %}
+        <div><h3 class="h5 mb-0">{{ m.name }}</h3><p class="small text-muted mb-0">{{ m.role }}</p></div></div>
+      <form method="post" action="{% url 'website:manage_member' m.pk %}" enctype="multipart/form-data">{% csrf_token %}
+        {% include "partials/form.html" %}
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-primary btn-sm" type="submit"><i class="bi bi-save"></i> Save {{ m.name }}</button>
+          {% if m.image_url %}<button class="btn btn-outline-danger btn-sm" type="submit" name="remove_photo" value="1"><i class="bi bi-x-circle"></i> Remove photo</button>{% endif %}
+        </div>
+      </form>
+    </div></div>
+  {% endfor %}
+  </div>
+</section>
+
+<section class="panel" id="meetings" aria-labelledby="meet-h">
+  <h2 id="meet-h">Meeting photos (slider)</h2>
+  <p class="small text-muted">Only upload real photos of your own meetings. They appear in the slider on the About us page.</p>
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <h3 class="h5">Upload a photo</h3>
+      <form method="post" action="{% url 'website:manage_photo_add' %}" enctype="multipart/form-data">{% csrf_token %}
+        {% include "partials/form.html" with form=photo_form %}
+        <button class="btn btn-primary" type="submit"><i class="bi bi-upload"></i> Upload photo</button>
+      </form>
+    </div>
+    <div class="col-lg-7">
+      <h3 class="h5">Uploaded photos ({{ photos|length }})</h3>
+      {% if photos %}
+      <div class="table-responsive"><table class="table align-middle">
+        <thead><tr><th scope="col">Photo</th><th scope="col">Title and place</th><th scope="col">Shown</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+        <tbody>{% for p in photos %}<tr>
+          <td><img src="{{ p.image_url }}" alt="" width="96" height="64" class="thumb"></td>
+          <td><strong>{{ p.title }}</strong><br><span class="small text-muted">{{ p.place }}{% if p.taken_on %}, {{ p.taken_on|date:"j M Y" }}{% endif %} · order {{ p.order }}</span></td>
+          <td>{% if p.is_active %}<span class="pill pill-ok">Shown</span>{% else %}<span class="pill">Hidden</span>{% endif %}</td>
+          <td class="text-nowrap">
+            <form method="post" action="{% url 'website:manage_photo_action' p.pk 'toggle' %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-outline-secondary" type="submit">{% if p.is_active %}Hide{% else %}Show{% endif %}<span class="visually-hidden"> {{ p.title }}</span></button></form>
+            <form method="post" action="{% url 'website:manage_photo_action' p.pk 'delete' %}" class="d-inline" data-confirm="Delete this photo?">{% csrf_token %}<button class="btn btn-sm btn-outline-danger" type="submit">Delete<span class="visually-hidden"> {{ p.title }}</span></button></form>
+          </td></tr>{% endfor %}</tbody></table></div>
+      {% else %}<p class="text-muted">No photos yet. Upload the first one on the left.</p>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

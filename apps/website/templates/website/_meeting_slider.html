@@ -1,0 +1,27 @@
+{% comment %}Meetings slider. Photos are uploaded by the Super Admin on the Website content page. Owner: Dinesh Upreti.{% endcomment %}
+<section class="panel mb-3" id="meetings" aria-labelledby="meetings-h">
+  <h2 id="meetings-h">Our team meetings in Auckland</h2>
+  <p class="text-muted">Real photos from our group meetings at Yoobee and the Auckland Central Library.</p>
+  {% if meeting_photos %}
+  <div id="meetingCarousel" class="carousel slide meeting-carousel" data-bs-ride="carousel" data-bs-interval="6000">
+    <div class="carousel-indicators">{% for p in meeting_photos %}<button type="button" data-bs-target="#meetingCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active" aria-current="true"{% endif %} aria-label="Photo {{ forloop.counter }}"></button>{% endfor %}</div>
+    <div class="carousel-inner">
+    {% for p in meeting_photos %}
+      <figure class="carousel-item mb-0{% if forloop.first %} active{% endif %}">
+        <img src="{{ p.image_url }}" class="d-block w-100" alt="{{ p.title }}{% if p.caption %} – {{ p.caption }}{% endif %}">
+        <figcaption class="meeting-caption"><strong>{{ p.title }}</strong>{% if p.caption %}<br>{{ p.caption }}{% endif %}
+          <br><span class="small">{{ p.place }}{% if p.taken_on %}, {{ p.taken_on|date:"j F Y" }}{% endif %}</span></figcaption>
+      </figure>
+    {% endfor %}
+    </div>
+    {% if meeting_photos|length > 1 %}
+    <button class="carousel-control-prev" type="button" data-bs-target="#meetingCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Previous photo</span></button>
+    <button class="carousel-control-next" type="button" data-bs-target="#meetingCarousel" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Next photo</span></button>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="empty-photos"><i class="bi bi-images" aria-hidden="true"></i>
+    <p class="mb-1"><strong>No meeting photos yet.</strong></p>
+    <p class="small text-muted mb-0">The Super Admin can upload them on the Website content page.{% if user.is_super_admin %} <a href="{% url 'website:manage' %}#meetings">Upload photos now</a>.{% endif %}</p></div>
+  {% endif %}
+</section>
