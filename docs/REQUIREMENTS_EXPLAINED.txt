@@ -1,0 +1,76 @@
+CyberQuest (Django) - requirements files explained
+===================================================
+Version 1.0.0 - Mount Everest Digital Solution Ltd. - MSE800 Assessment 2
+
+There are two requirements files:
+
+  requirements.txt       packages needed to RUN CyberQuest (school computer, Docker image)
+  requirements-dev.txt   requirements.txt + tools to TEST and CHECK the code (developers, QA)
+
+Install:
+  pip install -r requirements.txt        (run only)
+  pip install -r requirements-dev.txt    (develop and test)
+
+run.bat (Docker) and run_local.bat install requirements.txt for you. run_local.bat installs again only
+when requirements.txt changes, so later starts work with no internet.
+
+Version rule: ">=" sets the oldest tested version; "<6.0" on Django stops a future major version
+from breaking the app. Python 3.10 or newer is needed (Docker image uses Python 3.12).
+
+
+1. requirements.txt - to run the app
+------------------------------------
+
+Package          Version        Why we need it                                  Where it is used
+---------------  -------------  ----------------------------------------------  ---------------------------------------
+Django           >=5.2,<6.0     Web framework: models (ORM), views, templates,  every app in apps/, cyberquest/settings
+                                forms, admin, CSRF, password hashing, sessions
+waitress         >=3.0          Production web server that works on Windows     Dockerfile, run_local.bat
+                                (Django's runserver is for development only)
+whitenoise       >=6.7          Serves CSS, JS, fonts and images from the app   cyberquest/settings/base.py (middleware)
+                                itself, so no extra web server is needed offline
+cryptography     >=42.0         Fernet encryption of API keys and MFA secrets   apps/core/crypto.py (used by integrations
+                                                                                and accounts)
+pyotp            >=2.9          Time-based one-time codes for two-step login    apps/accounts (MFA)
+qrcode[pil]      >=7.4          QR code for the MFA setup screen                apps/accounts
+                                ([pil] also installs Pillow for images)
+reportlab        >=4.0          Makes PDF files: certificates (with their QR    apps/certificates, apps/payments,
+                                code), tax receipts, class reports              apps/reports, apps/core
+requests         >=2.31         Calls outside services only when a key is set   apps/integrations, apps/accounts
+                                (Claude, OpenAI, Gemini, Maps, WhatsApp, Viber)
+filetype         >=1.2          Checks an upload's real type by its first       apps/medialib, apps/payments,
+                                bytes (file signature), not its name            apps/helpdesk
+
+Not in the list on purpose:
+  - Bootstrap 5, Bootstrap Icons, Chart.js and the Atkinson Hyperlegible font are saved inside
+    static/vendor and apps/core/fonts, so the app needs no CDN and works offline.
+  - psycopg (PostgreSQL driver) is only needed when DATABASE_ENGINE=postgres. SQLite is built into Python.
+
+
+2. requirements-dev.txt - to test and check the code
+----------------------------------------------------
+
+Package          Version   Why we need it
+---------------  --------  ------------------------------------------------------------------
+-r requirements.txt        Installs everything above first
+pytest           >=8.0     Runs the automated tests in tests/ (160 tests on 29 Oct 2026)
+pytest-django    >=4.8     Lets pytest start Django, use a test database and the test client
+factory-boy      >=3.3     Makes test data (users, schools, questions) quickly
+coverage         >=7.4     Shows how much code the tests run (81% on 29 Oct 2026)
+pylint           >=3.0     Static code check; quality gate 10.00/10 (.pylintrc)
+pylint-django    >=2.5     Teaches Pylint about Django models and fields
+black            >=24.0    Formats code the same way for all four members (pyproject.toml)
+
+
+3. How to update a package safely
+---------------------------------
+
+1. Make a branch:            git checkout -b chore/<name>-update-<package>
+2. Change the version line in requirements.txt (or requirements-dev.txt).
+3. Install:                  pip install -r requirements-dev.txt
+4. Check:                    python -m pytest   and   pylint apps cyberquest tests
+5. Check for known security problems (optional tool): pip install pip-audit, then pip-audit -r requirements.txt
+6. Commit "chore(deps): ...", open a pull request, merge into develop, then main.
+7. Rebuild Docker:           docker compose build --no-cache
+
+See docs/MAINTENANCE.md for the full maintenance plan.
