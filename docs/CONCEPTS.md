@@ -26,7 +26,10 @@ Paths are relative to the project folder.
 | **Strategy** | `PracticeMode` and `ExamMode` (`apps/quizzes/modes.py`) | Practice and exams pick questions and give feedback differently; the quiz engine does not care which one it has. |
 | **Observer** | `NotificationCenter`, `DashboardNotifier`, `LogFileObserver` (`apps/notifications/services.py`) | Services just call `notify("payment_reviewed", …)`; observers decide who gets a dashboard notice or a log line. |
 | **Singleton** | `SystemSettings.load()` (`apps/core/models.py`) | There is exactly one row of system settings (pk = 1). |
-| **Adapter** | `apps/integrations/adapters.py` | Claude, OpenAI, Gemini, Gmail, Maps, WhatsApp and Viber all look different; each adapter gives the same small interface. The offline helper is a "null object" fallback. |
+| **Adapter** | `apps/integrations/adapters.py` | Gemini, DeepSeek, Claude, OpenAI, Other AI, Gmail, Maps, WhatsApp and Viber all look different; each adapter gives the same small interface. The offline helper is a "null object" fallback. |
+| **Chain of Responsibility** | `FallbackAIProvider` (`apps/integrations/adapters.py`) | Each switched-on AI model gets a turn, in the Super Admin's order. If one fails (free tokens used up, no credit, wrong key, no internet) the next one answers; the offline helper is always last. |
+| **Template Method** | `AIProvider.test_connection()` | Written once in the parent: it calls the child's own `generate()` with a tiny question, so every model is tested the same way and the test proves tokens are left. |
+| **Inheritance for reuse** | `OpenAICompatibleProvider` → `OpenAIProvider`, `DeepSeekProvider`, `CustomAIProvider` | The OpenAI chat format is written once; the three children only change their name, address and model. |
 | **Decorator** | `@role_required`, `@super_admin_required`, `@audit_log`, `@not_read_only` (`apps/accounts/decorators.py`) | Access checks wrap views without changing the view code. |
 | **State machine** | `TRANSITIONS` in `apps/helpdesk/services.py`; AI draft status in `apps/ai_assistant/services.py` | Only allowed status moves are possible (for example Open → Waiting is blocked). |
 | **Repository / Query objects** | `QuestionQuerySet.approved()`, `.for_practice()` (`apps/learning/models.py`); `visible_to(user)` methods | Database queries are named and reused instead of copied. |

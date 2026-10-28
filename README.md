@@ -122,8 +122,16 @@ Login as is written to the security log.
 - **Help centre** and an **"Explain this page"** button on every page, with a question box for the helper.
 
 **AI and integrations**
-- **Integrations page:** Claude, OpenAI, Gemini, Gmail, Google Maps, WhatsApp, Viber. Keys are encrypted, shown
+- **Integrations page:** Google Gemini, DeepSeek, Claude, OpenAI, **Other AI** (any OpenAI-compatible service such as
+  OpenRouter, Groq, Mistral or a local Ollama), Gmail, Google Maps, WhatsApp, Viber. Keys are encrypted, shown
   masked, tested with one button, and every change is in the security log.
+- **AI models page** (Super Admin): switch each model on or off, choose the **default**, and set the **order**.
+  The agreed order is Gemini, then DeepSeek, then Claude, OpenAI and Other AI. When a model fails – free tokens
+  used up (429), no credit (402), wrong key, no internet – CyberQuest **switches to the next model automatically**,
+  and the offline helper is always last. **Check** / **Check all models** ask each model one tiny question, so a green
+  result means the key works *and* tokens are available.
+- **WhatsApp test message** (Super Admin): send Meta's `hello_world` template to one number to prove the
+  WhatsApp Cloud API really sends.
 - **AI test page** and **AI drafts** (question, tip, parent message, explanation). Names and emails are removed before
   sending. Every draft needs a **teacher approval**, and Māori content also needs the **Cultural Guide (Kaiārahi)**.
 - Works fully offline: without a key an offline helper makes simple drafts.
