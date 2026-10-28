@@ -27,7 +27,7 @@ from apps.licensing.plans import LEVEL_PACK_PRICES, PLAN_CLASSES
 from apps.medialib.youtube import safe_embed_url
 from apps.security.services import SecurityLog
 
-from . import content
+from . import business, content, story
 from .forms import ContactForm, MeetingPhotoForm, TeamMemberForm
 from .models import MeetingPhoto, Slide, TeamMember
 from .services import WebsiteContentService
@@ -102,6 +102,12 @@ def about(request):
     """About us: our team (with photos) and the meetings slider."""
     service = WebsiteContentService()
     return render(request, "website/about.html", {"team": service.team(), "meeting_photos": service.meeting_photos()})
+
+
+def our_story(request):
+    """Our project story: a simulated case study, our Māori community friends and their proposals."""
+    service = WebsiteContentService()
+    return render(request, "website/story.html", {"s": story, "meeting_photos": service.meeting_photos()})
 
 
 def faq(request):
