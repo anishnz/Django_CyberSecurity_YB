@@ -40,8 +40,17 @@
       {% else %}
         <li class="nav-item"><a class="nav-link" href="{% url 'website:features' %}">Features</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'website:levels' %}">{% L 'levels' %}</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'website:pricing' %}">Pricing</a></li>
+        <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Business</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'website:pricing' %}">Pricing</a></li>
+            <li><a class="dropdown-item" href="{% url 'website:discount' %}">Get a discount</a></li>
+            <li><a class="dropdown-item" href="{% url 'website:business' %}">Business case</a></li>
+            <li><a class="dropdown-item" href="{% url 'website:swot' %}">SWOT analysis</a></li>
+            <li><a class="dropdown-item" href="{% url 'website:proposal' %}">Project proposal</a></li>
+            <li><a class="dropdown-item" href="{% url 'website:contract' %}">Contract sample</a></li>
+          </ul></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'website:community' %}">{% L 'community' %}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'website:story' %}">Our story</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'website:about' %}">{% L 'about' %}</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'website:contact' %}">{% L 'contact' %}</a></li>
       {% endif %}

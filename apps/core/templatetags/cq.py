@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import re
 
+from decimal import Decimal, InvalidOperation
+
 from django import template
 from django.urls import NoReverseMatch, reverse
 from django.utils.html import escape
@@ -61,6 +63,15 @@ def nzdate(value, fmt="%d %b %Y"):
         return value.strftime(fmt)
     except AttributeError:
         return value or ""
+
+
+@register.filter
+def nzd(value):
+    """Money like '$12,960.00' (New Zealand dollars, two decimals)."""
+    try:
+        return f"${Decimal(value):,.2f}"
+    except (InvalidOperation, TypeError, ValueError):
+        return value
 
 
 @register.filter

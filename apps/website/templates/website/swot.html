@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}SWOT analysis{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>SWOT analysis</h1><p>Our strengths, weaknesses, opportunities and threats – and what we do about them.</p></div></div>
+{% include "website/_business_tabs.html" %}
+<div class="swot mb-4">{% for title, items in b.SWOT.items %}
+  <section class="swot-box swot-{{ forloop.counter }}" aria-labelledby="swot-{{ forloop.counter }}"><h2 id="swot-{{ forloop.counter }}">{{ title }}</h2>
+    <ul class="mb-0">{% for item in items %}<li>{{ item }}</li>{% endfor %}</ul></section>{% endfor %}
+</div>
+<section class="panel" aria-labelledby="act-h"><h2 id="act-h">What we do about it</h2>
+  <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th scope="col">Plan</th><th scope="col">Action</th></tr></thead>
+    <tbody>{% for title, action in b.SWOT_ACTIONS %}<tr><th scope="row">{{ title }}</th><td>{{ action }}</td></tr>{% endfor %}</tbody></table></div>
+</section>
+{% endblock %}

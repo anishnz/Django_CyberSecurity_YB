@@ -196,3 +196,19 @@ html.cq-large { font-size: 118.75%; }
 .timeline h3 { font-size: 1.1rem; margin: .15rem 0 .2rem; }
 .timeline .where { font-size: .88rem; color: var(--muted); margin-bottom: .3rem; }
 [data-bs-theme="dark"] .sim-banner { background: #2E2A12; color: #F6EDC4; }
+
+/* Business pages (Dinesh) */
+.biz-tabs .nav-link { border: 1px solid var(--line); }
+.compare th.us, .compare td.us { background: rgba(10, 110, 120, .08); font-weight: 600; }
+.compare td { text-align: center; }
+.swot { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.swot-box { border-radius: 14px; padding: 1.1rem 1.3rem; border: 1px solid var(--line); }
+.swot-box h2 { font-size: 1.2rem; }
+.swot-1 { background: #E8F5EC; } .swot-2 { background: #FFF4E5; } .swot-3 { background: #E7F1FB; } .swot-4 { background: #FCEBEC; }
+[data-bs-theme="dark"] .swot-box { background: #142326; }
+.contract h3 { font-size: 1.05rem; margin-top: 1rem; }
+.contract .clauses > li::marker { font-weight: 700; }
+.contract .clauses ol { list-style: lower-alpha; }
+.sign-line { border-top: 1px solid #555; padding-top: .25rem; margin-top: 2rem; font-size: .85rem; color: var(--muted); }
+@media (max-width: 767.98px) { .swot { grid-template-columns: 1fr; } }
+@media print { .biz-tabs { display: none !important; } .contract { border: 0; } }

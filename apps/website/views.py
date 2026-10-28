@@ -91,7 +91,45 @@ def levels(request):
 
 def pricing(request):
     plans = [cls(None, None) for cls in PLAN_CLASSES.values()]
-    return render(request, "website/pricing.html", {"plans": plans, "packs": LEVEL_PACK_PRICES})
+    return render(
+        request,
+        "website/pricing.html",
+        {
+            "plans": plans,
+            "packs": LEVEL_PACK_PRICES,
+            "rows": business.price_table(),
+            "pack_total": business.level_pack_total(),
+        },
+    )
+
+
+# --------------------------------------------------------------------------- Business pages (Dinesh, Rajneesh)
+def discount(request):
+    """How a kura or small rural school gets the 50% community discount."""
+    return render(request, "website/discount.html", {"b": business, "rows": business.price_table()})
+
+
+def business_case(request):
+    """How CyberQuest pays its own way, and how it is different from other products."""
+    model = business.SustainabilityModel(business.RUNNING_COSTS)
+    return render(request, "website/business.html", {"b": business, "model": model})
+
+
+def swot(request):
+    return render(request, "website/swot.html", {"b": business})
+
+
+def proposal(request):
+    return render(
+        request,
+        "website/proposal.html",
+        {"p": business.PROPOSAL, "total": business.proposal_total(), "total_gst": business.BUILD_COST_GST},
+    )
+
+
+def contract(request):
+    """A sample service agreement (template only, not legal advice)."""
+    return render(request, "website/contract.html", {"b": business, "rows": business.price_table()})
 
 
 def community(request):

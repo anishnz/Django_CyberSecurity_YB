@@ -1,0 +1,38 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}Business case{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Business case</h1><p>How CyberQuest can pay its own way, and how it is different from other products.</p></div></div>
+{% include "website/_business_tabs.html" %}
+<section class="mb-4" aria-labelledby="sus-h"><h2 id="sus-h">How CyberQuest stays self-sustainable</h2>
+  <div class="row g-3">{% for title, text in b.SUSTAIN_WAYS %}<div class="col-md-6 col-lg-4"><div class="law"><h3>{{ title }}</h3><p class="mb-0">{{ text }}</p></div></div>{% endfor %}</div>
+</section>
+
+<section class="panel mb-4" aria-labelledby="cost-h"><h2 id="cost-h">Yearly running costs (planning estimate, NZD excl. GST)</h2>
+  <div class="table-responsive"><table class="table align-middle">
+    <thead><tr><th scope="col">Item</th><th scope="col">How we worked it out</th><th scope="col" class="text-end">Amount</th></tr></thead>
+    <tbody>{% for c in model.costs %}<tr><td>{{ c.item }}</td><td class="small">{{ c.note }}</td><td class="text-end">{{ c.amount|nzd }}</td></tr>{% endfor %}
+      <tr><td colspan="2">Contingency (10%)</td><td class="text-end">{{ model.contingency|nzd }}</td></tr>
+      <tr><th scope="row" colspan="2">Running cost per year</th><th class="text-end">{{ model.running_total|nzd }}</th></tr>
+      <tr><td colspan="2">Paying back the build cost ({{ model.build_cost|nzd }} over {{ model.payback_years }} years)</td><td class="text-end">{{ model.payback_per_year|nzd }}</td></tr>
+      <tr class="table-info"><th scope="row" colspan="2">Income needed per year</th><th class="text-end">{{ model.yearly_target|nzd }}</th></tr></tbody>
+  </table></div>
+</section>
+
+<section class="mb-4" aria-labelledby="break-h"><h2 id="break-h">How many schools do we need?</h2>
+  <p>One school on the Standard plan with Level Packs 2, 3 and 4 pays {{ model.income_per_school|nzd }} a year (excl. GST). With the community discount it pays {{ model.income_per_school_community|nzd }}.</p>
+  <div class="row g-3">{% for sc in model.scenarios %}
+    <div class="col-md-4"><div class="fact"><div class="num">{{ sc.schools_needed }}</div><p class="mb-1"><strong>schools</strong></p><p class="mb-0 small">{{ sc.name }} (average {{ sc.income_per_school|nzd }} per school)</p></div></div>{% endfor %}
+  </div>
+  <p class="small text-muted mt-2 mb-0">Planning estimate for a simulated company. Real numbers would come from a pilot with real schools.</p>
+</section>
+
+<section class="mb-2" aria-labelledby="diff-h"><h2 id="diff-h">How CyberQuest is different</h2>
+  <ul class="checklist mb-3">{% for point in b.COMPARE_POINTS %}<li>{{ point }}</li>{% endfor %}</ul>
+  <div class="table-responsive"><table class="table compare align-middle">
+    <thead><tr><th scope="col">What schools need</th>{% for col in b.COMPARE_COLUMNS %}<th scope="col"{% if forloop.first %} class="us"{% endif %}>{{ col }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for label, cells in b.COMPARE_ROWS %}<tr><th scope="row">{{ label }}</th>{% for v in cells %}<td{% if forloop.first %} class="us"{% endif %}>
+      {% if v == "yes" %}<i class="bi bi-check-circle-fill text-success" aria-hidden="true"></i><span class="visually-hidden">Yes</span>{% elif v == "partly" %}<i class="bi bi-dash-circle text-warning" aria-hidden="true"></i><span class="visually-hidden">Partly</span>{% elif v == "no" %}<i class="bi bi-x-circle text-danger" aria-hidden="true"></i><span class="visually-hidden">No</span>{% else %}<span class="small">{{ v }}</span>{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="small text-muted mb-0">Product types, not named companies. ✔ yes · – partly · ✘ no.</p>
+</section>
+{% endblock %}
