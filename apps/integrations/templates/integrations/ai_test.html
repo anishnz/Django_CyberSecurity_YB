@@ -3,7 +3,8 @@
 {% block content %}
 <div class="page-head"><div><h1>AI test page</h1>
 <p>Check that an AI key works before teachers use it. Answers are drafts only; a teacher and the Cultural Guide (Kaiārahi) approve content before students see it.</p></div>
-<a class="btn btn-outline-primary" href="{% url 'integrations:list' %}"><i class="bi bi-plug"></i> Integrations</a></div>
+<div class="d-flex flex-wrap gap-2"><a class="btn btn-outline-primary" href="{% url 'integrations:ai_models' %}"><i class="bi bi-sort-numeric-down"></i> AI models</a>
+<a class="btn btn-outline-primary" href="{% url 'integrations:list' %}"><i class="bi bi-plug"></i> Integrations</a></div></div>
 <div class="row g-3"><div class="col-lg-6"><section class="panel">
 <form method="post">{% csrf_token %}
   <label class="form-label" for="provider">Service</label>
@@ -14,7 +15,8 @@
   <button class="btn btn-primary mt-2"><i class="bi bi-stars"></i> Generate</button>
 </form></section></div>
 <div class="col-lg-6"><section class="panel h-100"><h2 class="h5">Answer</h2>
-{% if used %}<p class="small text-muted">Used: {{ used }}</p>{% endif %}
+{% if used %}<p class="small text-muted">Answered by: <strong>{{ used }}</strong></p>{% endif %}
+{% if attempts %}<ol class="small attempts">{% for label, ok, msg in attempts %}<li>{% if ok %}<i class="bi bi-check-circle-fill text-success" aria-hidden="true"></i>{% else %}<i class="bi bi-arrow-right-circle text-warning" aria-hidden="true"></i>{% endif %} <strong>{{ label }}</strong> – {{ msg }}{% if not ok %} → next model{% endif %}</li>{% endfor %}</ol>{% endif %}
 {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
 {% if answer %}<div class="ai-answer">{{ answer|linebreaks }}</div>{% elif not error %}<p class="text-muted">The answer will appear here.</p>{% endif %}
 </section></div></div>
