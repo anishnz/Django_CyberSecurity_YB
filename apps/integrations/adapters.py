@@ -4,7 +4,7 @@ adapters.py - One class per outside service (Adapter pattern)
 
 Owner: Jihe Qi (task J-10)
 
-Every service looks different on the outside (OpenAI, Claude, Gemini, Gmail,
+Every service looks different on the outside (Gemini, DeepSeek, Claude, OpenAI, Gmail,
 WhatsApp, Viber …). Each adapter gives CyberQuest the SAME small interface:
 
     test_connection() -> (ok, message)
@@ -21,6 +21,7 @@ from __future__ import annotations
 import imaplib
 import smtplib
 import textwrap
+import time
 from abc import ABC, abstractmethod
 from urllib.parse import quote, urlencode
 
@@ -74,14 +75,47 @@ class Adapter(ABC):
 
 
 # ------------------------------------------------------------------------ AI
+HTTP_REASONS = {
+    400: "the request was refused - check the model name",
+    401: "the key was not accepted",
+    402: "no credit left on this account",
+    403: "the key was not accepted or has no access",
+    404: "model or API address not found",
+    408: "the service took too long",
+    429: "free tokens or the rate limit are used up for now",
+}
+
+
 class AIProvider(Adapter):
-    """Parent for AI text generators."""
+    """Parent for AI text generators.
+
+    Template Method: ``test_connection()`` is written once here. It asks the model a tiny
+    question through the child's own ``generate()``, so a test proves the key works AND
+    that tokens are still available - not only that the key is saved.
+    """
 
     kind = "ai"
+    TEST_PROMPT = "Reply with one word: OK"
 
     @abstractmethod
     def generate(self, prompt: str, max_tokens: int = 400) -> str:
-        """Return generated text."""
+        """Return generated text, or raise IntegrationError."""
+
+    def test_connection(self) -> tuple[bool, str]:
+        def run():
+            start = time.monotonic()
+            text = self.generate(self.TEST_PROMPT, max_tokens=60)
+            seconds = time.monotonic() - start
+            sample = text.strip().splitlines()[0][:40] if text.strip() else "(empty answer)"
+            return True, f"{self.label} answered in {seconds:.1f} s: {sample}"
+
+        return self._safe_test(run)
+
+    def _fail(self, response) -> IntegrationError:
+        """Turn an HTTP error into a short message a Super Admin can act on."""
+        code = response.status_code
+        reason = HTTP_REASONS.get(code, "the service is busy or down" if code >= 500 else "unexpected answer")
+        return IntegrationError(f"{self.label} said {code}: {reason}.")
 
 
 class OfflineTemplateProvider(AIProvider):
@@ -112,36 +146,88 @@ class OfflineTemplateProvider(AIProvider):
         )
 
 
-class OpenAIProvider(AIProvider):
+class OpenAICompatibleProvider(AIProvider):
+    """Parent for every service that speaks the OpenAI 'chat completions' format.
+
+    Inheritance: OpenAI, DeepSeek and the custom 'Other AI' card only change their
+    class attributes (name, address, model) - the HTTP code is written once here.
+    """
+
+    def _headers(self) -> dict:
+        headers = {"Content-Type": "application/json"}
+        if self.secret:
+            headers["Authorization"] = f"Bearer {self.secret}"
+        return headers
+
+    def _base(self) -> str:
+        base = (self.extra.get("base_url") or "").strip().rstrip("/")
+        if not base:
+            raise IntegrationError(f"{self.label}: add the API address first.")
+        return base
+
+    def generate(self, prompt, max_tokens=400):
+        base = self._base()
+        if not (self.extra.get("model") or "").strip():
+            raise IntegrationError(f"{self.label}: add the model name first.")
+        r = self._post(
+            f"{base}/chat/completions",
+            headers=self._headers(),
+            json={
+                "model": self.extra["model"].strip(),
+                "max_tokens": max_tokens,
+                "messages": [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}],
+            },
+        )
+        if not r.ok:
+            raise self._fail(r)
+        try:
+            text = r.json()["choices"][0]["message"]["content"] or ""
+        except (KeyError, IndexError, TypeError, ValueError) as exc:
+            raise IntegrationError(f"{self.label} sent an answer we could not read.") from exc
+        return text.strip()
+
+
+class OpenAIProvider(OpenAICompatibleProvider):
     """OpenAI chat completions."""
 
     provider, label = "openai", "OpenAI"
     extra_fields = [("model", "Model", "gpt-4o-mini"), ("base_url", "API address", "https://api.openai.com/v1")]
     help_text = "Create a key at platform.openai.com → API keys. Usage is charged by OpenAI."
 
-    def _headers(self):
-        return {"Authorization": f"Bearer {self.secret}", "Content-Type": "application/json"}
 
-    def test_connection(self):
-        def run():
-            r = self._get(f"{self.extra['base_url']}/models", headers=self._headers())
-            return (True, "Connected to OpenAI.") if r.ok else (False, f"OpenAI said {r.status_code}.")
+class DeepSeekProvider(OpenAICompatibleProvider):
+    """DeepSeek chat API (OpenAI-compatible)."""
 
-        return self._safe_test(run)
+    provider, label = "deepseek", "DeepSeek"
+    extra_fields = [("model", "Model", "deepseek-chat"), ("base_url", "API address", "https://api.deepseek.com")]
+    help_text = (
+        "Create a key at platform.deepseek.com → API keys. Usage is paid from a prepaid balance; "
+        "when the balance is empty DeepSeek answers 402 and CyberQuest moves to the next model."
+    )
 
-    def generate(self, prompt, max_tokens=400):
-        r = self._post(
-            f"{self.extra['base_url']}/chat/completions",
-            headers=self._headers(),
-            json={
-                "model": self.extra["model"],
-                "max_tokens": max_tokens,
-                "messages": [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}],
-            },
-        )
-        if not r.ok:
-            raise IntegrationError(f"OpenAI said {r.status_code}.")
-        return r.json()["choices"][0]["message"]["content"].strip()
+
+class CustomAIProvider(OpenAICompatibleProvider):
+    """'Other AI': any OpenAI-compatible service, for example OpenRouter, Groq, Mistral or a local Ollama."""
+
+    provider, label = "custom_ai", "Other AI (OpenAI-compatible)"
+    needs_secret = False  # a local model (Ollama) needs no key
+    secret_label = "API key (leave empty for a local model)"
+    extra_fields = [
+        ("display_name", "Name shown in CyberQuest", "Other AI"),
+        ("base_url", "API address (ends before /chat/completions)", ""),
+        ("model", "Model", ""),
+    ]
+    help_text = (
+        "Any service that uses the OpenAI format. Examples: OpenRouter https://openrouter.ai/api/v1, "
+        "Groq https://api.groq.com/openai/v1, Mistral https://api.mistral.ai/v1, "
+        "local Ollama http://localhost:11434/v1 (no key)."
+    )
+
+    def __init__(self, secret: str = "", extra: dict | None = None):
+        super().__init__(secret, extra)
+        name = (self.extra.get("display_name") or "").strip()
+        if name and name.lower() != "other ai":
+            self.label = f"{name} (Other AI)"
 
 
 class ClaudeProvider(AIProvider):
@@ -157,16 +243,9 @@ class ClaudeProvider(AIProvider):
     def _headers(self):
         return {"x-api-key": self.secret, "anthropic-version": "2023-06-01", "content-type": "application/json"}
 
-    def test_connection(self):
-        def run():
-            r = self._get(f"{self.extra['base_url']}/models", headers=self._headers())
-            return (True, "Connected to Claude.") if r.ok else (False, f"Anthropic said {r.status_code}.")
-
-        return self._safe_test(run)
-
     def generate(self, prompt, max_tokens=400):
         r = self._post(
-            f"{self.extra['base_url']}/messages",
+            f"{self.extra['base_url'].rstrip('/')}/messages",
             headers=self._headers(),
             json={
                 "model": self.extra["model"],
@@ -176,7 +255,7 @@ class ClaudeProvider(AIProvider):
             },
         )
         if not r.ok:
-            raise IntegrationError(f"Anthropic said {r.status_code}.")
+            raise self._fail(r)
         return "".join(part.get("text", "") for part in r.json().get("content", [])).strip()
 
 
@@ -188,29 +267,82 @@ class GeminiProvider(AIProvider):
         ("model", "Model", "gemini-2.5-flash"),
         ("base_url", "API address", "https://generativelanguage.googleapis.com/v1beta"),
     ]
-    help_text = "Create a key at aistudio.google.com → Get API key."
-
-    def test_connection(self):
-        def run():
-            r = self._get(f"{self.extra['base_url']}/models", params={"key": self.secret})
-            return (True, "Connected to Gemini.") if r.ok else (False, f"Google said {r.status_code}.")
-
-        return self._safe_test(run)
+    help_text = (
+        "Create a key at aistudio.google.com → Get API key. The free tier has a daily limit; "
+        "when it is used up Google answers 429 and CyberQuest moves to the next model."
+    )
 
     def generate(self, prompt, max_tokens=400):
+        config: dict = {"maxOutputTokens": max_tokens}
+        if self.extra["model"].startswith("gemini-2.5-flash"):
+            config["thinkingConfig"] = {"thinkingBudget": 0}  # short drafts: spend tokens on the answer
         r = self._post(
-            f"{self.extra['base_url']}/models/{self.extra['model']}:generateContent",
-            params={"key": self.secret},
+            f"{self.extra['base_url'].rstrip('/')}/models/{self.extra['model']}:generateContent",
+            headers={"x-goog-api-key": self.secret},
             json={
                 "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]},
                 "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {"maxOutputTokens": max_tokens},
+                "generationConfig": config,
             },
         )
         if not r.ok:
-            raise IntegrationError(f"Google said {r.status_code}.")
-        parts = r.json()["candidates"][0]["content"]["parts"]
+            raise self._fail(r)
+        try:
+            parts = r.json()["candidates"][0]["content"].get("parts", [])
+        except (KeyError, IndexError, ValueError) as exc:
+            raise IntegrationError("Google Gemini sent no answer (it may have been blocked).") from exc
         return "".join(p.get("text", "") for p in parts).strip()
+
+
+class FallbackAIProvider(AIProvider):
+    """Tries each switched-on model in order; the offline helper is always last.
+
+    Chain of Responsibility: every model gets a chance to answer. When one fails
+    (free tokens used up, no credit, wrong key, no internet, server down) the next one
+    tries. ``attempts`` keeps what happened so the AI test page can show it.
+    """
+
+    provider, needs_secret = "auto", False
+
+    def __init__(self, providers: list[AIProvider], on_result=None):
+        super().__init__()
+        self.providers = [p for p in providers if p.provider != "offline"] + [OfflineTemplateProvider()]
+        self.on_result = on_result  # callback(provider_name, ok, message) - saves the status on the card
+        self.used: AIProvider | None = None
+        self.attempts: list[tuple[str, bool, str]] = []
+
+    @property
+    def label(self) -> str:  # pylint: disable=invalid-overridden-method
+        if self.used is not None:
+            return self.used.label
+        return "Automatic: " + " → ".join(p.label for p in self.providers)
+
+    def generate(self, prompt, max_tokens=400):
+        self.attempts, self.used = [], None
+        for ai in self.providers:
+            start = time.monotonic()
+            try:
+                text = ai.generate(prompt, max_tokens=max_tokens)
+                if not text.strip():
+                    raise IntegrationError(f"{ai.label} sent an empty answer.")
+            except IntegrationError as exc:
+                self._note(ai, False, exc.message)
+                continue
+            except Exception as exc:  # pylint: disable=broad-except
+                self._note(ai, False, f"{ai.label}: {exc.__class__.__name__}")
+                continue
+            self._note(ai, True, f"answered in {time.monotonic() - start:.1f} s")
+            self.used = ai
+            return text
+        raise IntegrationError("No AI model could answer.")  # not reached: the offline helper always answers
+
+    def test_connection(self):
+        return True, f"{len(self.providers)} models in order: " + " → ".join(p.label for p in self.providers)
+
+    def _note(self, ai: AIProvider, ok: bool, message: str) -> None:
+        self.attempts.append((ai.label, ok, message))
+        if self.on_result and ai.provider != "offline":
+            self.on_result(ai.provider, ok, message)
 
 
 SYSTEM_PROMPT = (
@@ -293,10 +425,16 @@ class WhatsAppAdapter(MessageAdapter):
 
     provider, label = "whatsapp", "WhatsApp Business (Cloud API)"
     secret_label = "Access token"
-    extra_fields = [("phone_number_id", "Phone number ID", ""), ("api_version", "Graph API version", "v20.0")]
+    extra_fields = [
+        ("phone_number_id", "Phone number ID", ""),
+        ("api_version", "Graph API version", "v20.0"),
+        ("template_name", "Test template name", "hello_world"),
+        ("template_lang", "Test template language", "en_US"),
+    ]
     help_text = (
-        "Needs a Meta business account and WhatsApp Business Platform. Business-started messages need "
-        "approved templates and are charged per message. Parents must opt in."
+        "Needs a Meta business account and the WhatsApp Business Platform (developers.facebook.com → WhatsApp → "
+        "API Setup gives the Phone number ID and a token). Business-started messages need approved templates and "
+        "are charged per message. Parents must opt in. 'hello_world' is Meta's ready-made test template."
     )
 
     def _url(self, path=""):
@@ -310,13 +448,31 @@ class WhatsAppAdapter(MessageAdapter):
         return self._safe_test(run)
 
     def send(self, to, text):
+        """Free text. Meta only delivers it inside 24 hours after the person last messaged us."""
+        return self._send({"type": "text", "text": {"body": text[:4000]}}, to)
+
+    def send_template(self, to: str, name: str = "", lang: str = "") -> str:
+        """An approved template (works at any time). Used by the Super Admin's test message."""
+        template = {
+            "name": name or self.extra["template_name"],
+            "language": {"code": lang or self.extra["template_lang"]},
+        }
+        return self._send({"type": "template", "template": template}, to)
+
+    def _send(self, body: dict, to: str) -> str:
+        if not self.secret or not self.extra.get("phone_number_id"):
+            raise IntegrationError("Save the access token and the Phone number ID first.")
         r = self._post(
             self._url("/messages"),
             headers={"Authorization": f"Bearer {self.secret}"},
-            json={"messaging_product": "whatsapp", "to": to, "type": "text", "text": {"body": text[:4000]}},
+            json={"messaging_product": "whatsapp", "to": to} | body,
         )
         if not r.ok:
-            raise IntegrationError(f"WhatsApp said {r.status_code}.")
+            try:
+                detail = r.json().get("error", {}).get("message", "")[:150]
+            except ValueError:
+                detail = ""
+            raise IntegrationError(f"WhatsApp said {r.status_code}. {detail}".strip())
         return r.json().get("messages", [{}])[0].get("id", "")
 
 
@@ -377,9 +533,11 @@ ADAPTERS: dict[str, type[Adapter]] = {
     cls.provider: cls
     for cls in (
         OfflineTemplateProvider,
+        GeminiProvider,
+        DeepSeekProvider,
         ClaudeProvider,
         OpenAIProvider,
-        GeminiProvider,
+        CustomAIProvider,
         GmailAdapter,
         GoogleMapsAdapter,
         WhatsAppAdapter,
@@ -387,4 +545,5 @@ ADAPTERS: dict[str, type[Adapter]] = {
         ShareLinks,
     )
 }
-AI_ORDER = ["claude", "openai", "gemini"]
+# Default order when no default is chosen (agreed with the Product Owner): Gemini first, then DeepSeek.
+AI_ORDER = ["gemini", "deepseek", "claude", "openai", "custom_ai"]

@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import pytest
 
+from apps.integrations.adapters import ADAPTERS
+
 pytestmark = pytest.mark.django_db
 
 PUBLIC = [
@@ -83,5 +85,6 @@ def test_test_endpoint_needs_csrf_token():
 def test_api_check_page_has_a_check_button_per_row(login, client):
     assert client.get("/api/check/").status_code == 302
     page = login("superadmin").get("/api/check/").content.decode()
-    assert page.count("data-api-row") == 6 + 9 and page.count("data-check>") >= 15
+    # 6 data endpoints + one row per integration (11 since DeepSeek and Other AI were added)
+    assert page.count("data-api-row") == 6 + len(ADAPTERS) and page.count("data-check>") >= 6 + len(ADAPTERS)
     assert "Connect from React" in page and "api_check.js" in page
