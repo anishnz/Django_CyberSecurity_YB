@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}AI models{% endblock %}
+{% block content %}
+{% comment %}AI models: on/off, default, order and Check buttons. Owner: Jihe Qi (task J-14). Super Admin only.{% endcomment %}
+<div class="page-head"><div><h1>AI models</h1>
+<p>Choose which AI models CyberQuest may use, which one goes first, and the order of the rest. When a model fails – free tokens used up, no credit, wrong key, no internet – CyberQuest moves to the next one automatically. The offline helper is always last, so teachers always get a draft.</p></div>
+<div class="d-flex flex-wrap gap-2">
+  <a class="btn btn-outline-primary" href="{% url 'integrations:list' %}"><i class="bi bi-key"></i> Add or change keys</a>
+  <a class="btn btn-outline-primary" href="{% url 'integrations:ai_test' %}"><i class="bi bi-stars"></i> AI test page</a>
+</div></div>
+
+<section class="panel mb-3">
+<form method="post" id="ai-form">{% csrf_token %}
+<div class="table-responsive"><table class="table align-middle">
+  <thead><tr><th scope="col">Tried</th><th scope="col">AI model</th><th scope="col">Key</th><th scope="col">On</th><th scope="col">Default</th><th scope="col">Order (1–99)</th><th scope="col">Last check</th><th scope="col"><span class="visually-hidden">Check</span></th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td>{% if r.ready %}<span class="pill pill-ok">{{ r.position }}</span>{% else %}<span class="pill pill-mute">off</span>{% endif %}</td>
+      <td><strong>{{ r.label }}</strong><br><span class="small text-muted">{{ r.model|default:"no model set" }}</span></td>
+      <td>{% if r.has_key %}<i class="bi bi-check-circle text-success" aria-hidden="true"></i> {% if r.row.has_secret %}{{ r.row.masked }}{% else %}not needed{% endif %}{% else %}<a href="{% url 'integrations:list' %}#{{ r.provider }}">Add key</a>{% endif %}</td>
+      <td><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" role="switch" name="on-{{ r.provider }}" id="on-{{ r.provider }}" {% if r.row.enabled %}checked{% endif %}><label class="visually-hidden" for="on-{{ r.provider }}">Switch {{ r.label }} on</label></div></td>
+      <td><input class="form-check-input" type="radio" name="default" value="{{ r.provider }}" id="def-{{ r.provider }}" {% if r.row.is_default %}checked{% endif %}><label class="visually-hidden" for="def-{{ r.provider }}">Make {{ r.label }} the default</label></td>
+      <td><label class="visually-hidden" for="order-{{ r.provider }}">Order for {{ r.label }}</label><input class="form-control form-control-sm order-input" type="number" min="1" max="99" name="order-{{ r.provider }}" id="order-{{ r.provider }}" value="{{ r.row.priority|default:50 }}"></td>
+      <td class="small">{% if r.row.last_checked %}{% if r.row.status == "connected" %}<span class="text-success"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Working</span>{% elif r.row.status == "error" %}<span class="text-danger"><i class="bi bi-x-circle-fill" aria-hidden="true"></i> Failed</span><br><span class="text-muted">{{ r.row.last_error|truncatechars:90 }}</span>{% endif %}<br><span class="text-muted">{{ r.row.last_checked|date:"d M H:i" }}</span>{% else %}<span class="text-muted">Not checked</span>{% endif %}</td>
+      <td>{% if r.has_key %}<button class="btn btn-outline-primary btn-sm nowrap" formaction="{% url 'integrations:test' r.provider %}" name="next" value="ai"><i class="bi bi-plug"></i> Check</button>{% endif %}</td>
+    </tr>
+  {% endfor %}
+    <tr class="table-light"><td><span class="pill pill-info">last</span></td><td><strong>Offline helper</strong><br><span class="small text-muted">templates, no internet</span></td><td>not needed</td><td colspan="5" class="small text-muted">Always on. Used when every model above fails.</td></tr>
+  </tbody>
+</table></div>
+<div class="d-flex flex-wrap gap-2">
+  <button class="btn btn-primary"><i class="bi bi-save"></i> Save order and default</button>
+  <button class="btn btn-outline-primary" formaction="{% url 'integrations:ai_check_all' %}"><i class="bi bi-activity"></i> Check all models</button>
+  <label class="btn btn-outline-secondary mb-0" for="def-none"><input class="form-check-input me-1" type="radio" name="default" value="" id="def-none" {% if not has_default %}checked{% endif %}> No default (use the order)</label>
+</div>
+</form>
+</section>
+<section class="panel panel-tide"><h2 class="h5">How the switching works</h2>
+<ol class="mb-2"><li>The <strong>default</strong> model is tried first. Then the others that are <strong>on</strong>, smallest order number first. With equal numbers the agreed order is used: Gemini, DeepSeek, Claude, OpenAI, Other AI.</li>
+<li>If a model fails (429 free tokens or rate limit used up, 402 no credit, 401 wrong key, no internet, server down), the next one tries straight away.</li>
+<li>The result is saved on each model's row, so you can see which one is failing.</li>
+<li><strong>Check</strong> sends one tiny question ("Reply with one word: OK") – it proves the key works <em>and</em> tokens are available. It uses a few tokens.</li></ol>
+<p class="small text-muted mb-0">AI only writes drafts. A teacher checks the facts and the Kaiārahi checks Māori content. Student names are never sent to AI.</p></section>
+{% endblock %}

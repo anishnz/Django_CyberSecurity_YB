@@ -240,7 +240,8 @@ COMPARE_POINTS = [
     "Built with our community: English first, with te reo Māori in brackets, and a Kaiārahi checks Māori content.",
     "Works offline on one school computer – important for rural schools with slow internet or strict filters.",
     "Teachers get kind, simple reports. We never use the word 'Fail' and there is no leaderboard that shames children.",
-    "AI only writes drafts. A teacher checks the facts and the Kaiārahi checks Māori content. AI never profiles children.",
+    "AI only writes drafts. A teacher checks the facts and the Kaiārahi checks Māori content. "
+    "AI never profiles children.",
     "One platform for learning, exams, certificates, help desk, email to whānau and business reports.",
 ]
 
