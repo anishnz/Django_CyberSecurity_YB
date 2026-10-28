@@ -183,3 +183,16 @@ html.cq-large { font-size: 118.75%; }
 .api-table code { white-space: nowrap; font-size: .82rem; }
 .api-result { min-width: 15rem; }
 .code-block { background: #0E3B43; color: #E3EEF0; border-radius: 12px; padding: 1rem 1.2rem; font-size: .85rem; overflow-x: auto; }
+
+/* Our story page (Anish) */
+.sim-banner { display: flex; gap: .8rem; align-items: flex-start; border-left: 5px solid var(--kowhai, #F2B705);
+  background: #FFF8E1; color: #3D3200; border-radius: 10px; padding: .9rem 1.1rem; }
+.sim-banner .bi { font-size: 1.3rem; }
+.timeline { list-style: none; padding: 0 0 0 1.4rem; margin: 0; border-left: 3px solid var(--tide); }
+.timeline li { position: relative; padding: 0 0 1.3rem 1rem; }
+.timeline li::before { content: ""; position: absolute; left: -1.95rem; top: .3rem; width: 1rem; height: 1rem;
+  border-radius: 50%; background: var(--tide); border: 3px solid #fff; box-shadow: 0 0 0 2px var(--tide); }
+.timeline .when { font-size: .82rem; font-weight: 600; color: var(--muted); }
+.timeline h3 { font-size: 1.1rem; margin: .15rem 0 .2rem; }
+.timeline .where { font-size: .88rem; color: var(--muted); margin-bottom: .3rem; }
+[data-bs-theme="dark"] .sim-banner { background: #2E2A12; color: #F6EDC4; }
