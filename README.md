@@ -44,13 +44,29 @@ Every member also wrote code in the other areas and reviewed each other's pull r
    - checks Docker is running,
    - finds a **free port** (8000, or the next free port up to 8020) so it never clashes with another program,
    - creates `.env` with random secrets on the first run,
+   - stops an older CyberQuest container first, so the same port is used again (your data is kept in Docker volumes),
    - starts the container, waits for `/health/`, and opens your browser.
 3. Stop it with `docker compose down`.
 
 ### Windows without Docker
 
-Double-click **`run_local.bat`** (needs Python 3.10 or newer). It makes a virtual environment, installs the packages,
-prepares the database, loads the demo data and starts the **waitress** server on a free port.
+Double-click **`run_local.bat`** (needs Python 3.10 or newer). It:
+
+- checks Python 3.10+ and finds a **free port** (8000, or the next free port up to 8020),
+- makes a virtual environment and installs the packages – only the first time, or when `requirements.txt`
+  changes, so later starts also work with **no internet**,
+- creates `.env` with random secrets on the first run, prepares the database and loads the demo data,
+- starts the **waitress** server and opens your browser **when CyberQuest answers** on `/health/`.
+
+Keep the black window open; press **Ctrl + C** to stop.
+
+### Open CyberQuest in your browser
+
+1. Look in the black window for: `CyberQuest is starting at http://127.0.0.1:8000/` (the number can be 8001 or
+   higher when 8000 was busy).
+2. The browser opens by itself. If not, type that address into the browser.
+3. Demo logins: `http://127.0.0.1:<port>/accounts/demo-accounts/`. `localhost` and `127.0.0.1` mean the same thing –
+   your own computer.
 
 ### Mac / Linux
 
