@@ -19,7 +19,8 @@ from django.shortcuts import redirect, render
 
 from .services import IMPERSONATOR_KEY, AccountCheck, MFAService
 
-GUEST_POST_ALLOWED = ("/accounts/logout", "/quiz/guest", "/ai/explain", "/website/contact")
+GUEST_POST_ALLOWED = ("/accounts/logout", "/quiz/guest", "/ai/explain", "/website/contact", "/kb/api/")
+# /kb/api/ is let through so apps.kb.api can answer guests with its own JSON 403 (guests may only ask).
 MFA_SETUP_ALLOWED = ("/accounts/mfa", "/accounts/logout", "/static", "/media", "/health")
 
 

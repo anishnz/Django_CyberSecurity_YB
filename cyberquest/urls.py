@@ -34,6 +34,7 @@ APP_URLS = [
     ("integrations/", "integrations"),
     ("ai/", "ai_assistant"),
     ("media-library/", "medialib"),
+    ("kb/", "kb"),
     ("api/", "api"),
 ]
 

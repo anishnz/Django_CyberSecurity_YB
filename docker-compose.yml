@@ -1,5 +1,9 @@
 # CyberQuest (Django) - docker compose. Started by run.bat (Windows) or run.sh.
 # HOST_PORT is chosen by run.bat (first free port from 8000).
+# Two services:
+#   web  - the CyberQuest web app (published on 127.0.0.1:HOST_PORT)
+#   rag  - the Knowledge Base (RAG) service; only "web" can reach it, on http://rag:9000
+# Both read RAG_SERVICE_KEY from .env (run.bat creates a random one).
 services:
   web:
     build: .
@@ -10,6 +14,7 @@ services:
       DJANGO_SETTINGS_MODULE: cyberquest.settings.prod
       DJANGO_CSRF_TRUSTED_ORIGINS: "http://localhost:${HOST_PORT:-8000},http://127.0.0.1:${HOST_PORT:-8000}"
       SITE_URL: "http://127.0.0.1:${HOST_PORT:-8000}"
+      RAG_BASE_URL: "http://rag:9000"
     ports:
       - "127.0.0.1:${HOST_PORT:-8000}:8000"
     volumes:
@@ -17,6 +22,18 @@ services:
       - cyberquest_backups:/app/backups
     restart: unless-stopped
 
+  rag:
+    build: ./cyberquest-rag
+    image: cyberquest-rag:1.1
+    container_name: cyberquest-rag
+    environment:
+      RAG_SERVICE_KEY: "${RAG_SERVICE_KEY:?RAG_SERVICE_KEY is missing in .env - run run.bat again}"
+      RAG_LLM_API_KEY: "${RAG_LLM_API_KEY:-EMPTY}"
+    volumes:
+      - cyberquest_rag:/data
+    restart: unless-stopped
+
 volumes:
   cyberquest_data:
   cyberquest_backups:
+  cyberquest_rag:
