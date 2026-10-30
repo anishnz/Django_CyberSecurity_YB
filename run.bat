@@ -1,7 +1,7 @@
 @echo off
 REM ==========================================================================
 REM  run.bat - Start CyberQuest (Django) with Docker. Double-click to run.
-REM  Owner: Anish Shrestha (task A-04) - YB_student_project_270889991
+REM  Owner: Anish Shrestha (task A-04)
 REM  1. Checks Docker   2. Finds a free port (8000-8020)   3. Makes .env with
 REM  random secrets (first run)   4. Starts Docker   5. Waits for /health/
 REM  6. Opens the browser.
@@ -13,7 +13,7 @@ cd /d "%~dp0"
 echo.
 echo  ===========================================================
 echo   CyberQuest - Learn. Play. Decide. Stay Cyber Safe.
-echo   Mount Everest Digital Limited ^| YB_student_project_270889991
+echo   Mount Everest Digital Limited
 echo  ===========================================================
 echo.
 

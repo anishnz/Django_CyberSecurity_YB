@@ -3,7 +3,7 @@ base.py - Settings shared by every environment (dev, test, prod)
 ================================================================
 
 Project : CyberQuest (Django) - Learn. Play. Decide. Stay Cyber Safe.
-Code    : YB_student_project_270889991 - MSE800 Assessment 2, Yoobee College
+Code    :  - MSE800 Assessment 2, Yoobee College
 Owner   : Anish Shrestha (Lead Software Engineer)
 
 Why a settings package?
@@ -49,7 +49,7 @@ PROJECT = {
     "name": "CyberQuest",
     "tagline": "Learn. Play. Decide. Stay Cyber Safe.",
     "version": "1.1.0",
-    "code": "YB_student_project_270889991",
+    "code": "",
     "company": "Mount Everest Digital Limited",
     "company_address": "5B/2 White Street, Auckland CBD, Auckland 1010",
     "college": "Yoobee College of Creative Innovation",

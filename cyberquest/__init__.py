@@ -1,1 +1,1 @@
-"""CyberQuest (Django) - project package. YB_student_project_270889991."""
+"""CyberQuest (Django) - project package."""
