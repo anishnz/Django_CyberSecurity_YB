@@ -370,7 +370,8 @@ class FallbackAIProvider(AIProvider):
 
 SYSTEM_PROMPT = (
     "You help New Zealand school teachers write short, kind, accurate cyber-safety learning text for "
-    "children. Use simple English. Never include real people's names or personal details. "
+    "children. Use simple English and plain text (no Markdown, no ** or #). "
+    "Never include real people's names or personal details. "
     "Do not invent te reo Māori words; leave Māori wording for the Cultural Guide to add."
 )
 
