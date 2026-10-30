@@ -48,7 +48,7 @@ def env_bool(name: str, default: bool = False) -> bool:
 PROJECT = {
     "name": "CyberQuest",
     "tagline": "Learn. Play. Decide. Stay Cyber Safe.",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "code": "YB_student_project_270889991",
     "company": "Mount Everest Digital Limited",
     "company_address": "5B/2 White Street, Auckland CBD, Auckland 1010",

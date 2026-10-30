@@ -193,6 +193,19 @@ def test_wrong_key_gives_a_clear_message(fake_http):
     assert not ok and message == "DeepSeek said 401: the key was not accepted."
 
 
+def test_google_wrong_key_400_is_reported_as_a_key_problem(fake_http):
+    google_error = {"error": {"code": 400, "message": "API key not valid. Please pass a valid API key."}}
+    fake_http({"generativelanguage": FakeResponse(400, google_error)})
+    ok, message = GeminiProvider("AIza-wrong").test_connection()
+    assert not ok and "the key was not accepted" in message and "API key not valid" in message
+
+
+def test_service_error_text_is_shown(fake_http):
+    fake_http({"deepseek": FakeResponse(402, {"error": {"message": "Insufficient Balance"}})})
+    ok, message = DeepSeekProvider("sk-x").test_connection()
+    assert not ok and message == "DeepSeek said 402: no credit left on this account. (Insufficient Balance)"
+
+
 # ----------------------------------------------------------------- pages
 def test_ai_models_page_is_super_admin_only(login):
     assert login("superadmin").get("/integrations/ai-models/").status_code == 200

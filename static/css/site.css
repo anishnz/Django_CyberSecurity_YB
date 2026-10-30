@@ -200,6 +200,8 @@ html.cq-large { font-size: 118.75%; }
 /* Business pages (Dinesh) */
 .biz-tabs .nav-link { border: 1px solid var(--line); }
 .compare th.us, .compare td.us { background: rgba(10, 110, 120, .08); font-weight: 600; }
+.compare thead th.us { color: #0E3B43; }
+[data-bs-theme="dark"] .compare thead th.us { color: #E9F4F5; }
 .compare td { text-align: center; }
 .swot { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .swot-box { border-radius: 14px; padding: 1.1rem 1.3rem; border: 1px solid var(--line); }
@@ -217,3 +219,7 @@ html.cq-large { font-size: 118.75%; }
 .order-input { width: 5.2rem; }
 .attempts { padding-left: 1.2rem; }
 .wa-test { border-top: 1px dashed var(--line); padding-top: .8rem; }
+
+/* Grey outline buttons: darker text so they pass WCAG AA contrast on tinted panels */
+.btn-outline-secondary { --bs-btn-color: #3F474E; --bs-btn-border-color: #6C757D; }
+[data-bs-theme="dark"] .btn-outline-secondary { --bs-btn-color: #D5DCE1; --bs-btn-border-color: #9AA4AC; }

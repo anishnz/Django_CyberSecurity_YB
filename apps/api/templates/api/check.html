@@ -3,7 +3,7 @@
 {% block content %}
 <div class="page-head"><div><h1>API check</h1>
   <p>Test each connection on its own. A green result means the connection works. Nothing here shows or sends a saved key.</p></div>
-  <div class="d-flex gap-2 flex-wrap"><a class="btn btn-outline-secondary" href="{% url 'integrations:list' %}"><i class="bi bi-plug"></i> Integrations (keys)</a></div></div>
+  <div class="d-flex gap-2 flex-wrap"><a class="btn btn-outline-primary" href="{% url 'integrations:list' %}"><i class="bi bi-plug"></i> Integrations (keys)</a></div></div>
 <form id="api-csrf" hidden>{% csrf_token %}</form>
 
 <section class="panel mb-4" aria-labelledby="pub-h" data-api-group>
