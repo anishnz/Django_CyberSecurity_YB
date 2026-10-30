@@ -17,6 +17,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
+# The Knowledge Base tab is shown to every role (guests get student-level access).
+KB_MENU_ITEM = ("Knowledge Base", "kb:ask", "book")
+
 
 class Role(ABC):
     """What every role must provide."""
@@ -63,6 +66,7 @@ class SuperAdminRole(Role):
             ("Content (Ako)", "learning:level_list", "journal-text"),
             ("Tickets", "helpdesk:ticket_list", "life-preserver"),
             ("BI", "reports:bi_dashboard", "graph-up"),
+            KB_MENU_ITEM,
             ("System", "core:system", "gear"),
         ]
 
@@ -87,6 +91,7 @@ class SchoolAdminRole(Role):
             ("Reports (Pūrongo)", "reports:school_bi", "graph-up"),
             ("Bulk email", "emails:bulk", "send"),
             ("Tickets", "helpdesk:ticket_list", "life-preserver"),
+            KB_MENU_ITEM,
         ]
 
 
@@ -109,6 +114,7 @@ class TeacherRole(Role):
             ("Media", "medialib:media_list", "collection-play"),
             ("Reports (Pūrongo)", "reports:class_report_pick", "bar-chart"),
             ("Tickets", "helpdesk:ticket_list", "life-preserver"),
+            KB_MENU_ITEM,
         ]
 
 
@@ -128,6 +134,7 @@ class StudentRole(Role):
             ("My results", "quizzes:my_results", "bar-chart"),
             ("Certificates", "certificates:my_certificates", "award"),
             ("Help (Āwhina)", "helpdesk:ticket_list", "life-preserver"),
+            KB_MENU_ITEM,
         ]
 
 
@@ -142,7 +149,11 @@ class GuestRole(Role):
         return "website:guest_tour"
 
     def menu(self):
-        return [("Demo tour", "website:guest_tour", "compass"), ("Try a quiz", "quizzes:guest_try", "controller")]
+        return [
+            ("Demo tour", "website:guest_tour", "compass"),
+            ("Try a quiz", "quizzes:guest_try", "controller"),
+            KB_MENU_ITEM,
+        ]
 
 
 ROLE_CLASSES = {cls.code: cls for cls in (SuperAdminRole, SchoolAdminRole, TeacherRole, StudentRole, GuestRole)}

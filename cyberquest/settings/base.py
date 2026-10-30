@@ -105,6 +105,7 @@ INSTALLED_APPS = [
     "apps.ai_assistant",  # AI drafts and text help (Jihe)
     "apps.medialib",  # image, audio, video, YouTube (Jihe)
     "apps.website",  # public website (Dinesh)
+    "apps.kb",  # knowledge base(Jihe)
 ]
 
 MIDDLEWARE = [
@@ -249,3 +250,7 @@ CYBERQUEST = {
     "LOCKOUT_MINUTES": 15,
     "SITE_URL": env("SITE_URL", "http://127.0.0.1:8000"),
 }
+
+# --- Knowledge base (RAG) service ---
+RAG_BASE_URL = env("RAG_BASE_URL", "http://127.0.0.1:9000")
+RAG_SERVICE_KEY = env("RAG_SERVICE_KEY", "")
