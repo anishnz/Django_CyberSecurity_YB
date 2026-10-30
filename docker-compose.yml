@@ -3,7 +3,7 @@
 services:
   web:
     build: .
-    image: cyberquest-django:1.0
+    image: cyberquest-django:1.1
     container_name: cyberquest
     env_file: .env
     environment:
