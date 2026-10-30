@@ -1,3 +1,5 @@
+"""apps.py - Knowledge Base app (Jihe Qi): pages and a JSON proxy to the RAG service."""
+
 from django.apps import AppConfig
 
 

@@ -1,3 +1,1 @@
-from django.db import models
-
-# Create your models here.
+"""models.py - No models: documents live in the RAG service, not in the CyberQuest database."""

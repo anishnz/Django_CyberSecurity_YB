@@ -21,6 +21,8 @@ RAG = "http://rag.test:9000"
 
 
 class AskTests(KbTestCase):
+    """Asking a question: answer, sources, roles and validation."""
+
     def test_ask_returns_answer_and_sources_and_sends_the_service_headers(self):
         reply = {"answer": "Phishing is a scam [1].", "sources": [{"n": 1, "title": "Guide", "snippet": "abc"}]}
         with mock.patch(RAG_REQUEST, return_value=FakeResponse(reply)) as fake:
@@ -82,6 +84,8 @@ class AskTests(KbTestCase):
 
 
 class ServiceDownTests(KbTestCase):
+    """What users see when the RAG service is down, slow or broken."""
+
     def test_service_down_gives_an_english_503_on_every_endpoint(self):
         delete_kwargs = {"kwargs": {"doc_id": "abc123"}}
         cases = [
@@ -144,6 +148,7 @@ class PermissionMatrixTests(KbTestCase):
     """Which roles may call which endpoint. Everybody else gets a JSON 403 and the service is not called."""
 
     def assert_matrix(self, allowed, make_request, reply):
+        """Allowed roles reach the service; every other role gets 403 and the service is not called."""
         for role in ROLES:
             with self.subTest(role=role), mock.patch(RAG_REQUEST, return_value=FakeResponse(reply)) as fake:
                 response = make_request(client_for(role))
@@ -196,6 +201,8 @@ class PermissionMatrixTests(KbTestCase):
 
 
 class DocumentTests(KbTestCase):
+    """Listing, uploading and deleting knowledge-base documents."""
+
     def test_list_forwards_to_the_service(self):
         docs = {"documents": [{"doc_id": "a1", "title": "Fees", "tags": "fees", "chunks": 3}]}
         with mock.patch(RAG_REQUEST, return_value=FakeResponse(docs)) as fake:
@@ -222,7 +229,9 @@ class DocumentTests(KbTestCase):
         client = client_for("teacher")
         with mock.patch(RAG_REQUEST) as fake:
             response = client.post(reverse("kb:api_documents"), {})
-            self.assertEqual((response.status_code, response.json()["detail"]), (400, "Please choose a file to upload."))
+            self.assertEqual(
+                (response.status_code, response.json()["detail"]), (400, "Please choose a file to upload.")
+            )
             response = client.post(reverse("kb:api_documents"), {"file": SimpleUploadedFile("virus.exe", b"MZ")})
             self.assertEqual(response.status_code, 400)
             self.assertIn("Only PDF, TXT and Markdown", response.json()["detail"])
@@ -291,6 +300,8 @@ class DocumentTests(KbTestCase):
 
 
 class QuizAndModelTests(KbTestCase):
+    """Quiz questions from the knowledge base and the AI model settings."""
+
     def test_quiz_is_forwarded(self):
         reply = {
             "questions": [{"question": "Q?", "options": ["A. x"], "answer": "A", "explanation": "e"}],
@@ -373,6 +384,8 @@ class QuizAndModelTests(KbTestCase):
 
 
 class SettingsTests(KbTestCase):
+    """RAG settings are read from the environment."""
+
     def test_service_address_and_key_are_read_from_settings(self):
         from django.test import override_settings
 
