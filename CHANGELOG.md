@@ -2,7 +2,7 @@
 
 All notable changes to CyberQuest (Django). Dates are NZ time.
 
-## [Unreleased]
+## [1.1.0] – 2026-10-31 – AI models, WhatsApp test, website pages and fixes
 
 ### Added
 - AI models page (Super Admin): on/off, default model, order, Check and Check all. Automatic switch to the next
@@ -18,6 +18,7 @@ All notable changes to CyberQuest (Django). Dates are NZ time.
 - run_local.bat opened the browser before the server was ready; it now waits for /health/.
 - AI connection tests only checked the key; they now ask one tiny question, so they also show when tokens run out.
 - Gemini key is sent in a header instead of the URL, so it cannot appear in server logs.
+- Colour contrast: comparison table header (Business case) and grey outline buttons now pass WCAG AA.
 
 ## [1.0.0] – 2026-10-23 – first release
 
