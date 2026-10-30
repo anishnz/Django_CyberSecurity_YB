@@ -28,7 +28,7 @@ Engineering – Assessment 2** at Yoobee College of Creative Innovation (lecture
 | Anish Shrestha | 270889991 | Lead Software Engineer, system designer | accounts, roles, security, Login as, MFA, password reset, AI drafts, settings, Docker and run scripts |
 | Rajneesh Kumar | 270245010 | Backend and database developer | schools, licensing, payments, help desk rules, emails, announcements, notifications |
 | Dinesh Upreti | 270830269 | Frontend developer and business analyst | public website, student and teacher screens, reports and BI, certificates, help centre, display options |
-| Jihe Qi | 27008116 | QA Lead, integrations, meeting secretary | automated tests, Pylint, integrations vault, AI test page, media library, upload checks, demo data |
+| Jihe Qi | 271008116 | QA Lead, integrations, meeting secretary | automated tests, Pylint, integrations vault, AI test page, AI models, media library, upload checks, demo data, Knowledge Base (RAG) |
 
 Every member also wrote code in the other areas and reviewed each other's pull requests (see the Git history:
 `feature/<name>-<feature>` branches merged into `develop`).
@@ -45,7 +45,9 @@ Every member also wrote code in the other areas and reviewed each other's pull r
    - finds a **free port** (8000, or the next free port up to 8020) so it never clashes with another program,
    - creates `.env` with random secrets on the first run,
    - stops an older CyberQuest container first, so the same port is used again (your data is kept in Docker volumes),
-   - starts the container, waits for `/health/`, and opens your browser.
+   - creates a random `RAG_SERVICE_KEY` for the Knowledge Base if `.env` has none (also for older `.env` files),
+   - starts two containers – CyberQuest (`web`) and the Knowledge Base (`rag`) – waits for `/health/`, and opens your
+     browser. The **first** build takes 10–20 minutes because the Knowledge Base downloads its AI packages once.
 3. Stop it with `docker compose down`.
 
 ### Windows without Docker
@@ -56,6 +58,8 @@ Double-click **`run_local.bat`** (needs Python 3.10 or newer). It:
 - makes a virtual environment and installs the packages – only the first time, or when `requirements.txt`
   changes, so later starts also work with **no internet**,
 - creates `.env` with random secrets on the first run, prepares the database and loads the demo data,
+- sets up the **Knowledge Base** service (its own `cyberquest-rag\.venv`, about 1 GB the first time) and starts it in a
+  small window on the first free port from 9000 to 9020 – if this fails, CyberQuest still runs without it,
 - starts the **waitress** server and opens your browser **when CyberQuest answers** on `/health/`.
 
 Keep the black window open; press **Ctrl + C** to stop.
@@ -134,6 +138,9 @@ Login as is written to the security log.
   WhatsApp Cloud API really sends.
 - **AI test page** and **AI drafts** (question, tip, parent message, explanation). Names and emails are removed before
   sending. Every draft needs a **teacher approval**, and Māori content also needs the **Cultural Guide (Kaiārahi)**.
+- **Knowledge Base (RAG)** for every role: ask a question and get an answer with its sources from the school's
+  documents. Staff upload documents and make quiz questions; the Super Admin sets the AI model. Names and emails are
+  removed before a question reaches the AI, and guests can ask 10 questions an hour. Details: section 8.
 - Works fully offline: without a key an offline helper makes simple drafts.
 - **Media library:** images, audio, video, PDF (type checked by file signature, size limits), YouTube videos in
   privacy mode (youtube-nocookie.com).
@@ -174,11 +181,15 @@ apps/
   integrations/        adapters and the encrypted key vault
   ai_assistant/        AI drafts and the page helper
   medialib/            uploads and YouTube
+  kb/                  Knowledge Base pages and the safe proxy to the RAG service
+  api/                 JSON API v1 for a React front end and the API check page
   website/             public website (home, features, pricing, about, contact)
 templates/  static/    shared templates, CSS, JavaScript, local Bootstrap / Chart.js
 data/                  learning content (JSON)
+cyberquest-rag/        Knowledge Base (RAG) service: FastAPI app, vector store, starter knowledge file, Dockerfile
 tests/                 pytest tests
-docs/                  CONCEPTS.md, evidence screenshots and test results per student
+docs/                  CONCEPTS.md, KNOWLEDGE_BASE.md, PRD_CyberQuest.md, MAINTENANCE.md, REQUIREMENTS_EXPLAINED.txt, backlog,
+                       evidence screenshots and test results per student
 docker/  Dockerfile  docker-compose.yml  run.bat  run_local.bat  run.sh
 ```
 
@@ -188,9 +199,9 @@ docker/  Dockerfile  docker-compose.yml  run.bat  run_local.bat  run.sh
 
 ```bash
 pip install -r requirements-dev.txt
-python -m pytest                       # 113 tests
+python -m pytest                       # 250 tests (+157 sub-tests)
 pylint apps cyberquest tests           # 10.00/10
-coverage run -m pytest && coverage report    # 79% of apps/
+coverage run -m pytest && coverage report    # 81% of apps/
 black --check .                        # formatting
 ```
 
@@ -216,13 +227,39 @@ Decorator, State machine, Repository (QuerySets) and custom exceptions.
 | `DEMO_MODE` | `1` shows the demo accounts page and demo buttons |
 | `HOST_PORT` | Port on your computer (run.bat sets a free one) |
 | `DATABASE_ENGINE` | `sqlite` (default) or `postgres` |
+| `RAG_BASE_URL` | Address of the Knowledge Base service (run_local.bat and Docker set it for you) |
+| `RAG_SERVICE_KEY` | Shared secret between CyberQuest and the Knowledge Base service (run.bat / run_local.bat make a random one) |
+| `RAG_LLM_API_KEY` | Optional: AI key for Knowledge Base answers (or set it on the Knowledge Base page) |
 
 API keys for AI, Gmail, Maps, WhatsApp and Viber are **not** in `.env`. The Super Admin adds them on the
 Integrations page, where they are stored encrypted. Never commit `.env`.
 
 ---
 
-## 8. Licence of third-party files
+## 8. Knowledge Base (RAG)
+
+The Knowledge Base was built by Jihe Qi (pull request #59). It has two parts:
+
+- `apps/kb` – the **Knowledge Base** pages inside CyberQuest and a JSON proxy that checks the user's role,
+- `cyberquest-rag/` – a small **FastAPI** service that stores document pieces in a vector store (Chroma), finds the
+  best pieces for a question, and asks an OpenAI-compatible AI model (DeepSeek by default) to answer from them.
+
+```
+Browser -> CyberQuest /kb/api/ (role check, name removal, limits) -> RAG service (X-Service-Key) -> AI model
+```
+
+`run.bat`, `run.sh` and `run_local.bat` start both parts. On the first start the service loads the starter file
+`cyberquest-rag/cybersecurity_knowledge_base_L0-L6_English.md`, so questions work at once. The Super Admin adds the AI
+key on **Knowledge Base → Manage → AI model settings** (or in `.env` as `RAG_LLM_API_KEY`) and presses
+**Test connection**. Without the service, the page says the Knowledge Base is not running and the rest of CyberQuest
+works as normal.
+
+The full user and operations manual (roles, endpoints, settings, step-by-step start and stop, troubleshooting) is in
+[`docs/KNOWLEDGE_BASE.md`](docs/KNOWLEDGE_BASE.md).
+
+---
+
+## 9. Licence of third-party files
 
 Bootstrap, Bootstrap Icons and Chart.js (MIT) and the Atkinson Hyperlegible font (SIL Open Font Licence) are included
 locally so the app works without internet. Their licence files are next to them in `static/vendor/` and

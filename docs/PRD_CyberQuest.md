@@ -11,7 +11,7 @@
 | Project code      | `YB_student_project_270889991`                                                                 |
 | Simulated company | Mount Everest Digital Limited                                                                  |
 | Course            | MSE800 Professional Software Engineering – Assessment 2, Yoobee College of Creative Innovation |
-| Prepared by       | Project team (see the team table in `README.md`)                                               |
+| Prepared by       | Jihe Qi with the project team (see the team table in `README.md`)                              |
 | Related documents | Product backlog (`docs/backlog/CyberQuest_Product_Backlog.csv`)                                |
 
 ## Table of contents
@@ -340,9 +340,10 @@ Technical rules for the Knowledge Base:
 - Django waits 5 seconds to connect and up to 180 seconds for an answer.
 - Uploaded text is split into chunks of about 800 characters (120 overlap), stored in a local vector database, and the
   best matching chunks (default 5) are sent to the AI model as the only context.
-- The AI model is reached through an OpenAI-compatible Chat Completions API (the project uses a locally hosted DeepSeek
-  model, model ID `deepseek-v4-flash-0731`). Its address is a model setting that the Super Admin can change.
-- The Knowledge Base service runs on port 9000 and is not part of the Django site; the rest of CyberQuest works without it.
+- The AI model is reached through an OpenAI-compatible Chat Completions API (first-start default since 1.1.0: DeepSeek's
+  public API, model `deepseek-chat`). Its address is a model setting that the Super Admin can change.
+- The Knowledge Base service runs on port 9000 (run_local.bat: first free port from 9000 to 9020; Docker: the `rag`
+  container) and is not part of the Django site; the rest of CyberQuest works without it.
 
 ---
 
