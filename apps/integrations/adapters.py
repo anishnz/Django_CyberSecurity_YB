@@ -112,10 +112,33 @@ class AIProvider(Adapter):
         return self._safe_test(run)
 
     def _fail(self, response) -> IntegrationError:
-        """Turn an HTTP error into a short message a Super Admin can act on."""
+        """Turn an HTTP error into a short message a Super Admin can act on.
+
+        The service's own error text is added when there is one (for example Google answers
+        400 'API key not valid' for a wrong key, and DeepSeek answers 402 'Insufficient Balance').
+        """
         code = response.status_code
-        reason = HTTP_REASONS.get(code, "the service is busy or down" if code >= 500 else "unexpected answer")
-        return IntegrationError(f"{self.label} said {code}: {reason}.")
+        detail = self._error_text(response)
+        if code == 400 and "api key" in detail.lower():
+            reason = HTTP_REASONS[401]  # Google uses 400 for a wrong key
+        else:
+            reason = HTTP_REASONS.get(code, "the service is busy or down" if code >= 500 else "unexpected answer")
+        message = f"{self.label} said {code}: {reason}."
+        if detail:
+            message += f" ({detail[:120]})"
+        return IntegrationError(message)
+
+    @staticmethod
+    def _error_text(response) -> str:
+        """The 'error.message' text that OpenAI-style, DeepSeek, Claude and Google APIs send back."""
+        try:
+            data = response.json()
+        except ValueError:
+            return ""
+        error = data.get("error") if isinstance(data, dict) else None
+        if isinstance(error, dict):
+            return str(error.get("message", "")).strip()
+        return str(error or "").strip()
 
 
 class OfflineTemplateProvider(AIProvider):
