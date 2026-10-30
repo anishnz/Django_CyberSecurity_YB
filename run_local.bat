@@ -17,7 +17,7 @@ set "HERE=%CD%"
 echo.
 echo  ===========================================================
 echo   CyberQuest - Learn. Play. Decide. Stay Cyber Safe.
-echo   Mount Everest Digital Limited ^| YB_student_project_270889991
+echo   Mount Everest Digital Limited
 echo  ===========================================================
 echo.
 

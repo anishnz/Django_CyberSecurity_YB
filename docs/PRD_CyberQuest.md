@@ -8,7 +8,7 @@
 | Document          | Product Requirements Document, baseline for development                                        |
 | Version           | 1.0                                                                                            |
 | Status            | Approved for development                                                                       |
-| Project code      | `YB_student_project_270889991`                                                                 |
+| Project code      | ``                                                                                              |
 | Simulated company | Mount Everest Digital Limited                                                                  |
 | Course            | MSE800 Professional Software Engineering – Assessment 2, Yoobee College of Creative Innovation |
 | Prepared by       | Jihe Qi with the project team (see the team table in `README.md`)                              |
