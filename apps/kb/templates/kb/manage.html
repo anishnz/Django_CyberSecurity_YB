@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Manage Knowledge Base{% endblock %}
+
+{% block content %}
+<div id="kb-app"
+     data-csrf="{{ csrf_token }}"
+     data-documents-url="{% url 'kb:api_documents' %}"
+     data-quiz-url="{% url 'kb:api_quiz' %}"
+     data-can-delete="{% if can_delete %}1{% else %}0{% endif %}"
+     {% if can_configure %}data-model-url="{% url 'kb:api_model' %}" data-model-test-url="{% url 'kb:api_model_test' %}"{% endif %}>
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0"><i class="bi bi-folder2-open" aria-hidden="true"></i> Manage Knowledge Base</h1>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'kb:ask' %}"><i class="bi bi-chat-dots" aria-hidden="true"></i> Ask a question</a>
+  </div>
+  <p class="small text-muted">One Knowledge Base is shared by all schools.</p>
+
+  <div id="kb-alert" aria-live="polite"></div>
+
+  <section class="card mb-4" aria-labelledby="kb-upload-h">
+    <div class="card-body">
+      <h2 class="h5" id="kb-upload-h">Upload a document</h2>
+      <p class="small text-muted">PDF, TXT or Markdown, up to 20 MB. Plain text and Markdown work best; tables inside PDFs are often read badly.</p>
+      <form id="kb-upload-form" class="row g-3" novalidate>
+        <div class="col-md-5">
+          <span class="form-label d-block" id="kb-file-label">File</span>
+          <input id="kb-file" class="d-none" type="file" accept=".pdf,.txt,.md">
+          <div class="d-flex align-items-center gap-2">
+            <label for="kb-file" class="btn btn-outline-secondary mb-0">Choose file</label>
+            <span id="kb-file-name" class="small text-muted text-break">No file chosen</span>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <label for="kb-title" class="form-label">Title</label>
+          <input id="kb-title" class="form-control" type="text" maxlength="120" placeholder="Shown as the source of answers">
+        </div>
+        <div class="col-md-3">
+          <label for="kb-tags" class="form-label">Tags (optional)</label>
+          <input id="kb-tags" class="form-control" type="text" maxlength="120" placeholder="e.g. courses, fees">
+        </div>
+        <div class="col-12 d-flex align-items-center gap-3">
+          <button id="kb-upload-btn" class="btn btn-primary" type="submit"><i class="bi bi-upload" aria-hidden="true"></i> Upload</button>
+          <span id="kb-upload-busy" class="text-muted small d-none" role="status">
+            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Reading and indexing...
+          </span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="card mb-4" aria-labelledby="kb-docs-h">
+    <div class="card-body">
+      <h2 class="h5" id="kb-docs-h">Documents</h2>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead><tr><th scope="col">Title</th><th scope="col">Tags</th><th scope="col" class="text-end">Chunks</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+          <tbody id="kb-docs-body"><tr><td colspan="4" class="text-muted">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="card mb-4" aria-labelledby="kb-quiz-h">
+    <div class="card-body">
+      <h2 class="h5" id="kb-quiz-h">Generate quiz questions</h2>
+      <p class="small text-muted">Questions are written from the documents above. Always read them before using them in class.</p>
+      <form id="kb-quiz-form" class="row g-3" novalidate>
+        <div class="col-md-6">
+          <label for="kb-topic" class="form-label">Topic</label>
+          <input id="kb-topic" class="form-control" type="text" maxlength="300" placeholder="For example: phishing emails">
+        </div>
+        <div class="col-6 col-md-2">
+          <label for="kb-count" class="form-label">Questions</label>
+          <input id="kb-count" class="form-control" type="number" min="1" max="20" value="5">
+        </div>
+        <div class="col-6 col-md-2">
+          <label for="kb-diff" class="form-label">Difficulty</label>
+          <select id="kb-diff" class="form-select">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button id="kb-quiz-btn" class="btn btn-primary w-100" type="submit"><i class="bi bi-magic" aria-hidden="true"></i> Generate</button>
+        </div>
+      </form>
+      <div id="kb-quiz-busy" class="text-muted small mt-3 d-none" role="status">
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Writing questions... this can take up to a minute.
+      </div>
+      <div id="kb-quiz-out" class="mt-3" aria-live="polite"></div>
+    </div>
+  </section>
+
+  {% if can_configure %}
+  <section class="card mb-4" aria-labelledby="kb-model-h">
+    <div class="card-body">
+      <h2 class="h5" id="kb-model-h">AI model settings <span class="badge text-bg-secondary align-middle">Super Admin</span></h2>
+      <p class="small text-muted">These settings belong to the Knowledge Base service. Leave the API key empty to keep the current key.</p>
+      <div id="kb-model-alert" aria-live="polite"></div>
+      <form id="kb-model-form" class="row g-3" novalidate>
+        <div class="col-md-4">
+          <label for="kb-m-name" class="form-label">Display name</label>
+          <input id="kb-m-name" class="form-control" type="text" maxlength="80">
+        </div>
+        <div class="col-md-4">
+          <label for="kb-m-url" class="form-label">API base URL</label>
+          <input id="kb-m-url" class="form-control" type="text" maxlength="200">
+        </div>
+        <div class="col-md-4">
+          <label for="kb-m-id" class="form-label">Model ID</label>
+          <input id="kb-m-id" class="form-control" type="text" maxlength="120">
+        </div>
+        <div class="col-md-4">
+          <label for="kb-m-key" class="form-label">API key</label>
+          <input id="kb-m-key" class="form-control" type="password" maxlength="200" autocomplete="new-password">
+          <div class="form-text">Current key: <span id="kb-m-key-mask">...</span></div>
+        </div>
+        <div class="col-6 col-md-2">
+          <label for="kb-m-temp" class="form-label">Temperature</label>
+          <input id="kb-m-temp" class="form-control" type="number" min="0" max="2" step="0.1">
+        </div>
+        <div class="col-6 col-md-3">
+          <label for="kb-m-tokens" class="form-label">Max tokens</label>
+          <input id="kb-m-tokens" class="form-control" type="number" min="1" step="1">
+        </div>
+        <div class="col-6 col-md-3">
+          <label for="kb-m-timeout" class="form-label">Timeout (seconds)</label>
+          <input id="kb-m-timeout" class="form-control" type="number" min="1" step="1">
+        </div>
+        <div class="col-12 d-flex flex-wrap align-items-center gap-2">
+          <button id="kb-model-save" class="btn btn-primary" type="submit"><i class="bi bi-save" aria-hidden="true"></i> Save settings</button>
+          <button id="kb-model-test" class="btn btn-outline-secondary" type="button"><i class="bi bi-plug" aria-hidden="true"></i> Test connection</button>
+          <span id="kb-model-busy" class="text-muted small d-none" role="status">
+            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Working...
+          </span>
+        </div>
+      </form>
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/kb_common.js' %}"></script>
+<script src="{% static 'js/kb_manage.js' %}"></script>
+{% endblock %}

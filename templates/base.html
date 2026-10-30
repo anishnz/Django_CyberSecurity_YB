@@ -35,7 +35,7 @@
       <ul class="navbar-nav me-auto">
       {% if user.is_authenticated %}
         {% for label, name, icon in menu %}{% safe_url name as href %}{% if href %}
-          <li class="nav-item"><a class="nav-link{% if request.path == href %} active{% endif %}" href="{{ href }}"><i class="bi bi-{{ icon }}"></i> {{ label }}</a></li>
+          <li class="nav-item"><a class="nav-link{% if request.path == href or name == 'kb:ask' and request.resolver_match.app_name == 'kb' %} active{% endif %}" href="{{ href }}"><i class="bi bi-{{ icon }}"></i> {{ label }}</a></li>
         {% endif %}{% endfor %}
       {% else %}
         <li class="nav-item"><a class="nav-link" href="{% url 'website:features' %}">Features</a></li>
