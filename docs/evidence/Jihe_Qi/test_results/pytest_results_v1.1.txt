@@ -1,0 +1,33 @@
+Run on Saturday 31 October 2026 08:34 NZDT (New Zealand time)
+============================= test session starts ==============================
+platform linux -- Python 3.13.16, pytest-9.1.1, pluggy-1.6.0
+django: version: 5.2.18, settings: cyberquest.settings.test (from ini)
+rootdir: /home/claude/django_cybersecurity_yb
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.15.1, Faker-40.43.0, django-4.14.0
+collected 185 items
+
+tests/test_accounts.py .............                                     [  7%]
+tests/test_ai_fallback.py .........................                      [ 20%]
+tests/test_api.py ...............                                        [ 28%]
+tests/test_certificates.py ......                                        [ 31%]
+tests/test_emails.py ........                                            [ 36%]
+tests/test_helpdesk.py ..........                                        [ 41%]
+tests/test_integrations.py ......                                        [ 44%]
+tests/test_learning.py ...                                               [ 46%]
+tests/test_licensing.py .....                                            [ 49%]
+tests/test_media_access.py ........                                      [ 53%]
+tests/test_payments.py ........                                          [ 57%]
+tests/test_quizzes.py .................                                  [ 67%]
+tests/test_reports.py .....                                              [ 69%]
+tests/test_schools.py ........                                           [ 74%]
+tests/test_sprint4_features.py ................                          [ 82%]
+tests/test_website.py ...                                                [ 84%]
+tests/test_website_business.py ............                              [ 90%]
+tests/test_website_photos.py ......                                      [ 94%]
+tests/test_website_story.py ...                                          [ 95%]
+tests/test_learning.py .....                                             [ 98%]
+tests/test_licensing.py ...                                              [100%]
+
+============================= 185 passed in 9.52s ==============================
