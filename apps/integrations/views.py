@@ -52,6 +52,12 @@ def integration_save(request, provider):
     return redirect(f"/integrations/#{provider}")
 
 
+def _say(request, label: str, ok: bool, msg: str) -> None:
+    """Show a test result once: AI messages already start with the model name."""
+    text = msg if msg.startswith(label) else f"{label}: {msg}"
+    (messages.success if ok else messages.error)(request, text)
+
+
 def _back(request, provider):
     """Go back to the AI models page or to the provider's card."""
     if request.POST.get("next") == "ai":
@@ -66,7 +72,7 @@ def integration_test(request, provider):
     if provider not in ADAPTERS:
         return redirect("integrations:list")
     ok, msg = IntegrationService().test(provider)
-    (messages.success if ok else messages.error)(request, f"{ADAPTERS[provider].label}: {msg}")
+    _say(request, ADAPTERS[provider].label, ok, msg)
     return _back(request, provider)
 
 
@@ -103,7 +109,7 @@ def ai_check_all(request):
     for name in service.ai_order():
         if service.enabled(name) or (service.row(name).has_secret):
             ok, msg = service.test(name)
-            (messages.success if ok else messages.error)(request, f"{ADAPTERS[name].label}: {msg}")
+            _say(request, service.adapter(name).label, ok, msg)
             checked += 1
     if not checked:
         messages.info(request, "No AI model has a key yet. Add a key on the Integrations page first.")
