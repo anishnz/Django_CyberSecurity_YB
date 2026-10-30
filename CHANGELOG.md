@@ -5,6 +5,14 @@ All notable changes to CyberQuest (Django). Dates are NZ time.
 ## [1.1.0] – 2026-10-31 – AI models, WhatsApp test, website pages and fixes
 
 ### Added
+- Knowledge Base (RAG) by Jihe Qi (pull request #59): Ask page for every role, Manage page for staff (upload
+  documents, quiz questions), AI model settings for the Super Admin, and the `cyberquest-rag` FastAPI service.
+  Full manual in docs/KNOWLEDGE_BASE.md; product requirements in docs/PRD_CyberQuest.md.
+- Knowledge Base review fixes: names and emails removed from questions and quiz topics before the AI; uploads checked
+  by content (PDF header, UTF-8 text); 10 questions an hour for guests, 60 for others; Markdown removed from answers.
+- run.bat / run.sh start the Knowledge Base as a second Docker container (`rag`); run_local.bat sets it up in its own
+  environment and starts it in a small window (optional - CyberQuest runs without it). Random RAG_SERVICE_KEY in .env.
+- The RAG service loads the starter knowledge file on its first start; first-start AI model is DeepSeek's public API.
 - AI models page (Super Admin): on/off, default model, order, Check and Check all (live-tested with DeepSeek on
   31 Oct 2026). Automatic switch to the next
   model when one fails; default order Gemini → DeepSeek → Claude → OpenAI → Other AI → offline helper.
@@ -15,6 +23,11 @@ All notable changes to CyberQuest (Django). Dates are NZ time.
   SWOT, proposal, contract sample).
 
 ### Fixed
+- Docker: added `.dockerignore`. Before, `COPY . .` copied `.env` (secret keys), the local database, uploads and
+  logs into the image.
+- Jihe Qi's student ID corrected to 271008116 (settings, README, and a data migration for existing databases).
+- Error messages in the .bat files showed "[]" instead of "[!]" (delayed expansion removes "!"); now "[ERROR]"/"[NOTE]".
+- The RAG service's default AI address pointed to a private developer machine; replaced with DeepSeek's public API.
 - Uploaded photos and files showed 404 when DEBUG was off (run.bat / run_local.bat); now served with access rules.
 - run_local.bat opened the browser before the server was ready; it now waits for /health/.
 - AI connection tests only checked the key; they now ask one tiny question, so they also show when tokens run out.

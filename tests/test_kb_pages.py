@@ -20,6 +20,8 @@ NAV_PLAIN = r'<a class="nav-link" href="/kb/"><i class="bi bi-book"></i> Knowled
 
 
 class PageTests(KbTestCase):
+    """The Ask and Manage pages open for the right roles."""
+
     def test_anonymous_users_are_redirected_to_login(self):
         for name in ("kb:ask", "kb:manage"):
             with self.subTest(page=name):
@@ -81,6 +83,8 @@ class PageTests(KbTestCase):
 
 
 class NavigationTests(KbTestCase):
+    """The Knowledge Base tab appears in every role's menu."""
+
     def test_tab_is_present_and_active_on_the_ask_page_for_every_role(self):
         for role in ROLES:
             with self.subTest(role=role):
@@ -112,6 +116,8 @@ class NavigationTests(KbTestCase):
 
 
 class EnglishOnlyAndDomTests(KbTestCase):
+    """Pages, scripts and code stay English-only, and the page elements the scripts need exist."""
+
     def test_rendered_pages_have_no_cjk(self):
         for role in ROLES:
             for name in ("kb:ask", "kb:manage"):
@@ -123,7 +129,7 @@ class EnglishOnlyAndDomTests(KbTestCase):
 
     def test_kb_templates_scripts_and_python_have_no_cjk(self):
         files = list((BASE_DIR / "apps/kb").rglob("*.html")) + list((BASE_DIR / "static/js").glob("kb_*.js"))
-        files += [p for p in (BASE_DIR / "apps/kb").glob("*.py")]
+        files += list((BASE_DIR / "apps/kb").glob("*.py"))
         files += [BASE_DIR / "apps/accounts/roles.py", BASE_DIR / "templates/base.html"]
         for path in files:
             with self.subTest(file=path.name):

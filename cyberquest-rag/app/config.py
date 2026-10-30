@@ -24,15 +24,20 @@ if not SERVICE_KEY:
 EMBED_MODEL = os.getenv("RAG_EMBED_MODEL", "paraphrase-multilingual-MiniLM-L12-v2")
 # Chunks scoring below this cosine similarity are ignored.
 MIN_SCORE = float(os.getenv("RAG_MIN_SCORE", "0.2"))
+# Loaded once when the knowledge base is empty, so a new school gets answers straight away.
+SEED_FILE = Path(os.getenv("RAG_SEED_FILE", str(Path(__file__).resolve().parent.parent / "cybersecurity_knowledge_base_L0-L6_English.md")))
 
 ROLES = {"student", "teacher", "super_admin"}
 
 
+# First-start defaults: DeepSeek's public OpenAI-compatible API. The Super Admin can change all of
+# them on the Knowledge Base settings page (for example a local Ollama: http://localhost:11434/v1).
+# The key can also come from the environment (RAG_LLM_API_KEY) so it never has to be typed twice.
 class ModelConfig(BaseModel):
-    display_name: str = "My DeepSeek"
-    base_url: str = "http://100.91.110.51:8000/v1"
-    model_id: str = "deepseek-v4-flash-0731"
-    api_key: str = "EMPTY"  # local servers usually ignore it; set a real one if yours checks it
+    display_name: str = os.getenv("RAG_LLM_NAME", "DeepSeek")
+    base_url: str = os.getenv("RAG_LLM_BASE_URL", "https://api.deepseek.com/v1")
+    model_id: str = os.getenv("RAG_LLM_MODEL", "deepseek-chat")
+    api_key: str = os.getenv("RAG_LLM_API_KEY", "EMPTY")  # local servers ignore it; DeepSeek needs a real key
     temperature: float = 0.3
     max_tokens: int = 1500
     timeout: int = 120

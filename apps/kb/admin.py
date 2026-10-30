@@ -1,3 +1,1 @@
-from django.contrib import admin
-
-# Register your models here.
+"""admin.py - The Knowledge Base has no database tables, so nothing is registered here."""

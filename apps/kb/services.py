@@ -70,3 +70,15 @@ def english_answer(answer):
     if isinstance(answer, str) and NOT_FOUND_EN in answer and _CJK.search(answer):
         return NOT_FOUND_EN
     return answer
+
+
+_BOLD = re.compile(r"(\*\*|__)(.+?)\1")
+_HEADING = re.compile(r"^\s{0,3}#{1,6}\s+", re.M)
+
+
+def plain_text(answer):
+    """The page shows answers as plain text (safe textContent), so remove Markdown marks
+    such as **bold** and '# headings'. Lists ('- item') and source numbers [1] stay."""
+    if not isinstance(answer, str):
+        return answer
+    return _HEADING.sub("", _BOLD.sub(r"\2", answer))

@@ -15,6 +15,13 @@ if [ ! -f .env ]; then
   FKEY=$(python3 -c "import base64,os;print(base64.urlsafe_b64encode(os.urandom(32)).decode())")
   sed -i.bak "s|^DJANGO_SECRET_KEY=.*|DJANGO_SECRET_KEY=$SECRET|; s|^FIELD_ENCRYPTION_KEY=.*|FIELD_ENCRYPTION_KEY=$FKEY|" .env && rm -f .env.bak
 fi
+# Knowledge Base (RAG) service key: add a random one if .env has none yet (older .env files)
+if ! grep -q '^RAG_SERVICE_KEY=' .env; then echo 'RAG_SERVICE_KEY=change-me' >> .env; fi
+if grep -qE '^RAG_SERVICE_KEY=(change-me)?$' .env; then
+  RKEY=$(python3 -c "import secrets;print(secrets.token_urlsafe(32))")
+  sed -i.bak "s|^RAG_SERVICE_KEY=.*|RAG_SERVICE_KEY=$RKEY|" .env && rm -f .env.bak
+fi
+echo "Building and starting CyberQuest and its Knowledge Base service (the first time takes 10-20 minutes)..."
 HOST_PORT=$PORT docker compose up -d --build
 READY=""
 for i in $(seq 1 90); do
