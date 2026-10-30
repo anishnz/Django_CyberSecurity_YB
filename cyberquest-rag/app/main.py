@@ -18,6 +18,14 @@ class UTF8JSONResponse(JSONResponse):
 
 app = FastAPI(title="CyberQuest KB (RAG)", default_response_class=UTF8JSONResponse)
 
+
+@app.on_event("startup")
+def load_starter_knowledge() -> None:
+    """First start: load the bundled knowledge file so questions work before anyone uploads."""
+    added = store.seed_if_empty()
+    if added:
+        print(f"CyberQuest KB: loaded the starter knowledge file ({added} chunks).")
+
 TEACHER_UP = {"teacher", "super_admin"}
 ADMIN_ONLY = {"super_admin"}
 

@@ -7,7 +7,7 @@ import chromadb
 from chromadb.utils import embedding_functions
 from pypdf import PdfReader
 
-from .config import DATA_DIR, EMBED_MODEL, MIN_SCORE
+from .config import DATA_DIR, EMBED_MODEL, MIN_SCORE, SEED_FILE
 
 _client = chromadb.PersistentClient(path=str(DATA_DIR / "chroma"))
 _embed = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL)
@@ -85,3 +85,15 @@ def search(query: str, k: int = 5) -> list[dict]:
         if score >= MIN_SCORE:
             hits.append({"text": text, "title": meta["title"], "doc_id": meta["doc_id"], "score": score})
     return hits
+
+
+def seed_if_empty() -> int:
+    """Load the bundled CyberQuest knowledge file when the knowledge base has no documents yet.
+
+    Returns the number of chunks added (0 when there was already something, or no seed file).
+    """
+    if _col.count() > 0 or not SEED_FILE.is_file():
+        return 0
+    text = SEED_FILE.read_text("utf-8", errors="ignore")
+    _doc_id, chunks = add_document("CyberQuest cyber-safety knowledge base (Levels 0-6)", text, "cyberquest,levels")
+    return chunks
