@@ -9,6 +9,14 @@ Permissions (checked here AND again by the RAG service):
     * model settings . super admin only
 There is one shared knowledge base for all schools, so nothing here is filtered by school.
 Every error is returned as JSON: {"detail": "<English message>"}.
+
+Safety added in review (31 Oct 2026, Anish):
+    * names and emails are removed from questions and quiz topics before they reach the AI
+      (the same scrub() as AI drafts - student data never goes to an AI service)
+    * uploads are checked by content, not only by name: a PDF must start with %PDF-,
+      a .txt/.md file must be UTF-8 text with no binary bytes
+    * questions are limited per user per hour (guests 10, everyone else 60), so a demo
+      account cannot use up the AI credit
 """
 
 from __future__ import annotations
@@ -17,9 +25,11 @@ import json
 import re
 from functools import wraps
 
+from django.core.cache import cache
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 
+from apps.ai_assistant.services import scrub
 from apps.core.services import AuditService
 
 from . import services
@@ -31,6 +41,8 @@ DELETERS = ("super_admin", "school_admin")
 SUPER_ONLY = ("super_admin",)
 
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024
+ASK_LIMITS = {"guest": 10}  # questions per hour; every other role gets ASK_LIMIT_DEFAULT
+ASK_LIMIT_DEFAULT = 60
 ALLOWED_EXTENSIONS = (".pdf", ".txt", ".md")
 DOC_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 DIFFICULTIES = ("easy", "medium", "hard")
@@ -98,6 +110,33 @@ def _friendly(status: int, data, role: str) -> tuple[str, int]:
     return detail or f"The knowledge base service reported a problem (error {status}).", status
 
 
+def _over_ask_limit(user) -> bool:
+    """Count one question for this user; True when the hourly limit is already used up."""
+    key = f"kb-ask-{user.pk}"
+    limit = ASK_LIMITS.get(user.role, ASK_LIMIT_DEFAULT)
+    if cache.add(key, 1, timeout=3600):
+        return False
+    try:
+        count = cache.incr(key)
+    except ValueError:  # the key expired between add() and incr()
+        cache.set(key, 1, timeout=3600)
+        return False
+    return count > limit
+
+
+def _content_ok(name: str, data: bytes) -> bool:
+    """A PDF must really be a PDF; a text file must really be text (not a renamed program)."""
+    if name.lower().endswith(".pdf"):
+        return data.startswith(b"%PDF-")
+    if b"\x00" in data:
+        return False
+    try:
+        data.decode("utf-8")
+    except UnicodeDecodeError:
+        return False
+    return True
+
+
 def _forward(request, method: str, path: str, json_body=None, **kwargs) -> JsonResponse:
     """Call the RAG service as the right role and return its answer (or a clear English error)."""
     role = role_of(request.user)
@@ -126,11 +165,16 @@ def ask(request):
         return error("Please type a question first.", 400)
     if len(question) > 1000:
         return error("Your question is too long (1000 characters maximum).", 400)
-    response = _forward(request, "POST", "/v1/ask", {"question": question})
+    if _over_ask_limit(request.user):
+        return error("You have asked a lot of questions this hour. Please try again later.", 429)
+    response = _forward(request, "POST", "/v1/ask", {"question": scrub(question)})
     if response.status_code == 200:
         data = json.loads(response.content)
-        data["answer"] = services.english_answer(data.get("answer", ""))
+        data["answer"] = services.plain_text(services.english_answer(data.get("answer", "")))
         data.setdefault("sources", [])
+        for source in data["sources"]:
+            if isinstance(source, dict):
+                source["snippet"] = services.plain_text(source.get("snippet", ""))
         return JsonResponse(data)
     return response
 
@@ -157,7 +201,7 @@ def quiz(request):
     difficulty = body.get("difficulty", "medium")
     if difficulty not in DIFFICULTIES:
         return error("Please choose Easy, Medium or Hard.", 400)
-    return _forward(request, "POST", "/v1/quiz", {"topic": topic, "count": count, "difficulty": difficulty})
+    return _forward(request, "POST", "/v1/quiz", {"topic": scrub(topic), "count": count, "difficulty": difficulty})
 
 
 @kb_api(*UPLOADERS)
@@ -173,13 +217,19 @@ def documents(request):
         return error("Only PDF, TXT and Markdown (.md) files can be uploaded.", 400)
     if upload.size > MAX_UPLOAD_BYTES:
         return error("That file is too large (20 MB maximum).", 413)
+    content = upload.read()
+    if not _content_ok(upload.name, content):
+        from apps.security.services import SecurityLog  # pylint: disable=import-outside-toplevel
+
+        SecurityLog.record("upload_rejected", request, request.user, details=f"kb: {upload.name[:80]}")
+        return error("This file's content does not match its type (PDF, TXT or Markdown).", 400)
     title = request.POST.get("title", "").strip()[:120]
     tags = request.POST.get("tags", "").strip()[:120]
     response = _forward(
         request,
         "POST",
         "/v1/documents",
-        files={"file": (upload.name, upload.read(), upload.content_type or "application/octet-stream")},
+        files={"file": (upload.name, content, upload.content_type or "application/octet-stream")},
         data={"title": title, "tags": tags},
     )
     if response.status_code == 200:
