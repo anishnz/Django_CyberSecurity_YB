@@ -11,7 +11,7 @@ Engineering – Assessment 2** at Yoobee College of Creative Innovation (lecture
 
 | | |
 |---|---|
-| Project code | `` |
+| Project code | `YB_student_project_270889991` |
 | Simulated company | Mount Everest Digital Limited |
 | Version | 1.1.0 |
 | Repository | https://github.com/anishnz/Django_CyberSecurity_YB |
