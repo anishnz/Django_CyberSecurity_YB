@@ -26,6 +26,9 @@ class IntegrationSetting(models.Model):
     last_checked = models.DateTimeField(null=True, blank=True)
     last_error = models.CharField(max_length=300, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # AI models only: the Super Admin's order and default (Settings → AI models)
+    priority = models.PositiveSmallIntegerField(default=50, help_text="AI order: smaller numbers are tried first.")
+    is_default = models.BooleanField(default=False, help_text="The AI model tried first.")
 
     def __str__(self) -> str:
         return f"{self.provider} ({self.status})"

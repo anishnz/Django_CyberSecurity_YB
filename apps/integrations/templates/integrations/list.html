@@ -3,14 +3,15 @@
 {% block content %}
 <div class="page-head"><div><h1>Integrations</h1>
 <p>Connect outside services. Everything works without them. Keys are saved encrypted and shown masked; every change is written to the security log.</p></div>
-<a class="btn btn-outline-primary" href="{% url 'integrations:ai_test' %}"><i class="bi bi-stars"></i> AI test page</a></div>
+<div class="d-flex flex-wrap gap-2"><a class="btn btn-primary" href="{% url 'integrations:ai_models' %}"><i class="bi bi-sort-numeric-down"></i> AI models: order and default</a>
+<a class="btn btn-outline-primary" href="{% url 'integrations:ai_test' %}"><i class="bi bi-stars"></i> AI test page</a></div></div>
 <div class="row g-3">
 {% for c in cards %}
 <div class="col-lg-6" id="{{ c.provider }}"><section class="panel h-100">
   <div class="d-flex justify-content-between align-items-start gap-2">
     <h2 class="h5 mb-1">{{ c.cls.label }}</h2>
     {% with s=c.row.status|default:"not_set" %}
-    <span class="pill pill-{% if s == 'connected' %}good{% elif s == 'error' %}bad{% elif s == 'saved' %}warn{% else %}info{% endif %}">{% if not c.cls.needs_secret %}ready{% else %}{{ s|cut:"_"|default:"not set" }}{% endif %}</span>
+    <span class="pill pill-{% if s == 'connected' or c.provider == 'offline' or c.provider == 'share' %}ok{% elif s == 'error' %}bad{% elif s == 'saved' %}warn{% else %}info{% endif %}">{% if c.provider == "offline" or c.provider == "share" %}ready{% elif s == "not_set" %}not set{% else %}{{ s }}{% endif %}</span>
     {% endwith %}
   </div>
   <p class="small text-muted">{{ c.cls.help_text }}</p>
@@ -35,6 +36,16 @@
     {% if c.row.has_secret %}<form method="post" action="{% url 'integrations:clear' c.provider %}">{% csrf_token %}<button class="btn btn-outline-danger btn-sm"><i class="bi bi-x-circle"></i> Remove key</button></form>{% endif %}
   </div>
   {% if c.row.last_checked %}<p class="small text-muted mt-2 mb-0">Last checked {{ c.row.last_checked|date:"d M Y H:i" }}</p>{% endif %}
+  {% if c.provider == "whatsapp" %}
+  <form class="wa-test mt-3" method="post" action="{% url 'integrations:whatsapp_test' %}">{% csrf_token %}
+    <h3 class="h6 mb-1">Send a test message</h3>
+    <p class="small text-muted mb-2">Sends the test template above (Meta's <code>hello_world</code>) to one number. In Meta's test mode, the number must first be added as a test recipient. Charges may apply.</p>
+    <label class="form-label" for="wa-phone">Phone number with country code</label>
+    <div class="input-group input-group-sm"><input class="form-control" id="wa-phone" name="phone" inputmode="tel" maxlength="20" placeholder="+64 21 123 4567" required>
+      <button class="btn btn-success" {% if not c.row.has_secret %}disabled{% endif %}><i class="bi bi-whatsapp"></i> Send test</button></div>
+    {% if not c.row.has_secret %}<p class="small text-muted mt-1 mb-0">Save the access token first.</p>{% endif %}
+  </form>
+  {% endif %}
 </section></div>
 {% endfor %}
 </div>

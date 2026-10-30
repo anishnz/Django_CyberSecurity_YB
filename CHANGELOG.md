@@ -2,6 +2,23 @@
 
 All notable changes to CyberQuest (Django). Dates are NZ time.
 
+## [Unreleased]
+
+### Added
+- AI models page (Super Admin): on/off, default model, order, Check and Check all. Automatic switch to the next
+  model when one fails; default order Gemini → DeepSeek → Claude → OpenAI → Other AI → offline helper.
+- DeepSeek and "Other AI" (any OpenAI-compatible service) on the Integrations page.
+- WhatsApp test message (Meta `hello_world` template) on the WhatsApp card.
+- JSON API v1 for a React front end and an API check page with a Check button per test.
+- Team photos, Auckland meetings slider, Our story page, and Business pages (pricing, discount, business case,
+  SWOT, proposal, contract sample).
+
+### Fixed
+- Uploaded photos and files showed 404 when DEBUG was off (run.bat / run_local.bat); now served with access rules.
+- run_local.bat opened the browser before the server was ready; it now waits for /health/.
+- AI connection tests only checked the key; they now ask one tiny question, so they also show when tokens run out.
+- Gemini key is sent in a header instead of the URL, so it cannot appear in server logs.
+
 ## [1.0.0] – 2026-10-23 – first release
 
 ### Sprint 1 – foundation

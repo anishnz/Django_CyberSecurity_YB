@@ -1,0 +1,27 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}Contract sample{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Service agreement (sample)</h1><p>A plain-English sample contract for a school group using CyberQuest.</p></div></div>
+{% include "website/_business_tabs.html" %}
+<div class="sim-banner mb-4" role="note"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+  <div><strong>Sample only.</strong> This is a template for our MSE800 assignment. Both parties are simulated. It is not legal advice; a real agreement should be checked by a lawyer. To save it as a PDF, use your browser's Print (Ctrl + P).</div></div>
+<article class="contract panel">
+  <h2 class="text-center">CyberQuest Service Agreement</h2>
+  <p class="text-center small text-muted">Agreement number: CQ-SA-0001 (sample) · Start Date: ____ / ____ / ________</p>
+  <h3>Parties</h3>
+  <dl class="row mb-3">{% for role, who in b.CONTRACT_PARTIES %}<dt class="col-sm-3">{{ role }}</dt><dd class="col-sm-9">{{ who }}</dd>{% endfor %}</dl>
+  <ol class="clauses">{% for title, points in b.CONTRACT_CLAUSES %}
+    <li><h3>{{ title }}</h3><ol>{% for point in points %}<li>{{ point }}</li>{% endfor %}</ol></li>{% endfor %}
+  </ol>
+  <h3>Schedule 1 – Prices (NZD, excl. GST)</h3>
+  <div class="table-responsive"><table class="table"><thead><tr><th scope="col">Plan</th><th scope="col">Class sections</th><th scope="col">Per month</th><th scope="col">Community price per month</th></tr></thead>
+    <tbody>{% for r in rows %}<tr><td>{{ r.name }}</td><td>{{ r.sections }}</td><td>{{ r.monthly|nzd }}</td><td>{{ r.community_monthly|nzd }}</td></tr>{% endfor %}</tbody></table></div>
+  <p class="small">Level Packs: see the <a href="{% url 'website:pricing' %}">Pricing page</a>. Level 1 is free.</p>
+  <h3>Signatures</h3>
+  <div class="row g-4 sign-row">{% for role, who in b.CONTRACT_PARTIES %}
+    <div class="col-md-6"><p class="mb-4"><strong>For {{ role|lower }}</strong></p>
+      <p class="sign-line">Signature</p><p class="sign-line">Name</p><p class="sign-line">Position</p><p class="sign-line">Date</p></div>{% endfor %}
+  </div>
+  <p class="small text-muted mt-4 mb-0">Sample agreement for the MSE800 assignment. Simulated parties. Not legal advice.</p>
+</article>
+{% endblock %}

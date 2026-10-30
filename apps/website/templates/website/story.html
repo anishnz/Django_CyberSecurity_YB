@@ -1,0 +1,44 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}Our story{% endblock %}
+{% block content %}
+{% comment %}Our project story. Owner: Anish Shrestha (task A-22). The story is simulated and says so at the top.{% endcomment %}
+<div class="page-head"><div><h1>Our story (Tō mātou kōrero)</h1><p>How CyberQuest grew from one client problem, with our Māori community friends beside us.</p></div></div>
+
+<div class="sim-banner mb-4" role="note"><i class="bi bi-info-circle" aria-hidden="true"></i>
+  <div><strong>Simulated case study.</strong> {{ s.DECLARATION }}</div></div>
+
+<section class="mb-4" aria-labelledby="journey-h">
+  <h2 id="journey-h">The journey, step by step</h2>
+  <ol class="timeline">{% for date, title, where, text in s.CHAPTERS %}
+    <li><span class="when">{{ date }}</span><h3>{{ title }}</h3><p class="where"><i class="bi bi-geo-alt" aria-hidden="true"></i> {{ where }}</p><p class="mb-0">{{ text }}</p></li>{% endfor %}
+  </ol>
+</section>
+
+<section class="panel panel-tide mb-4" aria-labelledby="friends-h">
+  <h2 id="friends-h">Our Māori community friends (simulated roles)</h2>
+  <p>{{ s.WHY_ROLES }}</p>
+  <div class="row g-3">{% for name, role, job in s.FRIENDS %}
+    <div class="col-md-4"><div class="team-card"><div class="avatar mb-2" aria-hidden="true"><i class="bi bi-person-heart"></i></div>
+      <h3 class="h5 mb-1">{{ name }}</h3><p class="sim mb-1">{{ role }} · Simulated role</p><p class="mb-0">{{ job }}</p></div></div>{% endfor %}
+  </div>
+</section>
+
+<section class="mb-4" aria-labelledby="prop-h">
+  <h2 id="prop-h">What they proposed, and what we built</h2>
+  <div class="table-responsive"><table class="table align-middle">
+    <thead><tr><th scope="col">Who</th><th scope="col">Their proposal</th><th scope="col">What we built</th></tr></thead>
+    <tbody>{% for name, role, said, built in s.PROPOSALS %}
+      <tr><td><strong>{{ name }}</strong><br><span class="small text-muted">{{ role }}</span></td><td>“{{ said }}”</td><td><i class="bi bi-check-circle text-success" aria-hidden="true"></i> {{ built }}</td></tr>{% endfor %}
+    </tbody></table></div>
+</section>
+
+<section class="mb-4" aria-labelledby="tiriti-h">
+  <h2 id="tiriti-h">Te Tiriti o Waitangi in our project</h2>
+  <div class="row g-3">{% for title, text in s.TIRITI %}
+    <div class="col-md-4"><div class="law"><h3>{{ title }}</h3><p class="mb-0">{{ text }}</p></div></div>{% endfor %}
+  </div>
+  <p class="small mt-2 mb-0">More on the <a href="{% url 'website:community' %}">Te Tiriti and community page</a>.</p>
+</section>
+
+{% include "website/_meeting_slider.html" %}
+{% endblock %}

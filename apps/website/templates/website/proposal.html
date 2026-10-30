@@ -1,0 +1,30 @@
+{% extends "base.html" %}{% load cq %}
+{% block title %}Project proposal{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Project proposal</h1><p>Mount Everest Digital Limited for the Northland Digital Safety Schools Group (simulated client).</p></div></div>
+{% include "website/_business_tabs.html" %}
+<section class="panel mb-3"><h2>1. Summary</h2><p class="mb-0">{{ p.summary }}</p></section>
+<div class="row g-3 mb-3">
+  <div class="col-lg-6"><section class="panel h-100"><h2>2. The problem</h2><ul class="mb-0">{% for x in p.problem %}<li>{{ x }}</li>{% endfor %}</ul></section></div>
+  <div class="col-lg-6"><section class="panel h-100"><h2>3. Objectives</h2><ul class="checklist mb-0">{% for x in p.objectives %}<li>{{ x }}</li>{% endfor %}</ul></section></div>
+</div>
+<div class="row g-3 mb-3">
+  <div class="col-lg-6"><section class="panel h-100"><h2>4. In scope</h2><ul class="mb-0">{% for x in p.scope_in %}<li>{{ x }}</li>{% endfor %}</ul></section></div>
+  <div class="col-lg-6"><section class="panel h-100"><h2>5. Out of scope</h2><ul class="mb-0">{% for x in p.scope_out %}<li>{{ x }}</li>{% endfor %}</ul></section></div>
+</div>
+<section class="panel mb-3"><h2>6. Timeline (Scrum sprints)</h2>
+  <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th scope="col">Sprint</th><th scope="col">Dates</th><th scope="col">Goal</th></tr></thead>
+    <tbody>{% for s, d, g in p.timeline %}<tr><th scope="row">{{ s }}</th><td class="nowrap">{{ d }}</td><td>{{ g }}</td></tr>{% endfor %}</tbody></table></div></section>
+<div class="row g-3 mb-3">
+  <div class="col-lg-6"><section class="panel h-100"><h2>7. Budget (NZD)</h2>
+    <table class="table mb-0"><tbody>{% for item, amount in p.budget %}<tr><td>{{ item }}</td><td class="text-end">{{ amount|nzd }}</td></tr>{% endfor %}
+      <tr><th scope="row">Total (excl. GST)</th><th class="text-end">{{ total|nzd }}</th></tr>
+      <tr><th scope="row">Total (incl. GST 15%)</th><th class="text-end">{{ total_gst|nzd }}</th></tr></tbody></table></section></div>
+  <div class="col-lg-6"><section class="panel h-100"><h2>8. Deliverables</h2><ul class="checklist mb-0">{% for x in p.deliverables %}<li>{{ x }}</li>{% endfor %}</ul></section></div>
+</div>
+<section class="panel mb-3"><h2>9. Main risks</h2>
+  <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th scope="col">Risk</th><th scope="col">How we reduce it</th></tr></thead>
+    <tbody>{% for r, m in p.risks %}<tr><th scope="row">{{ r }}</th><td>{{ m }}</td></tr>{% endfor %}</tbody></table></div></section>
+<section class="panel"><h2>10. How we measure success</h2><ul class="checklist mb-0">{% for x in p.success %}<li>{{ x }}</li>{% endfor %}</ul></section>
+<p class="small text-muted mt-3 mb-0">Simulated proposal for our MSE800 assignment. The full version is in the Project Report.</p>
+{% endblock %}

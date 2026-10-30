@@ -30,6 +30,10 @@ if errorlevel 1 (
   pause & exit /b 1
 )
 
+REM ---- stop an older CyberQuest container, so its port is free again ------
+REM (your data is kept: it lives in Docker volumes, not in the container)
+docker compose down >nul 2>nul
+
 REM ---- find a free port -------------------------------------------------
 set "PORT="
 for /L %%P in (8000,1,8020) do (
@@ -72,6 +76,10 @@ set /a TRIES=0
 set /a TRIES+=1
 for /f %%C in ('curl -s -o nul -w "%%{http_code}" http://127.0.0.1:!PORT!/health/ 2^>nul') do set "CODE=%%C"
 if "!CODE!"=="200" goto ready
+if "!CODE!"=="503" (
+  echo  [!] CyberQuest is running, but a health check needs attention. See System status after you log in.
+  goto ready
+)
 if !TRIES! GEQ 90 (
   echo  [!] CyberQuest did not answer. Check: docker compose logs web
   pause & exit /b 1

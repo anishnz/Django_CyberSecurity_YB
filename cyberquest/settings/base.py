@@ -106,6 +106,7 @@ INSTALLED_APPS = [
     "apps.medialib",  # image, audio, video, YouTube (Jihe)
     "apps.website",  # public website (Dinesh)
     "apps.kb",  # knowledge base(Jihe)
+    "apps.api",  # JSON API for React + API check page (Jihe)
 ]
 
 MIDDLEWARE = [
@@ -223,6 +224,11 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "CyberQuest <no-reply@cyberquest.
 # -------------------------------------------------------------------- logging
 LOG_DIR = Path(env("LOG_DIR", str(BASE_DIR / "logs")))
 LOG_DIR.mkdir(parents=True, exist_ok=True)
+# React (or other) front ends on these addresses may call the public, read-only API.
+API_CORS_ORIGINS = [
+    o.strip() for o in env("API_CORS_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",") if o.strip()
+]
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
