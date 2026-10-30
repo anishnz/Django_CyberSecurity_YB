@@ -1,0 +1,19 @@
+# Files that must never go into the CyberQuest Docker image (secrets, local data, big folders)
+.env
+.env.*
+!.env.example
+.git/
+.venv/
+venv/
+instance/
+media/
+logs/
+backups/
+staticfiles/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+# The Knowledge Base service has its own image (cyberquest-rag/Dockerfile)
+cyberquest-rag/
