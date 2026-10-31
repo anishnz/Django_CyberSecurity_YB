@@ -30,9 +30,9 @@ def test_four_team_members_exist_from_migration():
     assert names == ["Anish Shrestha", "Rajneesh Kumar", "Dinesh Upreti", "Jihe Qi"]
 
 
-def test_about_page_shows_team_and_empty_slider(client):
+def test_about_page_shows_team_and_built_in_meeting_photos(client):
     page = client.get("/about/").content.decode()
-    assert "Rajneesh Kumar" in page and "No meeting photos yet" in page
+    assert "Rajneesh Kumar" in page and "img/meetings/meeting_1.jpg" in page
 
 
 def test_only_super_admin_can_open_manage_page(client, login):
@@ -78,6 +78,6 @@ def test_meeting_photo_upload_shows_in_slider_then_hide_and_delete(login, client
     photo = MeetingPhoto.objects.get(title="Sprint 2 review")
     assert "meetingCarousel" in client.get("/about/").content.decode()
     admin.post(f"/website/manage/photos/{photo.pk}/toggle/")
-    assert "No meeting photos yet" in client.get("/about/").content.decode()
+    assert "img/meetings/meeting_1.jpg" in client.get("/about/").content.decode()  # back to the team photos
     admin.post(f"/website/manage/photos/{photo.pk}/delete/")
     assert not MeetingPhoto.objects.filter(pk=photo.pk).exists()
