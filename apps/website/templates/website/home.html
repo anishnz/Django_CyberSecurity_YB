@@ -65,8 +65,11 @@
       <ul class="checklist">{% for point in c.ABOUT_US %}<li>{{ point }}</li>{% endfor %}</ul>
       <a class="btn btn-primary mt-3" href="{% url 'website:levels' %}">See the six levels</a></div>
     <div class="col-lg-6"><div class="video-frame">
-      {% if video_url %}<iframe src="{{ video_url }}" title="CyberQuest introduction video" loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-      {% else %}<div class="video-empty position-absolute top-0 start-0 w-100 h-100"><div><i class="bi bi-youtube fs-1"></i><p class="mb-0">Our introduction video will appear here.<br><span class="small">Super Admin: add the YouTube link in Settings → welcome_video_url.</span></p></div></div>{% endif %}
+      <video class="demo-video" controls preload="metadata" playsinline poster="{% static 'video/cyberquest_demo_poster.jpg' %}" aria-label="CyberQuest demo video with narration and subtitles (5 minutes 20 seconds)">
+        <source src="{% static 'video/cyberquest_demo.mp4' %}" type="video/mp4">
+        <track kind="captions" src="{% static 'video/cyberquest_demo_en.vtt' %}" srclang="en" label="English" default>
+        Your browser cannot play this video. <a href="{% static 'video/cyberquest_demo.mp4' %}">Download the demo video (MP4)</a>.
+      </video>
     </div></div>
   </div>
 </div></section>
