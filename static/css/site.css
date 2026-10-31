@@ -223,3 +223,6 @@ html.cq-large { font-size: 118.75%; }
 /* Grey outline buttons: darker text so they pass WCAG AA contrast on tinted panels */
 .btn-outline-secondary { --bs-btn-color: #3F474E; --bs-btn-border-color: #6C757D; }
 [data-bs-theme="dark"] .btn-outline-secondary { --bs-btn-color: #D5DCE1; --bs-btn-border-color: #9AA4AC; }
+
+/* Landing page demo video (Dinesh) */
+.video-frame .demo-video { position: absolute; inset: 0; width: 100%; height: 100%; display: block; background: #0E3B43; border-radius: 14px; }

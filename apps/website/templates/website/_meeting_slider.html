@@ -1,7 +1,7 @@
 {% comment %}Meetings slider. Photos are uploaded by the Super Admin on the Website content page. Owner: Dinesh Upreti.{% endcomment %}
 <section class="panel mb-3" id="meetings" aria-labelledby="meetings-h">
   <h2 id="meetings-h">Our team meetings in Auckland</h2>
-  <p class="text-muted">Real photos from our group meetings at Yoobee and the Auckland Central Library.</p>
+  <p class="text-muted">Real photos from our group meetings at Yoobee and our evening video calls.</p>
   {% if meeting_photos %}
   <div id="meetingCarousel" class="carousel slide meeting-carousel" data-bs-ride="carousel" data-bs-interval="6000">
     <div class="carousel-indicators">{% for p in meeting_photos %}<button type="button" data-bs-target="#meetingCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active" aria-current="true"{% endif %} aria-label="Photo {{ forloop.counter }}"></button>{% endfor %}</div>
