@@ -12,10 +12,25 @@ Every change is written to the audit log.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from apps.core.services import AuditService
 from apps.medialib.validators import check_upload
 
 from .models import MeetingPhoto, TeamMember
+
+
+@dataclass(frozen=True)
+class BuiltInPhoto:
+    """A meeting photo that ships with the app; same attributes the templates and API read from MeetingPhoto."""
+
+    image_url: str
+    title: str
+    caption: str
+    place: str
+    taken_on: object = None
+    pk: object = None
+    order: int = 0
 
 
 class WebsiteContentService:
@@ -72,4 +87,12 @@ class WebsiteContentService:
 
     @staticmethod
     def meeting_photos():
-        return MeetingPhoto.objects.filter(is_active=True)
+        """Uploaded meeting photos; until there are any, the team's real photos that ship with the app."""
+        uploaded = list(MeetingPhoto.objects.filter(is_active=True))
+        if uploaded:
+            return uploaded
+        from django.templatetags.static import static  # pylint: disable=import-outside-toplevel
+
+        from .content import TEAM_MEETING_PHOTOS  # pylint: disable=import-outside-toplevel
+
+        return [BuiltInPhoto(static(f"img/meetings/{f}"), t, c, pl) for f, t, c, pl in TEAM_MEETING_PHOTOS]

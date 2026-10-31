@@ -1,0 +1,193 @@
+WEBVTT
+
+1
+00:00:01.583 --> 00:00:07.009
+Welcome to CyberQuest, a cyber-safety learning platform for New Zealand schools.
+
+2
+00:00:08.383 --> 00:00:13.832
+The home page starts with the problem: children are born online, but not born safe.
+
+3
+00:00:14.950 --> 00:00:19.134
+It shows real New Zealand numbers, with the source under each one.
+
+4
+00:00:20.183 --> 00:00:26.770
+It also explains New Zealand cyber law in simple words, like the Harmful Digital Communications Act.
+
+5
+00:00:28.617 --> 00:00:33.974
+Pricing is fair. Every school can start with a free trial, and Level 1 is always free.
+
+6
+00:00:35.083 --> 00:00:40.962
+Kura and small rural schools get a 50% community discount, shown in the last column.
+
+7
+00:00:45.750 --> 00:00:49.226
+Now we log in as Tama, a Year 7 student.
+
+8
+00:00:50.350 --> 00:00:56.566
+His dashboard shows his trail to the summit: six levels, from Year 7 to adult learners.
+
+9
+00:00:57.583 --> 00:01:02.185
+He has passed Levels 1 and 2, and Level 3 is now open.
+
+10
+00:01:04.083 --> 00:01:09.916
+Each level has three steps. First, he studies short topics with Kiwi examples.
+
+11
+00:01:11.150 --> 00:01:15.763
+Then he practises, and when he is ready, he sits the level exam.
+
+12
+00:01:17.350 --> 00:01:21.418
+In practice mode, Tama answers one question at a time.
+
+13
+00:01:22.983 --> 00:01:26.041
+He picks an answer and presses Check my answer.
+
+14
+00:01:27.517 --> 00:01:31.689
+The feedback is instant and kind. It never says Fail.
+
+15
+00:01:32.983 --> 00:01:36.552
+It always shows the safe answer and explains why.
+
+16
+00:01:38.217 --> 00:01:44.061
+On My results, he sees his best exam scores, his awareness band and his badges.
+
+17
+00:01:45.717 --> 00:01:51.944
+When he passes a level, he gets a PDF certificate with a QR code that anyone can check.
+
+18
+00:01:56.350 --> 00:01:59.652
+Next, Sione, a teacher, logs in.
+
+19
+00:02:00.783 --> 00:02:07.649
+His dashboard shows his sections, finished exams, the average score, and families still to give consent.
+
+20
+00:02:08.817 --> 00:02:11.991
+He can assign an exam to a class with one click.
+
+21
+00:02:13.617 --> 00:02:19.055
+The class report lists every student by first name only, to protect privacy.
+
+22
+00:02:20.217 --> 00:02:25.504
+He can download it as CSV or PDF, and all certificates as one ZIP file.
+
+23
+00:02:27.417 --> 00:02:31.705
+AI only writes drafts. A teacher must approve each one.
+
+24
+00:02:32.783 --> 00:02:38.697
+Māori content also needs approval from our cultural adviser, the Kaiārahi.
+
+25
+00:02:39.883 --> 00:02:45.135
+This demo uses the free offline helper, so it works with no AI key at all.
+
+26
+00:02:49.883 --> 00:02:53.579
+Now the School Admin of Bright Star School logs in.
+
+27
+00:02:54.683 --> 00:02:59.424
+She sees the school licence: a Basic plan, and how many days are left.
+
+28
+00:03:00.583 --> 00:03:05.289
+Level Packs show which levels the school owns, and the price of the others.
+
+29
+00:03:07.017 --> 00:03:11.990
+Classes are split into sections, with up to 35 students in each section.
+
+30
+00:03:13.617 --> 00:03:19.450
+To renew, the school types a product key. The key is signed, so it works even with no internet.
+
+31
+00:03:24.017 --> 00:03:27.481
+Finally, the Super Admin runs the whole platform.
+
+32
+00:03:28.550 --> 00:03:34.266
+The dashboard shows schools, students, exams, the pass rate and monthly income.
+
+33
+00:03:35.517 --> 00:03:39.701
+Two payslips are waiting for review, and five help tickets are open.
+
+34
+00:03:42.350 --> 00:03:47.614
+Business intelligence shows exams per month and the mix of licence plans.
+
+35
+00:03:48.750 --> 00:03:53.921
+It also lists the weakest categories first, so we know which topics to improve.
+
+36
+00:03:55.583 --> 00:03:59.361
+Schools pay by bank transfer and upload a payslip.
+
+37
+00:04:00.483 --> 00:04:06.583
+The Super Admin checks it and approves it. The plan switches on, and a GST receipt is made.
+
+38
+00:04:08.217 --> 00:04:12.796
+The help desk uses tickets with clear states, from open to closed.
+
+39
+00:04:14.517 --> 00:04:20.152
+The security log records every login, failed login, lockout and Login as.
+
+40
+00:04:21.217 --> 00:04:26.051
+After five wrong passwords, the account is locked for fifteen minutes.
+
+41
+00:04:27.817 --> 00:04:31.618
+API keys are stored encrypted and shown masked.
+
+42
+00:04:32.683 --> 00:04:38.190
+The offline helper means CyberQuest still works with no keys and no internet.
+
+43
+00:04:39.950 --> 00:04:45.051
+User management supports two-step login, and every Login as is recorded.
+
+44
+00:04:46.750 --> 00:04:52.768
+Help is on every page. The Explain this page button tells new users what each screen does.
+
+45
+00:04:54.550 --> 00:05:01.126
+The panel explains the screen, and users can ask a question about it. If they are still stuck, they open a ticket.
+
+46
+00:05:02.383 --> 00:05:06.706
+The health check confirms the app and the database are working.
+
+47
+00:05:07.483 --> 00:05:11.191
+Our start script waits for this check before it opens the browser.
+
+48
+00:05:12.783 --> 00:05:17.826
+CyberQuest. Learn. Play. Decide. Stay Cyber Safe. Thank you for watching.

@@ -298,3 +298,35 @@ REQUEST_STEPS = [
         "Security log, audit log, email log and /health/ show what happened and that the system is working.",
     ),
 ]
+
+
+# Real photos of our team meetings (shown in the meetings slider until the Super Admin uploads others).
+# (file in static/img/meetings/, title, caption, place)
+TEAM_MEETING_PHOTOS = [
+    (
+        "meeting_1.jpg",
+        "Planning together at Yoobee",
+        "All four of us plan the next sprint together.",
+        "Yoobee College, Auckland",
+    ),
+    (
+        "meeting_2.jpg",
+        "Working on the code side by side",
+        "The team reviews a feature on a laptop.",
+        "Yoobee College, Auckland",
+    ),
+    ("meeting_3.jpg", "Evening video stand-up", "Our regular WhatsApp video call after 8 pm.", "Online, Auckland"),
+    ("meeting_4.jpg", "2nd group assignment call", "The four of us on a phone video call.", "Online, Auckland"),
+    (
+        "meeting_5.jpg",
+        "Code review call",
+        "The team reviews the code on a video call.",
+        "Online, Auckland",
+    ),
+    (
+        "meeting_6.jpg",
+        "Demo video review, 29 Oct 2026",
+        "The team watches the narrated demo video together on a call.",
+        "Online, Auckland",
+    ),
+]
