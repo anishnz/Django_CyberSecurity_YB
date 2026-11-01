@@ -48,7 +48,8 @@ Every member also wrote code in the other areas and reviewed each other's pull r
    - creates a random `RAG_SERVICE_KEY` for the Knowledge Base if `.env` has none (also for older `.env` files),
    - starts two containers – CyberQuest (`web`) and the Knowledge Base (`rag`) – waits for `/health/`, and opens your
      browser. The **first** build takes 10–20 minutes because the Knowledge Base downloads its AI packages once.
-3. Stop it with `docker compose down`.
+3. Stop it with `docker compose down`, or use the simple controls in **`server_tools/`** (stop, restart and pause the web app;
+   start, stop, restart and health-check the Knowledge Base). See `server_tools/README.md`.
 
 ### Windows without Docker
 

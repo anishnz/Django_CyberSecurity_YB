@@ -2,6 +2,12 @@
 
 All notable changes to CyberQuest (Django). Dates are NZ time.
 
+## [Unreleased] – 2026-11-01
+
+### Added
+- `server_tools/`: double-click controls for the Docker version – stop, restart and pause the web app; start, stop,
+  restart and health-check the Knowledge Base (RAG) container (health, model setting, optional test question).
+
 ## [1.1.0] – 2026-10-31 – AI models, WhatsApp test, website pages and fixes
 
 ### Added
