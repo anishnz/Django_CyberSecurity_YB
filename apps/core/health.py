@@ -10,6 +10,7 @@ checks pass, otherwise 503, so Docker can restart the app.
 
 from __future__ import annotations
 
+import os
 import shutil
 import tempfile
 from pathlib import Path
@@ -30,9 +31,16 @@ def check_database() -> tuple[bool, str]:
 
 
 def check_disk() -> tuple[bool, str]:
-    usage = shutil.disk_usage(settings.BASE_DIR)
+    """Free space where CyberQuest writes its data (the database folder).
+
+    On a school laptop this is the project disk. On Vercel the project folder is read-only and data lives in
+    /tmp (about 500 MB), so the limit there is 100 MB instead of 0.5 GB.
+    """
+    folder = Path(str(settings.DATABASES["default"].get("NAME", settings.BASE_DIR))).parent
+    usage = shutil.disk_usage(folder if folder.exists() else settings.BASE_DIR)
     free_gb = usage.free / 1024**3
-    return free_gb > 0.5, f"{free_gb:.1f} GB free"
+    limit_gb = 0.1 if os.environ.get("VERCEL") else 0.5
+    return free_gb > limit_gb, f"{free_gb:.1f} GB free"
 
 
 def check_media() -> tuple[bool, str]:
