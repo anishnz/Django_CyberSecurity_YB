@@ -7,3 +7,11 @@ extend-exclude = "migrations|staticfiles"
 [tool.coverage.run]
 source = ["apps"]
 omit = ["*/migrations/*", "*/tests/*"]
+
+# Vercel online demo (https://cyber-yb.vercel.app). Vercel installs requirements.txt,
+# runs this build step, then collectstatic, and serves cyberquest/wsgi_vercel.py.
+[tool.vercel]
+entrypoint = "cyberquest.wsgi_vercel:application"
+
+[tool.vercel.scripts]
+build = "python scripts/vercel_build.py"

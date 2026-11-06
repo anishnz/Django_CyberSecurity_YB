@@ -18,3 +18,7 @@ staticfiles/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Vercel
+.vercel/
+vercel_seed/

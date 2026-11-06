@@ -193,7 +193,10 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATIC_ROOT.mkdir(exist_ok=True)
+try:
+    STATIC_ROOT.mkdir(exist_ok=True)
+except OSError:  # read-only project folder (for example on Vercel)
+    pass
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "cyberquest/wsgi_vercel.py": {
+      "maxDuration": 60,
+      "excludeFiles": "{tests/**,docs/**,cyberquest-rag/**,server_tools/**,docker/**,.venv/**,**/__pycache__/**}"
+    }
+  }
+}
