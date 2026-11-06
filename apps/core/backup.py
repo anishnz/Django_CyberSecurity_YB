@@ -32,7 +32,7 @@ class BackupService:
     """Make, list and restore database backups."""
 
     def __init__(self, folder: Path | None = None):
-        self.folder = Path(folder or settings.BASE_DIR / "backups")
+        self.folder = Path(folder or getattr(settings, "BACKUP_DIR", settings.BASE_DIR / "backups"))
         self.folder.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
