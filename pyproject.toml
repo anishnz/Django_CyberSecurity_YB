@@ -1,3 +1,21 @@
+# Package list for tools that read pyproject.toml (Vercel uses this). Keep it the same as requirements.txt.
+[project]
+name = "cyberquest"
+version = "1.1.0"
+description = "CyberQuest - Learn. Play. Decide. Stay Cyber Safe. (MSE800 Assessment 2, YB_student_project_270889991)"
+requires-python = ">=3.10"
+dependencies = [
+    "Django>=5.2,<6.0",
+    "waitress>=3.0",
+    "whitenoise>=6.7",
+    "cryptography>=42.0",
+    "pyotp>=2.9",
+    "qrcode[pil]>=7.4",
+    "reportlab>=4.0",
+    "requests>=2.31",
+    "filetype>=1.2",
+]
+
 # Code style settings (Jihe Qi, QA Lead). Run:  black .   and   pylint apps cyberquest tests
 [tool.black]
 line-length = 120
