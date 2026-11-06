@@ -17,6 +17,17 @@ instance, which is fine for a public demo: no real student data is ever kept.
 """
 
 import os
+import secrets
+from pathlib import Path as _Path
+
+# Secret key: a value set in the Vercel project settings wins. Otherwise use the random key that
+# scripts/vercel_build.py writes into this deployment (never into Git). During the very first
+# build steps that file does not exist yet, so a throw-away random key is used for those commands.
+_KEY_FILE = _Path(__file__).resolve().parent.parent.parent / "vercel_seed" / "secret_key.txt"
+if not os.environ.get("DJANGO_SECRET_KEY"):
+    os.environ["DJANGO_SECRET_KEY"] = (
+        _KEY_FILE.read_text(encoding="utf-8").strip() if _KEY_FILE.is_file() else secrets.token_urlsafe(50)
+    )
 
 # These must be set before base.py is imported, because base.py reads them.
 os.environ.setdefault("SQLITE_PATH", "/tmp/cyberquest/cyberquest.sqlite3")
@@ -59,6 +70,3 @@ BACKUP_DIR = Path("/tmp/cyberquest/backups")  # noqa: F405
 
 # Ready-made demo database copied to /tmp on start (built by scripts/vercel_build.py).
 VERCEL_SEED_DB = BASE_DIR / "vercel_seed" / "cyberquest.sqlite3"  # noqa: F405
-
-if SECRET_KEY.startswith("dev-only"):  # noqa: F405
-    raise RuntimeError("Set DJANGO_SECRET_KEY in the Vercel project settings (Environment Variables).")
